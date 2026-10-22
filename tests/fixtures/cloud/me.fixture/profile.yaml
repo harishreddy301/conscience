@@ -1,0 +1,22 @@
+# Fictional, sanitized fixture for tests. Not a real person.
+version: 1
+identity:
+  name: Jordan Rivera
+  email: jordan.rivera@example.com
+  phone: "+1 555 0100"
+  location: Austin, TX
+  links:
+    linkedin: https://www.linkedin.com/in/jordan-rivera-example
+work_auth:
+  us_authorized: true
+  needs_sponsorship: false
+targets:
+  roles: [Senior Data Engineer, Analytics Engineer]
+skills:
+  expert: [Python, SQL]
+  proficient: [AWS, Airflow]
+  familiar: [Docker]
+experience_years: 8
+voice:
+  tone: plain and specific
+  banned_phrases: [world-class]
