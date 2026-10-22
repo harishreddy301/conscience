@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Command } from "commander";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { register } from "../../src/commands/cloud.js";
+import { codeRepoRootOrFail, register } from "../../src/commands/cloud.js";
 import { checkDataRepo } from "../../src/commands/doctor.js";
 
 const ENV_KEYS = [
@@ -106,6 +106,47 @@ describe("jh cloud", () => {
 			{ id: "p-20261022-0905", apps: 1, has_results: true, imported: false },
 			{ id: "p-20261023-1000", apps: 1, has_results: false, imported: false },
 		]);
+	});
+});
+
+describe("jh cloud status with a corrupt packet", () => {
+	it("reports the corrupt packet instead of failing", async () => {
+		const data = join(tmp, "data");
+		process.env.JOB_HUNTER_DATA_REPO = data;
+		mkdirSync(join(data, "packets", "p-20261022-0905"), { recursive: true });
+		writeFileSync(
+			join(data, "packets", "p-20261022-0905", "packet.json"),
+			"{not json",
+		);
+		mkdirSync(join(data, "packets", "p-20261022-0906"), { recursive: true });
+		writeFileSync(
+			join(data, "packets", "p-20261022-0906", "packet.json"),
+			JSON.stringify({ id: "p-20261022-0906", apps: "nope" }),
+		);
+		mkdirSync(join(data, "results", "p-20261022-0906"), { recursive: true });
+		writeFileSync(
+			join(data, "results", "p-20261022-0906", "summary.json"),
+			"{",
+		);
+		const r = (await jh("cloud", "status", "--json")) as {
+			packets: { id: string; apps: number; error?: string }[];
+		};
+		expect(process.exitCode ?? 0).toBe(0);
+		expect(r.packets.map((p) => p.id)).toEqual([
+			"p-20261022-0905",
+			"p-20261022-0906",
+		]);
+		for (const p of r.packets) {
+			expect(p.apps).toBe(0);
+			expect(p.error).toMatch(/packet\.json/);
+		}
+	});
+});
+
+describe("codeRepoRootOrFail", () => {
+	it("fails closed when the code repo cannot be located", () => {
+		expect(() => codeRepoRootOrFail(null)).toThrow(/code repo/);
+		expect(codeRepoRootOrFail(tmp)).toBe(tmp);
 	});
 });
 

@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import type { Command } from "commander";
 import { exportPacket } from "../cloud/export.js";
 import { type ImportReport, importResults } from "../cloud/import.js";
-import { CloudSummary, type PacketManifest } from "../cloud/schema.js";
+import { CloudSummary, PacketManifest } from "../cloud/schema.js";
 import { JhError, ValidationError } from "../core/errors.js";
 import { action, emit } from "../core/output.js";
 import { artifactsDir, meDir, repoRoot } from "../core/paths.js";
@@ -25,6 +25,20 @@ export function dataRepoDir(): string {
 			"data_repo_unset",
 		);
 	return resolve(dir);
+}
+
+/**
+ * The code repo root for the "data repo inside the code repo" guard. Fails
+ * closed: without a located code repo the guard cannot run, so export refuses.
+ */
+export function codeRepoRootOrFail(root: string | null): string {
+	if (!root)
+		throw new JhError(
+			"could not locate the conscience code repo (.claude-plugin/plugin.json), so the data-repo location cannot be checked",
+			1,
+			"code_repo_unknown",
+		);
+	return root;
 }
 
 function withDb<T>(fn: (db: Db) => T): T {
@@ -63,7 +77,7 @@ async function runExport(o: JsonOpt & { apps?: string; queue?: string }) {
 			db,
 			meDir: meDir().path,
 			dataDir,
-			codeRepoRoot: repoRoot() ?? process.cwd(),
+			codeRepoRoot: codeRepoRootOrFail(repoRoot()),
 			appIds: o.apps ? parseIds(o.apps) : undefined,
 			queue: parseQueue(o.queue),
 		});
@@ -117,6 +131,12 @@ export interface PacketStatus {
 	apps: number;
 	has_results: boolean;
 	imported: boolean;
+	/** Set when packet.json or summary.json is unreadable; the packet is still listed. */
+	error?: string;
+}
+
+function readJsonFile(path: string): unknown {
+	return JSON.parse(readFileSync(path, "utf8"));
 }
 
 /** Packets in the data repo, oldest first, with their results and import state. */
@@ -129,24 +149,36 @@ export function packetStatus(db: Db, dataDir: string): PacketStatus[] {
 		.map((d) => d.name)
 		.sort()
 		.map((id) => {
-			const manifest = join(root, id, "packet.json");
-			const apps = existsSync(manifest)
-				? ((JSON.parse(readFileSync(manifest, "utf8")) as PacketManifest).apps
-						?.length ?? 0)
-				: 0;
+			const errors: string[] = [];
+			const manifestPath = join(root, id, "packet.json");
+			let apps = 0;
+			if (existsSync(manifestPath)) {
+				try {
+					apps = PacketManifest.parse(readJsonFile(manifestPath)).apps.length;
+				} catch (e) {
+					errors.push(`packet.json: ${(e as Error).message.split("\n")[0]}`);
+				}
+			} else errors.push("packet.json: missing");
 			const resDir = join(dataDir, "results", id);
 			const summaryPath = join(resDir, "summary.json");
 			let imported = false;
 			if (existsSync(summaryPath)) {
-				const s = CloudSummary.safeParse(
-					JSON.parse(readFileSync(summaryPath, "utf8")),
-				);
-				const runIds = s.success
-					? s.data.apps.flatMap((a) => (a.run_id ? [a.run_id] : []))
-					: [];
-				imported = runIds.length > 0 && runIds.every((r) => has.get(r));
+				try {
+					const s = CloudSummary.parse(readJsonFile(summaryPath));
+					const runIds = s.apps.flatMap((a) => (a.run_id ? [a.run_id] : []));
+					imported = runIds.length > 0 && runIds.every((r) => has.get(r));
+				} catch (e) {
+					errors.push(`summary.json: ${(e as Error).message.split("\n")[0]}`);
+				}
 			}
-			return { id, apps, has_results: existsSync(resDir), imported };
+			const status: PacketStatus = {
+				id,
+				apps,
+				has_results: existsSync(resDir),
+				imported,
+			};
+			if (errors.length) status.error = errors.join("; ");
+			return status;
 		});
 }
 
@@ -161,7 +193,7 @@ function runStatusCmd(o: JsonOpt) {
 				? r.packets
 						.map(
 							(p) =>
-								`${p.id}  ${p.apps} apps  results=${p.has_results ? "yes" : "no"}  imported=${p.imported ? "yes" : "no"}`,
+								`${p.id}  ${p.apps} apps  results=${p.has_results ? "yes" : "no"}  imported=${p.imported ? "yes" : "no"}${p.error ? `  CORRUPT ${p.error}` : ""}`,
 						)
 						.join("\n")
 				: "no packets",
