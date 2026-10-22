@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { relative, resolve, sep } from "node:path";
+import { existsSync } from "node:fs";
+import { join, relative, resolve, sep } from "node:path";
 import type { Command } from "commander";
 import { action, emit } from "../core/output.js";
 import {
@@ -22,6 +23,8 @@ export interface DoctorReport {
 	dbOk: boolean;
 	chrome: string | null;
 	pendingMetrics: number | null;
+	/** The private data repo clone for cloud sessions (ADR 006); null when not configured. */
+	dataRepo: { path: string; ok: boolean } | null;
 	warnings: string[];
 }
 
@@ -68,6 +71,31 @@ export function checkMeIgnored(
 		);
 		return null;
 	}
+}
+
+/**
+ * The optional private data repo (ADR 006): when JOB_HUNTER_DATA_REPO is set it
+ * must be a git clone that sits outside the plugin checkout. Visibility is
+ * checked by `jh cloud export` itself (it needs the network).
+ */
+export function checkDataRepo(
+	dir: string | undefined,
+	root: string | null,
+	warnings: string[],
+): { path: string; ok: boolean } | null {
+	if (!dir) return null;
+	const path = resolve(dir);
+	if (!existsSync(join(path, ".git"))) {
+		warnings.push(`data repo ${path} is not a git clone; see ADR 006`);
+		return { path, ok: false };
+	}
+	if (root && isInside(path, root)) {
+		warnings.push(
+			`data repo ${path} sits inside the plugin checkout; clone it elsewhere (ADR 006)`,
+		);
+		return { path, ok: false };
+	}
+	return { path, ok: true };
 }
 
 function checkDb(path: string, warnings: string[]): boolean {
@@ -134,6 +162,11 @@ export async function runDoctor(): Promise<DoctorReport> {
 		dbOk: checkDb(db, warnings),
 		chrome: await findChromeSafe(warnings),
 		pendingMetrics: await pendingMetricsSafe(me, warnings),
+		dataRepo: checkDataRepo(
+			process.env.JOB_HUNTER_DATA_REPO,
+			repoRoot(),
+			warnings,
+		),
 		warnings,
 	};
 }
@@ -153,6 +186,7 @@ function formatReport(r: DoctorReport): string {
 		`db       ${r.db} ${ok(r.dbOk)}`,
 		`chrome   ${r.chrome ?? "not found"}`,
 		`metrics  ${r.pendingMetrics ?? "?"} pending`,
+		`data     ${r.dataRepo ? `${r.dataRepo.path} ${ok(r.dataRepo.ok)}` : "not configured (optional, ADR 006)"}`,
 		...r.warnings.map((w) => `warning: ${w}`),
 	].join("\n");
 }

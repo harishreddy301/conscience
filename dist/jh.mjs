@@ -4585,7 +4585,7 @@ function isRef(value) {
 function cloneIssues(issues) {
   return issues.map((iss) => iss.path ? { ...iss, path: iss.path.slice() } : { ...iss });
 }
-function isRecursive(inst, stack, resolve11) {
+function isRecursive(inst, stack, resolve14) {
   const cached2 = recursive.get(inst);
   if (cached2 !== void 0)
     return cached2 ? PROVEN : NONE;
@@ -4595,7 +4595,7 @@ function isRecursive(inst, stack, resolve11) {
   let result = NONE;
   const check2 = (child2) => {
     if (result !== PROVEN && child2?._zod) {
-      const answer = isRecursive(child2, stack, resolve11);
+      const answer = isRecursive(child2, stack, resolve14);
       if (answer > result)
         result = answer;
     }
@@ -4606,7 +4606,7 @@ function isRecursive(inst, stack, resolve11) {
       const desc = Object.getOwnPropertyDescriptor(sh, key);
       if (spread && !desc.enumerable)
         continue;
-      const child2 = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve11) : NONE;
+      const child2 = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve14) : NONE;
       if (child2 > answer)
         answer = child2;
     }
@@ -4670,7 +4670,7 @@ function isRecursive(inst, stack, resolve11) {
       break;
     // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
     case "lazy": {
-      const inner = def._cachedInner ?? (resolve11 ? inst._zod.innerType : void 0);
+      const inner = def._cachedInner ?? (resolve14 ? inst._zod.innerType : void 0);
       merge2(inner ? isRecursive(inner, stack, false) : ASSUMED);
       break;
     }
@@ -20681,7 +20681,7 @@ async function runChrome(buildArgs, timeoutMs = CHROME_TIMEOUT_MS) {
   }
 }
 function spawnWithTimeout(exe, args, timeoutMs) {
-  return new Promise((resolve11, reject) => {
+  return new Promise((resolve14, reject) => {
     const child2 = spawn(exe, args, {
       windowsHide: true,
       stdio: ["ignore", "pipe", "pipe"]
@@ -20704,7 +20704,7 @@ function spawnWithTimeout(exe, args, timeoutMs) {
     });
     child2.on("close", (code) => {
       clearTimeout(timer);
-      resolve11({ code, stdout, stderr });
+      resolve14({ code, stdout, stderr });
     });
   });
 }
@@ -21408,14 +21408,14 @@ var init_dist = __esm({
         return ret;
       }
       function once(emitter, name) {
-        return new Promise(function(resolve11, reject) {
+        return new Promise(function(resolve14, reject) {
           function errorListener(err) {
             emitter.removeListener(name, resolver);
             reject(err);
           }
           function resolver() {
             if (typeof emitter.removeListener === "function") emitter.removeListener("error", errorListener);
-            resolve11([].slice.call(arguments));
+            resolve14([].slice.call(arguments));
           }
           eventTargetAgnosticAddListener(emitter, name, resolver, { once: true });
           if (name !== "error") addErrorHandlerIfEventEmitter(emitter, errorListener, { once: true });
@@ -24243,7 +24243,7 @@ var init_dist = __esm({
         return Object.prototype.hasOwnProperty.call(obj2, prop);
       }
       var kCustomPromisifiedSymbol = typeof Symbol !== "undefined" ? /* @__PURE__ */ Symbol("util.promisify.custom") : void 0;
-      exports.promisify = function promisify(original) {
+      exports.promisify = function promisify2(original) {
         if (typeof original !== "function") throw new TypeError('The "original" argument must be of type Function');
         if (kCustomPromisifiedSymbol && original[kCustomPromisifiedSymbol]) {
           var fn = original[kCustomPromisifiedSymbol];
@@ -24258,8 +24258,8 @@ var init_dist = __esm({
         }
         function fn() {
           var promiseResolve, promiseReject;
-          var promise2 = new Promise(function(resolve11, reject) {
-            promiseResolve = resolve11;
+          var promise2 = new Promise(function(resolve14, reject) {
+            promiseResolve = resolve14;
             promiseReject = reject;
           });
           var args = [];
@@ -24440,7 +24440,7 @@ var init_dist = __esm({
           },
           {
             key: "join",
-            value: function join25(s) {
+            value: function join29(s) {
               if (this.length === 0) return "";
               var p = this.head;
               var ret = "" + p.data;
@@ -25641,14 +25641,14 @@ var init_dist = __esm({
         };
       }
       function readAndResolve(iter) {
-        var resolve11 = iter[kLastResolve];
-        if (resolve11 !== null) {
+        var resolve14 = iter[kLastResolve];
+        if (resolve14 !== null) {
           var data = iter[kStream].read();
           if (data !== null) {
             iter[kLastPromise] = null;
             iter[kLastResolve] = null;
             iter[kLastReject] = null;
-            resolve11(createIterResult(data, false));
+            resolve14(createIterResult(data, false));
           }
         }
       }
@@ -25656,13 +25656,13 @@ var init_dist = __esm({
         process$1.nextTick(readAndResolve, iter);
       }
       function wrapForNext(lastPromise, iter) {
-        return function(resolve11, reject) {
+        return function(resolve14, reject) {
           lastPromise.then(function() {
             if (iter[kEnded]) {
-              resolve11(createIterResult(void 0, true));
+              resolve14(createIterResult(void 0, true));
               return;
             }
-            iter[kHandlePromise](resolve11, reject);
+            iter[kHandlePromise](resolve14, reject);
           }, reject);
         };
       }
@@ -25677,10 +25677,10 @@ var init_dist = __esm({
           var error62 = this[kError];
           if (error62 !== null) return Promise.reject(error62);
           if (this[kEnded]) return Promise.resolve(createIterResult(void 0, true));
-          if (this[kStream].destroyed) return new Promise(function(resolve11, reject) {
+          if (this[kStream].destroyed) return new Promise(function(resolve14, reject) {
             process$1.nextTick(function() {
               if (_this[kError]) reject(_this[kError]);
-              else resolve11(createIterResult(void 0, true));
+              else resolve14(createIterResult(void 0, true));
             });
           });
           var lastPromise = this[kLastPromise];
@@ -25698,13 +25698,13 @@ var init_dist = __esm({
         return this;
       }), _defineProperty2(_Object$setPrototypeO, "return", function _return() {
         var _this2 = this;
-        return new Promise(function(resolve11, reject) {
+        return new Promise(function(resolve14, reject) {
           _this2[kStream].destroy(null, function(err) {
             if (err) {
               reject(err);
               return;
             }
-            resolve11(createIterResult(void 0, true));
+            resolve14(createIterResult(void 0, true));
           });
         });
       }), _Object$setPrototypeO), AsyncIteratorPrototype);
@@ -25726,15 +25726,15 @@ var init_dist = __esm({
           value: stream._readableState.endEmitted,
           writable: true
         }), _defineProperty2(_Object$create, kHandlePromise, {
-          value: function value(resolve11, reject) {
+          value: function value(resolve14, reject) {
             var data = iterator[kStream].read();
             if (data) {
               iterator[kLastPromise] = null;
               iterator[kLastResolve] = null;
               iterator[kLastReject] = null;
-              resolve11(createIterResult(data, false));
+              resolve14(createIterResult(data, false));
             } else {
-              iterator[kLastResolve] = resolve11;
+              iterator[kLastResolve] = resolve14;
               iterator[kLastReject] = reject;
             }
           },
@@ -25753,12 +25753,12 @@ var init_dist = __esm({
             iterator[kError] = err;
             return;
           }
-          var resolve11 = iterator[kLastResolve];
-          if (resolve11 !== null) {
+          var resolve14 = iterator[kLastResolve];
+          if (resolve14 !== null) {
             iterator[kLastPromise] = null;
             iterator[kLastResolve] = null;
             iterator[kLastReject] = null;
-            resolve11(createIterResult(void 0, true));
+            resolve14(createIterResult(void 0, true));
           }
           iterator[kEnded] = true;
         });
@@ -31213,7 +31213,7 @@ var init_dist = __esm({
       let numberFormat;
       let picture;
       const capitals = [];
-      let relative4 = false;
+      let relative5 = false;
       let written = true;
       for (let index = 0; index < parts.length; index++) {
         const part = parts[index];
@@ -31221,7 +31221,7 @@ var init_dist = __esm({
           var _parts$index;
           return (part.length > 2 ? part.slice(2) : (_parts$index = parts[++index]) !== null && _parts$index !== void 0 ? _parts$index : "").replace(/^"(.*)"$/, "$1");
         };
-        if (/^\\p$/i.test(part)) relative4 = true;
+        if (/^\\p$/i.test(part)) relative5 = true;
         else if (part.startsWith("\\#")) {
           var _picture;
           const value = argument();
@@ -31242,7 +31242,7 @@ var init_dist = __esm({
       return reference ? _objectSpread2({
         type: "pageReference",
         bookmark: reference[2],
-        relative: relative4
+        relative: relative5
       }, own2) : _objectSpread2({
         type: "pageCount",
         scope: field[1].toUpperCase() === "NUMPAGES" ? "document" : "section"
@@ -39663,7 +39663,7 @@ var init_dist = __esm({
           }
         }
         function add(value, last) {
-          format(append, resolve11(value, indent, indent ? 1 : 0), last);
+          format(append, resolve14(value, indent, indent ? 1 : 0), last);
         }
         function end() {
           if (stream) {
@@ -39702,12 +39702,12 @@ var init_dist = __esm({
         return output2;
       }
       function element() {
-        var self2 = { _elem: resolve11(Array.prototype.slice.call(arguments)) };
+        var self2 = { _elem: resolve14(Array.prototype.slice.call(arguments)) };
         self2.push = function(input2) {
           if (!this.append) throw new Error("not assigned to a parent!");
           var that = this;
           var indent = this._elem.indent;
-          format(this.append, resolve11(input2, indent, this._elem.icount + (indent ? 1 : 0)), function() {
+          format(this.append, resolve14(input2, indent, this._elem.icount + (indent ? 1 : 0)), function() {
             that.append(true);
           });
         };
@@ -39720,7 +39720,7 @@ var init_dist = __esm({
       function create_indent(character, count) {
         return new Array(count || 0).join(character || "");
       }
-      function resolve11(data, indent, indent_count) {
+      function resolve14(data, indent, indent_count) {
         indent_count = indent_count || 0;
         var indent_spaces = create_indent(indent, indent_count);
         var name;
@@ -39756,7 +39756,7 @@ var init_dist = __esm({
               values.forEach(function(value) {
                 if (typeof value == "object") {
                   if (Object.keys(value)[0] == "_attr") get_attributes(value._attr);
-                  else content.push(resolve11(value, indent, indent_count + 1));
+                  else content.push(resolve14(value, indent, indent_count + 1));
                 } else {
                   content.pop();
                   isStringContent = true;
@@ -42586,8 +42586,8 @@ function section(title, cls, body, theme = "standard") {
 }
 function educationLine(e, theme = "standard") {
   const classic = theme === "classic-navy";
-  const sep3 = classic ? " in " : ", ";
-  const main = e.field ? `${e.degree}${sep3}${e.field}` : e.degree;
+  const sep4 = classic ? " in " : ", ";
+  const main = e.field ? `${e.degree}${sep4}${e.field}` : e.degree;
   const school = classic && e.gpa ? `${e.school} (GPA ${e.gpa})` : e.school;
   return { main, school, year: e.year, coursework: e.coursework ?? [] };
 }
@@ -44375,14 +44375,14 @@ var init_render = __esm({
 var require_identity = __commonJS({
   "node_modules/yaml/dist/nodes/identity.js"(exports) {
     "use strict";
-    var ALIAS = /* @__PURE__ */ Symbol.for("yaml.alias");
+    var ALIAS2 = /* @__PURE__ */ Symbol.for("yaml.alias");
     var DOC = /* @__PURE__ */ Symbol.for("yaml.document");
     var MAP = /* @__PURE__ */ Symbol.for("yaml.map");
     var PAIR = /* @__PURE__ */ Symbol.for("yaml.pair");
     var SCALAR = /* @__PURE__ */ Symbol.for("yaml.scalar");
     var SEQ = /* @__PURE__ */ Symbol.for("yaml.seq");
     var NODE_TYPE = /* @__PURE__ */ Symbol.for("yaml.node.type");
-    var isAlias = (node2) => !!node2 && typeof node2 === "object" && node2[NODE_TYPE] === ALIAS;
+    var isAlias = (node2) => !!node2 && typeof node2 === "object" && node2[NODE_TYPE] === ALIAS2;
     var isDocument = (node2) => !!node2 && typeof node2 === "object" && node2[NODE_TYPE] === DOC;
     var isMap2 = (node2) => !!node2 && typeof node2 === "object" && node2[NODE_TYPE] === MAP;
     var isPair = (node2) => !!node2 && typeof node2 === "object" && node2[NODE_TYPE] === PAIR;
@@ -44400,7 +44400,7 @@ var require_identity = __commonJS({
     function isNode(node2) {
       if (node2 && typeof node2 === "object")
         switch (node2[NODE_TYPE]) {
-          case ALIAS:
+          case ALIAS2:
           case MAP:
           case SCALAR:
           case SEQ:
@@ -44409,7 +44409,7 @@ var require_identity = __commonJS({
       return false;
     }
     var hasAnchor = (node2) => (isScalar2(node2) || isCollection(node2)) && !!node2.anchor;
-    exports.ALIAS = ALIAS;
+    exports.ALIAS = ALIAS2;
     exports.DOC = DOC;
     exports.MAP = MAP;
     exports.NODE_TYPE = NODE_TYPE;
@@ -48334,10 +48334,10 @@ var require_resolve_block_map = __commonJS({
       let offset = bm.offset;
       let commentEnd = null;
       for (const collItem of bm.items) {
-        const { start, key, sep: sep3, value } = collItem;
+        const { start, key, sep: sep4, value } = collItem;
         const keyProps = resolveProps.resolveProps(start, {
           indicator: "explicit-key-ind",
-          next: key ?? sep3?.[0],
+          next: key ?? sep4?.[0],
           offset,
           onError,
           parentIndent: bm.indent,
@@ -48351,7 +48351,7 @@ var require_resolve_block_map = __commonJS({
             else if ("indent" in key && key.indent !== bm.indent)
               onError(offset, "BAD_INDENT", startColMsg);
           }
-          if (!keyProps.anchor && !keyProps.tag && !sep3) {
+          if (!keyProps.anchor && !keyProps.tag && !sep4) {
             commentEnd = keyProps.end;
             if (keyProps.comment) {
               if (map2.comment)
@@ -48375,7 +48375,7 @@ var require_resolve_block_map = __commonJS({
         ctx.atKey = false;
         if (utilMapIncludes.mapIncludes(ctx, map2.items, keyNode))
           onError(keyStart, "DUPLICATE_KEY", "Map keys must be unique");
-        const valueProps = resolveProps.resolveProps(sep3 ?? [], {
+        const valueProps = resolveProps.resolveProps(sep4 ?? [], {
           indicator: "map-value-ind",
           next: value,
           offset: keyNode.range[2],
@@ -48391,7 +48391,7 @@ var require_resolve_block_map = __commonJS({
             if (ctx.options.strict && keyProps.start < valueProps.found.offset - 1024)
               onError(keyNode.range, "KEY_OVER_1024_CHARS", "The : indicator must be at most 1024 chars after the start of an implicit block mapping key");
           }
-          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : composeEmptyNode(ctx, offset, sep3, null, valueProps, onError);
+          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : composeEmptyNode(ctx, offset, sep4, null, valueProps, onError);
           if (ctx.schema.compat)
             utilFlowIndentCheck.flowIndentCheck(bm.indent, value, onError);
           offset = valueNode.range[2];
@@ -48482,7 +48482,7 @@ var require_resolve_end = __commonJS({
       let comment = "";
       if (end) {
         let hasSpace = false;
-        let sep3 = "";
+        let sep4 = "";
         for (const token of end) {
           const { source, type } = token;
           switch (type) {
@@ -48496,13 +48496,13 @@ var require_resolve_end = __commonJS({
               if (!comment)
                 comment = cb;
               else
-                comment += sep3 + cb;
-              sep3 = "";
+                comment += sep4 + cb;
+              sep4 = "";
               break;
             }
             case "newline":
               if (comment)
-                sep3 += source;
+                sep4 += source;
               hasSpace = true;
               break;
             default:
@@ -48545,18 +48545,18 @@ var require_resolve_flow_collection = __commonJS({
       let offset = fc.offset + fc.start.source.length;
       for (let i = 0; i < fc.items.length; ++i) {
         const collItem = fc.items[i];
-        const { start, key, sep: sep3, value } = collItem;
+        const { start, key, sep: sep4, value } = collItem;
         const props = resolveProps.resolveProps(start, {
           flow: fcName,
           indicator: "explicit-key-ind",
-          next: key ?? sep3?.[0],
+          next: key ?? sep4?.[0],
           offset,
           onError,
           parentIndent: fc.indent,
           startOnNewline: false
         });
         if (!props.found) {
-          if (!props.anchor && !props.tag && !sep3 && !value) {
+          if (!props.anchor && !props.tag && !sep4 && !value) {
             if (i === 0 && props.comma)
               onError(props.comma, "UNEXPECTED_TOKEN", `Unexpected , in ${fcName}`);
             else if (i < fc.items.length - 1)
@@ -48610,8 +48610,8 @@ var require_resolve_flow_collection = __commonJS({
             }
           }
         }
-        if (!isMap2 && !sep3 && !props.found) {
-          const valueNode = value ? composeNode(ctx, value, props, onError) : composeEmptyNode(ctx, props.end, sep3, null, props, onError);
+        if (!isMap2 && !sep4 && !props.found) {
+          const valueNode = value ? composeNode(ctx, value, props, onError) : composeEmptyNode(ctx, props.end, sep4, null, props, onError);
           coll.items.push(valueNode);
           offset = valueNode.range[2];
           if (isBlock(value))
@@ -48623,7 +48623,7 @@ var require_resolve_flow_collection = __commonJS({
           if (isBlock(key))
             onError(keyNode.range, "BLOCK_IN_FLOW", blockMsg);
           ctx.atKey = false;
-          const valueProps = resolveProps.resolveProps(sep3 ?? [], {
+          const valueProps = resolveProps.resolveProps(sep4 ?? [], {
             flow: fcName,
             indicator: "map-value-ind",
             next: value,
@@ -48634,8 +48634,8 @@ var require_resolve_flow_collection = __commonJS({
           });
           if (valueProps.found) {
             if (!isMap2 && !props.found && ctx.options.strict) {
-              if (sep3)
-                for (const st of sep3) {
+              if (sep4)
+                for (const st of sep4) {
                   if (st === valueProps.found)
                     break;
                   if (st.type === "newline") {
@@ -48652,7 +48652,7 @@ var require_resolve_flow_collection = __commonJS({
             else
               onError(valueProps.start, "MISSING_CHAR", `Missing , or : between ${fcName} items`);
           }
-          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : valueProps.found ? composeEmptyNode(ctx, valueProps.end, sep3, null, valueProps, onError) : null;
+          const valueNode = value ? composeNode(ctx, value, valueProps, onError) : valueProps.found ? composeEmptyNode(ctx, valueProps.end, sep4, null, valueProps, onError) : null;
           if (valueNode) {
             if (isBlock(value))
               onError(valueNode.range, "BLOCK_IN_FLOW", blockMsg);
@@ -48832,7 +48832,7 @@ var require_resolve_block_scalar = __commonJS({
           chompStart = i + 1;
       }
       let value = "";
-      let sep3 = "";
+      let sep4 = "";
       let prevMoreIndented = false;
       for (let i = 0; i < contentStart; ++i)
         value += lines[i][0].slice(trimIndent) + "\n";
@@ -48849,24 +48849,24 @@ var require_resolve_block_scalar = __commonJS({
           indent = "";
         }
         if (type === Scalar.Scalar.BLOCK_LITERAL) {
-          value += sep3 + indent.slice(trimIndent) + content;
-          sep3 = "\n";
+          value += sep4 + indent.slice(trimIndent) + content;
+          sep4 = "\n";
         } else if (indent.length > trimIndent || content[0] === "	") {
-          if (sep3 === " ")
-            sep3 = "\n";
-          else if (!prevMoreIndented && sep3 === "\n")
-            sep3 = "\n\n";
-          value += sep3 + indent.slice(trimIndent) + content;
-          sep3 = "\n";
+          if (sep4 === " ")
+            sep4 = "\n";
+          else if (!prevMoreIndented && sep4 === "\n")
+            sep4 = "\n\n";
+          value += sep4 + indent.slice(trimIndent) + content;
+          sep4 = "\n";
           prevMoreIndented = true;
         } else if (content === "") {
-          if (sep3 === "\n")
+          if (sep4 === "\n")
             value += "\n";
           else
-            sep3 = "\n";
+            sep4 = "\n";
         } else {
-          value += sep3 + content;
-          sep3 = " ";
+          value += sep4 + content;
+          sep4 = " ";
           prevMoreIndented = false;
         }
       }
@@ -49049,25 +49049,25 @@ var require_resolve_flow_scalar = __commonJS({
         trimBoth = /^[ \t]+|[ \t]+$/g;
       }
       let res = match[1].replace(trimEnd, "");
-      let sep3 = " ";
+      let sep4 = " ";
       let pos = line.lastIndex;
       while (match = line.exec(source)) {
         const lm = match[1].replace(trimBoth, "");
         if (lm === "") {
-          if (sep3 === "\n")
-            res += sep3;
+          if (sep4 === "\n")
+            res += sep4;
           else
-            sep3 = "\n";
+            sep4 = "\n";
         } else {
-          res += sep3 + lm;
-          sep3 = " ";
+          res += sep4 + lm;
+          sep4 = " ";
         }
         pos = line.lastIndex;
       }
       const last = /[ \t]*(.*)/sy;
       last.lastIndex = pos;
       match = last.exec(source);
-      return res + sep3 + (match?.[1] ?? "");
+      return res + sep4 + (match?.[1] ?? "");
     }
     function doubleQuotedValue(source, onError) {
       let res = "";
@@ -49877,14 +49877,14 @@ var require_cst_stringify = __commonJS({
         }
       }
     }
-    function stringifyItem({ start, key, sep: sep3, value }) {
+    function stringifyItem({ start, key, sep: sep4, value }) {
       let res = "";
       for (const st of start)
         res += st.source;
       if (key)
         res += stringifyToken(key);
-      if (sep3)
-        for (const st of sep3)
+      if (sep4)
+        for (const st of sep4)
           res += st.source;
       if (value)
         res += stringifyToken(value);
@@ -51051,18 +51051,18 @@ var require_parser = __commonJS({
         if (this.type === "map-value-ind") {
           const prev = getPrevProps(this.peek(2));
           const start = getFirstKeyStartProps(prev);
-          let sep3;
+          let sep4;
           if (scalar.end) {
-            sep3 = scalar.end;
-            sep3.push(this.sourceToken);
+            sep4 = scalar.end;
+            sep4.push(this.sourceToken);
             delete scalar.end;
           } else
-            sep3 = [this.sourceToken];
+            sep4 = [this.sourceToken];
           const map2 = {
             type: "block-map",
             offset: scalar.offset,
             indent: scalar.indent,
-            items: [{ start, key: scalar, sep: sep3 }]
+            items: [{ start, key: scalar, sep: sep4 }]
           };
           this.onKeyLine = true;
           this.stack[this.stack.length - 1] = map2;
@@ -51215,15 +51215,15 @@ var require_parser = __commonJS({
                 } else if (isFlowToken(it.key) && !includesToken(it.sep, "newline")) {
                   const start2 = getFirstKeyStartProps(it.start);
                   const key = it.key;
-                  const sep3 = it.sep;
-                  sep3.push(this.sourceToken);
+                  const sep4 = it.sep;
+                  sep4.push(this.sourceToken);
                   delete it.key;
                   delete it.sep;
                   this.stack.push({
                     type: "block-map",
                     offset: this.offset,
                     indent: this.indent,
-                    items: [{ start: start2, key, sep: sep3 }]
+                    items: [{ start: start2, key, sep: sep4 }]
                   });
                 } else if (start.length > 0) {
                   it.sep = it.sep.concat(start, this.sourceToken);
@@ -51417,13 +51417,13 @@ var require_parser = __commonJS({
             const prev = getPrevProps(parent);
             const start = getFirstKeyStartProps(prev);
             fixFlowSeqItems(fc);
-            const sep3 = fc.end.splice(1, fc.end.length);
-            sep3.push(this.sourceToken);
+            const sep4 = fc.end.splice(1, fc.end.length);
+            sep4.push(this.sourceToken);
             const map2 = {
               type: "block-map",
               offset: fc.offset,
               indent: fc.indent,
-              items: [{ start, key: fc, sep: sep3 }]
+              items: [{ start, key: fc, sep: sep4 }]
             };
             this.onKeyLine = true;
             this.stack[this.stack.length - 1] = map2;
@@ -58427,12 +58427,12 @@ function register2(program3) {
 init_zod();
 import {
   closeSync,
-  existsSync as existsSync9,
+  existsSync as existsSync10,
   openSync,
   readdirSync as readdirSync2,
   readSync
 } from "node:fs";
-import { join as join10 } from "node:path";
+import { join as join11 } from "node:path";
 init_errors3();
 init_paths();
 
@@ -59026,7 +59026,8 @@ function checkPolicy(e) {
 
 // src/commands/doctor.ts
 import { execFileSync } from "node:child_process";
-import { relative, resolve as resolve4, sep } from "node:path";
+import { existsSync as existsSync9 } from "node:fs";
+import { join as join10, relative, resolve as resolve4, sep } from "node:path";
 init_paths();
 var MIN_NODE = [22, 13];
 function nodeVersionOk(version2 = process.versions.node) {
@@ -59054,6 +59055,21 @@ function checkMeIgnored(mePath, root, warnings) {
     );
     return null;
   }
+}
+function checkDataRepo(dir, root, warnings) {
+  if (!dir) return null;
+  const path2 = resolve4(dir);
+  if (!existsSync9(join10(path2, ".git"))) {
+    warnings.push(`data repo ${path2} is not a git clone; see ADR 006`);
+    return { path: path2, ok: false };
+  }
+  if (root && isInside2(path2, root)) {
+    warnings.push(
+      `data repo ${path2} sits inside the plugin checkout; clone it elsewhere (ADR 006)`
+    );
+    return { path: path2, ok: false };
+  }
+  return { path: path2, ok: true };
 }
 function checkDb(path2, warnings) {
   try {
@@ -59113,6 +59129,11 @@ async function runDoctor() {
     dbOk: checkDb(db, warnings),
     chrome: await findChromeSafe(warnings),
     pendingMetrics: await pendingMetricsSafe(me, warnings),
+    dataRepo: checkDataRepo(
+      process.env.JOB_HUNTER_DATA_REPO,
+      repoRoot(),
+      warnings
+    ),
     warnings
   };
 }
@@ -59129,6 +59150,7 @@ function formatReport(r) {
     `db       ${r.db} ${ok2(r.dbOk)}`,
     `chrome   ${r.chrome ?? "not found"}`,
     `metrics  ${r.pendingMetrics ?? "?"} pending`,
+    `data     ${r.dataRepo ? `${r.dataRepo.path} ${ok2(r.dataRepo.ok)}` : "not configured (optional, ADR 006)"}`,
     ...r.warnings.map((w) => `warning: ${w}`)
   ].join("\n");
 }
@@ -59154,13 +59176,13 @@ function withDb3(fn) {
 var IdSchema2 = external_exports.coerce.number().int().positive();
 var DAY_MS3 = 864e5;
 function pdfReadable(dir) {
-  if (!dir || !existsSync9(dir)) return false;
+  if (!dir || !existsSync10(dir)) return false;
   const pdf = readdirSync2(dir).find(
     (f) => f.toLowerCase().endsWith(".pdf") && f !== "cover.pdf"
   );
   if (!pdf) return false;
   try {
-    const fd = openSync(join10(dir, pdf), "r");
+    const fd = openSync(join11(dir, pdf), "r");
     try {
       const buf = Buffer.alloc(4);
       readSync(fd, buf, 0, 4, 0);
@@ -59409,10 +59431,1814 @@ function register4(program3) {
   );
 }
 
+// src/commands/cloud.ts
+import { existsSync as existsSync15, readdirSync as readdirSync4, readFileSync as readFileSync13 } from "node:fs";
+import { join as join16, resolve as resolve8 } from "node:path";
+
+// src/cloud/export.ts
+import {
+  copyFileSync,
+  existsSync as existsSync11,
+  lstatSync,
+  mkdirSync as mkdirSync5,
+  readdirSync as readdirSync3,
+  realpathSync,
+  rmSync as rmSync3,
+  writeFileSync as writeFileSync6
+} from "node:fs";
+import { dirname as dirname5, join as join12, relative as relative2, resolve as resolve5, sep as sep2 } from "node:path";
+init_errors3();
+
+// src/cloud/git.ts
+init_errors3();
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+var execFileP = promisify(execFile);
+var defaultRun = async (cmd, args, cwd) => {
+  const { stdout } = await execFileP(cmd, args, {
+    cwd,
+    timeout: 12e4,
+    maxBuffer: 16 * 1024 * 1024,
+    windowsHide: true
+  });
+  return stdout;
+};
+async function assertPrivateRemote(dataDir, run) {
+  let visibility;
+  try {
+    visibility = (await run(
+      "gh",
+      ["repo", "view", "--json", "visibility", "-q", ".visibility"],
+      dataDir
+    )).trim();
+  } catch (e) {
+    throw new ValidationError(
+      `could not verify that the data repo is private: ${e.message}`,
+      { dataDir },
+      "data_repo_unverified"
+    );
+  }
+  if (visibility.toUpperCase() !== "PRIVATE")
+    throw new ValidationError(
+      `data repo must be private (gh reports ${visibility || "nothing"}); see ADR 006`,
+      { dataDir, visibility },
+      "data_repo_not_private"
+    );
+}
+async function commitAndPush(dataDir, message, run, paths = ["."]) {
+  await run("git", ["add", "-A", "--", ...paths], dataDir);
+  const staged = await run("git", ["diff", "--cached", "--name-only"], dataDir);
+  if (staged.trim()) await run("git", ["commit", "-q", "-m", message], dataDir);
+  try {
+    await run("git", ["push", "-q"], dataDir);
+  } catch {
+    await run("git", ["push", "-q"], dataDir);
+  }
+}
+
+// src/cloud/schema.ts
+init_zod();
+var PacketApp = external_exports.object({
+  app_id: external_exports.number().int().positive(),
+  company: external_exports.string(),
+  title: external_exports.string(),
+  url: external_exports.string().nullable(),
+  jd_path: external_exports.string()
+});
+var PacketManifest = external_exports.object({
+  id: external_exports.string().regex(/^p-\d{8}-\d{4}(-\d+)?$/),
+  created_at: external_exports.string(),
+  schema_version: external_exports.number().int().nonnegative(),
+  apps: external_exports.array(PacketApp)
+});
+var CloudAppStatus = external_exports.enum(["ready", "below_bar", "no_go", "failed"]);
+var CloudSummary = external_exports.object({
+  packet_id: external_exports.string(),
+  finished_at: external_exports.string(),
+  apps: external_exports.array(
+    external_exports.object({
+      app_id: external_exports.number().int().positive(),
+      run_id: external_exports.string().nullable(),
+      /** The winner after step 6; import validates this draft. */
+      winner_draft_id: external_exports.string().nullable().optional(),
+      status: CloudAppStatus,
+      ats: external_exports.number().nullable(),
+      hm_verdict: external_exports.string().nullable(),
+      notes: external_exports.array(external_exports.string())
+    })
+  )
+});
+
+// src/cloud/export.ts
+var MAX_EXPORT_BYTES = 5 * 1024 * 1024;
+var DEFAULT_QUEUE = 10;
+function isExportable(relPath, sizeBytes) {
+  if (sizeBytes > MAX_EXPORT_BYTES) return false;
+  const parts = relPath.split(/[\\/]+/).filter(Boolean);
+  const name = parts.at(-1);
+  if (!name) return false;
+  if (parts.some((p) => p === ".git" || p.startsWith(".env"))) return false;
+  if (name === "tk.sh") return false;
+  if (name.includes(".backup")) return false;
+  return true;
+}
+var APP_SQL = `SELECT a.id AS app_id, c.name AS company, j.title AS title,
+	COALESCE(j.url, j.canonical_url) AS url, j.jd_text AS jd_text
+	FROM applications a JOIN jobs j ON j.id = a.job_id JOIN companies c ON c.id = j.company_id`;
+var NOT_FINALIZED = `NOT EXISTS (SELECT 1 FROM resume_runs r
+	WHERE r.application_id = a.id AND r.status = 'finalized')`;
+function toPacketApp(r) {
+  return {
+    app_id: r.app_id,
+    company: r.company,
+    title: r.title,
+    url: r.url,
+    jd_path: `jd/${r.app_id}.txt`
+  };
+}
+function selectRows(db, opts) {
+  if (opts.appIds?.length) {
+    return opts.appIds.map((id) => {
+      const row = db.prepare(`${APP_SQL} WHERE a.id = ?`).get(id);
+      if (!row) throw new NotFoundError(`application ${id} not found`);
+      if (!row.jd_text?.trim())
+        throw new ValidationError(
+          `application ${id} has no JD text; fetch it before exporting`,
+          { app_id: id },
+          "jd_missing"
+        );
+      return row;
+    });
+  }
+  const limit = opts.queue ?? DEFAULT_QUEUE;
+  if (!Number.isInteger(limit) || limit <= 0)
+    throw new ValidationError("--queue must be a positive integer");
+  return db.prepare(
+    `${APP_SQL} WHERE a.status = 'shortlisted' AND j.jd_text IS NOT NULL AND trim(j.jd_text) <> ''
+			   AND ${NOT_FINALIZED}
+			 ORDER BY (a.requested_by IS NULL), a.last_event_at DESC, a.id DESC LIMIT ?`
+  ).all(limit);
+}
+function canonical(p) {
+  const abs = resolve5(p);
+  try {
+    return realpathSync.native(abs);
+  } catch {
+    return abs;
+  }
+}
+function isInside3(child2, parent) {
+  const fold = (s) => process.platform === "win32" ? s.toLowerCase() : s;
+  const rel = relative2(fold(canonical(parent)), fold(canonical(child2)));
+  return rel === "" || !rel.startsWith(`..${sep2}`) && rel !== ".." && !/^[a-zA-Z]:/.test(rel) && !rel.startsWith(sep2);
+}
+function packetId(now) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `p-${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}-${p(now.getHours())}${p(now.getMinutes())}`;
+}
+function walkFiles(root, rel = "") {
+  const dir = join12(root, rel);
+  if (!existsSync11(dir)) return [];
+  const out = [];
+  for (const name of readdirSync3(dir)) {
+    const r = rel ? `${rel}/${name}` : name;
+    const st = lstatSync(join12(root, r));
+    if (st.isSymbolicLink()) continue;
+    if (st.isDirectory()) {
+      if (name === ".git") continue;
+      out.push(...walkFiles(root, r));
+    } else if (st.isFile()) out.push({ rel: r, size: st.size });
+  }
+  return out;
+}
+function pruneEmpty(root, rel = "") {
+  const dir = join12(root, rel);
+  let empty = true;
+  for (const name of readdirSync3(dir)) {
+    const r = rel ? `${rel}/${name}` : name;
+    const st = lstatSync(join12(root, r));
+    if (st.isDirectory() && !st.isSymbolicLink()) {
+      if (pruneEmpty(root, r)) rmSync3(join12(root, r), { recursive: true });
+      else empty = false;
+    } else empty = false;
+  }
+  return empty;
+}
+function mirrorMe(meDir2, dest) {
+  const keep = walkFiles(meDir2).filter((f) => isExportable(f.rel, f.size));
+  const wanted = new Set(keep.map((f) => f.rel));
+  let removed = 0;
+  for (const f of walkFiles(dest)) {
+    if (!wanted.has(f.rel)) {
+      rmSync3(join12(dest, f.rel));
+      removed++;
+    }
+  }
+  for (const f of keep) {
+    const target = join12(dest, f.rel);
+    mkdirSync5(dirname5(target), { recursive: true });
+    copyFileSync(join12(meDir2, f.rel), target);
+  }
+  mkdirSync5(dest, { recursive: true });
+  pruneEmpty(dest);
+  return { copied: keep.length, removed };
+}
+async function exportPacket(opts) {
+  const run = opts.run ?? defaultRun;
+  const dataDir = resolve5(opts.dataDir);
+  if (!existsSync11(dataDir))
+    throw new NotFoundError(`data repo clone not found at ${dataDir}`);
+  if (isInside3(dataDir, opts.codeRepoRoot))
+    throw new ValidationError(
+      `data repo ${dataDir} sits inside the code repo ${opts.codeRepoRoot}; clone it elsewhere (ADR 006)`,
+      { dataDir, codeRepoRoot: opts.codeRepoRoot },
+      "data_repo_inside_code_repo"
+    );
+  if (!existsSync11(opts.meDir))
+    throw new NotFoundError(`me/ workspace not found at ${opts.meDir}`);
+  if (isInside3(opts.meDir, dataDir) || isInside3(dataDir, opts.meDir))
+    throw new ValidationError(
+      "me/ and the data repo must be separate folders",
+      { meDir: opts.meDir, dataDir },
+      "data_repo_overlaps_me"
+    );
+  const rows = selectRows(opts.db, opts);
+  if (rows.length === 0)
+    throw new ValidationError(
+      "no applications to export (need shortlisted apps with JD text and no finalized resume)",
+      void 0,
+      "nothing_to_export"
+    );
+  await assertPrivateRemote(dataDir, run);
+  const now = opts.now ?? /* @__PURE__ */ new Date();
+  const id = packetId(now);
+  const pktDir = join12(dataDir, "packets", id);
+  if (existsSync11(pktDir))
+    throw new ConflictError(
+      `packet ${id} already exists; wait a minute and retry`
+    );
+  const manifest = PacketManifest.parse({
+    id,
+    created_at: now.toISOString(),
+    schema_version: userVersion(opts.db),
+    apps: rows.map(toPacketApp)
+  });
+  mkdirSync5(join12(pktDir, "jd"), { recursive: true });
+  for (const r of rows)
+    writeFileSync6(
+      join12(pktDir, "jd", `${r.app_id}.txt`),
+      r.jd_text ?? "",
+      "utf8"
+    );
+  writeFileSync6(
+    join12(pktDir, "packet.json"),
+    `${JSON.stringify(manifest, null, 2)}
+`,
+    "utf8"
+  );
+  opts.db.prepare("VACUUM INTO ?").run(join12(pktDir, "jh.db"));
+  const me = mirrorMe(resolve5(opts.meDir), join12(dataDir, "me"));
+  await commitAndPush(dataDir, `packet ${id}: ${rows.length} apps`, run, [
+    "me",
+    `packets/${id}`
+  ]);
+  audit({
+    actor: "jh",
+    action: "cloud.export",
+    target: `packet:${id}`,
+    detail: { apps: manifest.apps.map((a) => a.app_id), me_files: me.copied }
+  });
+  return manifest;
+}
+
+// src/cloud/import.ts
+import { cpSync, existsSync as existsSync12, readFileSync as readFileSync10, rmSync as rmSync4 } from "node:fs";
+import { join as join13, resolve as resolve6 } from "node:path";
+init_errors3();
+var RUN_COLS = "id, application_id, workdir, jd_path, keywords_json, status, iterations, final_draft_id, ats_score, hm_verdict, quality, created_at, finalized_at";
+var DRAFT_COLS = "run_id, id, angle, iteration, path, ats_score, valid, created_at";
+var REVIEW_COLS = "run_id, draft_id, reviewer, verdict, score, json, created_at";
+var SNAPSHOT_COLS = "application_id, title_posted, seniority, must_haves_json, nice_to_haves_json, keywords_json, location, remote, salary, summary, source_url, captured_at";
+var ALIAS = "cloud";
+function readJson(path2, what) {
+  if (!existsSync12(path2)) throw new NotFoundError(`${what} not found: ${path2}`);
+  try {
+    return JSON.parse(readFileSync10(path2, "utf8"));
+  } catch (e) {
+    throw new ValidationError(
+      `invalid JSON in ${path2}: ${e.message}`
+    );
+  }
+}
+function rebase(p, cloudWorkdir, localWorkdir) {
+  const base = cloudWorkdir.replace(/[\\/]+$/, "");
+  if (p === base) return localWorkdir;
+  if (p.startsWith(`${base}/`) || p.startsWith(`${base}\\`)) {
+    const rest = p.slice(base.length + 1).split(/[\\/]+/).filter(Boolean);
+    return join13(localWorkdir, ...rest);
+  }
+  return p;
+}
+function pickWinner(db, runId, fromSummary, runRow) {
+  const named = fromSummary ?? runRow.final_draft_id;
+  if (named) return named;
+  const best = db.prepare(
+    `SELECT id FROM main.resume_drafts WHERE run_id = ? AND valid = 1
+			 ORDER BY iteration DESC, ats_score DESC, created_at DESC LIMIT 1`
+  ).get(runId);
+  return best?.id ?? null;
+}
+async function importResults(opts) {
+  const run = opts.run ?? defaultRun;
+  const { db } = opts;
+  const dataDir = resolve6(opts.dataDir);
+  await run("git", ["pull", "-q", "--ff-only"], dataDir);
+  const resDir = join13(dataDir, "results", opts.packetId);
+  const manifestPath = join13(dataDir, "packets", opts.packetId, "packet.json");
+  const manifest = existsSync12(manifestPath) ? PacketManifest.parse(readJson(manifestPath, "packet manifest")) : null;
+  const summary = CloudSummary.parse(
+    readJson(join13(resDir, "summary.json"), "cloud summary")
+  );
+  const cloudDb = join13(resDir, "jh.db");
+  if (!existsSync12(cloudDb))
+    throw new NotFoundError(`cloud DB not found: ${cloudDb}`);
+  const report = {
+    packet_id: opts.packetId,
+    imported: [],
+    skipped: [],
+    missing: []
+  };
+  const inSummary = new Set(summary.apps.map((a) => a.app_id));
+  for (const a of manifest?.apps ?? [])
+    if (!inSummary.has(a.app_id)) report.missing.push(a.app_id);
+  db.prepare(`ATTACH DATABASE ? AS ${ALIAS}`).run(cloudDb);
+  const copied = [];
+  const toValidate = [];
+  try {
+    const remote = db.prepare(`PRAGMA ${ALIAS}.user_version`).get().user_version;
+    const local = userVersion(db);
+    if (remote !== local)
+      throw new ValidationError(
+        `cloud DB schema v${remote} differs from local v${local}; update jh on both sides and re-run the packet`,
+        { cloud: remote, local },
+        "schema_mismatch"
+      );
+    const plan = [];
+    for (const app of summary.apps) {
+      if (!app.run_id) continue;
+      const exists = db.prepare("SELECT 1 FROM main.resume_runs WHERE id = ?").get(app.run_id);
+      if (exists) {
+        report.skipped.push(app.run_id);
+        continue;
+      }
+      const cloudRun = db.prepare(`SELECT ${RUN_COLS} FROM ${ALIAS}.resume_runs WHERE id = ?`).get(app.run_id);
+      const srcDir = join13(resDir, String(app.app_id), app.run_id);
+      const known = db.prepare("SELECT 1 FROM main.applications WHERE id = ?").get(app.app_id);
+      if (!cloudRun || cloudRun.application_id !== app.app_id || !existsSync12(srcDir) || !known) {
+        report.missing.push(app.app_id);
+        continue;
+      }
+      const localDir = join13(
+        opts.artifactsRoot,
+        String(app.app_id),
+        "runs",
+        app.run_id
+      );
+      if (existsSync12(localDir))
+        throw new ValidationError(
+          `run dir ${localDir} already exists but run ${app.run_id} is not in the DB; move it aside and retry`,
+          { run_id: app.run_id },
+          "run_dir_exists"
+        );
+      plan.push({ app, run: cloudRun, localDir });
+    }
+    for (const p of plan) {
+      cpSync(
+        join13(resDir, String(p.app.app_id), p.app.run_id),
+        p.localDir,
+        {
+          recursive: true
+        }
+      );
+      copied.push(p.localDir);
+    }
+    tx(db, () => {
+      const insRun = db.prepare(
+        `INSERT INTO main.resume_runs(${RUN_COLS}) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      );
+      const insDraft = db.prepare(
+        `INSERT INTO main.resume_drafts(${DRAFT_COLS}) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`
+      );
+      const insReview = db.prepare(
+        `INSERT INTO main.resume_reviews(${REVIEW_COLS}) SELECT ${REVIEW_COLS} FROM ${ALIAS}.resume_reviews WHERE run_id = ? ORDER BY id`
+      );
+      const insSnapshot = db.prepare(
+        `INSERT INTO main.jd_snapshots(${SNAPSHOT_COLS}) SELECT ${SNAPSHOT_COLS} FROM ${ALIAS}.jd_snapshots s
+				 WHERE s.application_id = ? AND NOT EXISTS (SELECT 1 FROM main.jd_snapshots m WHERE m.application_id = s.application_id)`
+      );
+      for (const { app, run: r, localDir } of plan) {
+        const runId = app.run_id;
+        const cloudWorkdir = String(r.workdir);
+        insRun.run(
+          r.id,
+          r.application_id,
+          localDir,
+          rebase(String(r.jd_path), cloudWorkdir, localDir),
+          r.keywords_json,
+          r.status,
+          r.iterations,
+          r.final_draft_id,
+          r.ats_score,
+          r.hm_verdict,
+          r.quality,
+          r.created_at,
+          r.finalized_at
+        );
+        const drafts = db.prepare(
+          `SELECT ${DRAFT_COLS} FROM ${ALIAS}.resume_drafts WHERE run_id = ?`
+        ).all(runId);
+        for (const d of drafts)
+          insDraft.run(
+            d.run_id,
+            d.id,
+            d.angle,
+            d.iteration,
+            rebase(String(d.path), cloudWorkdir, localDir),
+            d.ats_score,
+            d.valid,
+            d.created_at
+          );
+        insReview.run(runId);
+        insSnapshot.run(app.app_id);
+        toValidate.push({
+          app_id: app.app_id,
+          run_id: runId,
+          winner: pickWinner(db, runId, app.winner_draft_id, r)
+        });
+      }
+    });
+  } catch (e) {
+    for (const dir of copied) rmSync4(dir, { recursive: true, force: true });
+    throw e;
+  } finally {
+    db.exec(`DETACH DATABASE ${ALIAS}`);
+  }
+  for (const v of toValidate) {
+    const draft = v.winner ? db.prepare("SELECT path FROM resume_drafts WHERE run_id = ? AND id = ?").get(v.run_id, v.winner) : void 0;
+    let result;
+    if (!draft) result = { ok: false, errors: ["NO_WINNER_DRAFT"] };
+    else {
+      try {
+        result = opts.validate(draft.path);
+      } catch (e) {
+        result = { ok: false, errors: [e.message] };
+      }
+    }
+    report.imported.push({
+      app_id: v.app_id,
+      run_id: v.run_id,
+      valid: result.ok,
+      errors: result.errors
+    });
+  }
+  audit({
+    actor: "jh",
+    action: "cloud.import",
+    target: `packet:${opts.packetId}`,
+    detail: {
+      imported: report.imported.map((i) => i.run_id),
+      skipped: report.skipped.length,
+      missing: report.missing
+    }
+  });
+  return report;
+}
+
+// src/commands/cloud.ts
+init_errors3();
+init_paths();
+
+// src/commands/resume.ts
+import { randomBytes } from "node:crypto";
+import { copyFileSync as copyFileSync3, existsSync as existsSync14, readFileSync as readFileSync12, writeFileSync as writeFileSync8 } from "node:fs";
+import { dirname as dirname6, join as join15, resolve as resolve7 } from "node:path";
+init_errors3();
+init_paths();
+init_metrics();
+init_render();
+
+// src/resume/bold.ts
+init_emphasis();
+var RANGE_GAP_RE = /^\s*(?:to|to under|to over|to below|to above|to about|to roughly|->|→|-|–|and)\s*$/i;
+function escapeRe2(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function metricPhrases(text) {
+  const raw = metricSpans(text).map(({ start, end }) => {
+    let e = end;
+    const tail = /^(?:\+|-[A-Za-z]+|\s(?:years?|yrs?)\b)+/.exec(text.slice(e));
+    if (tail) e += tail[0].length;
+    return [start, e];
+  });
+  const out = [];
+  for (const span of raw) {
+    const last = out[out.length - 1];
+    if (last && RANGE_GAP_RE.test(text.slice(last[1], span[0])))
+      last[1] = span[1];
+    else if (last && span[0] < last[1]) last[1] = Math.max(last[1], span[1]);
+    else out.push([...span]);
+  }
+  return out;
+}
+function findTerm(text, term) {
+  const t = term.trim();
+  if (t.length < 2) return null;
+  const m = new RegExp(
+    `(^|[^A-Za-z0-9])(${escapeRe2(t)})(?=$|[^A-Za-z0-9])`,
+    "i"
+  ).exec(text);
+  if (!m) return null;
+  const start = m.index + (m[1]?.length ?? 0);
+  return [start, start + t.length];
+}
+function boldCandidates(master, profile, keywords) {
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  const add = (term, rank) => {
+    const k = term.trim().toLowerCase();
+    if (k.length < 2 || seen.has(k)) return;
+    seen.add(k);
+    out.push({ term: term.trim(), rank });
+  };
+  const kw = (list, base) => [...list].sort((a, b) => (b.weight ?? 1) - (a.weight ?? 1)).forEach((k) => {
+    for (const t of [k.term, ...k.aliases ?? []])
+      add(t, base + (3 - (k.weight ?? 1)));
+  });
+  if (keywords) {
+    kw(keywords.required, 0);
+    kw(keywords.preferred, 10);
+  }
+  const skills = [
+    ...master.skills,
+    ...master.roles.flatMap(
+      (r) => r.bullets.filter((b) => !b.retired).flatMap((b) => b.skills)
+    ),
+    ...profile?.skills?.expert ?? [],
+    ...profile?.skills?.proficient ?? [],
+    ...profile?.skills?.familiar ?? []
+  ];
+  for (const s of skills) add(s, 20);
+  return out;
+}
+function factPhrases(master) {
+  return master.roles.flatMap((r) => r.bullets).flatMap((b) => b.metrics).filter((m) => m.status === "fact").flatMap((m) => [m.phrase, m.value]).filter((p) => p && p.length <= 40);
+}
+var LEAD_WORD_RE = /^(?:a|an|the|at|by|to|of|for|in|on|from|with|across|over|while|and)$|(?:ing|ed)$/i;
+function trimLead(text, start, end, limit) {
+  let s = start;
+  for (; ; ) {
+    const m = /^(\S+)\s+/.exec(text.slice(s, limit));
+    if (!m?.[1] || !LEAD_WORD_RE.test(m[1])) break;
+    s += m[0].length;
+  }
+  return [s, end];
+}
+function suggestFor(text, candidates, facts, limits) {
+  const spans = [];
+  const budget = limits.maxRatio ? text.length * limits.maxRatio : Infinity;
+  const used = () => spans.reduce((n, [s, e]) => n + (e - s), 0);
+  const free = (s, e) => !spans.some(([a, b]) => s < b && e > a);
+  const take = (s, e, force = false) => {
+    if (spans.length >= limits.max || !free(s, e)) return;
+    if (!force && used() + (e - s) > budget) return;
+    spans.push([s, e]);
+  };
+  for (const [s, e] of metricPhrases(text)) {
+    const fact = facts.map((f) => [text.indexOf(f), f.length]).find(([at, len]) => at >= 0 && at <= s && at + len >= e && len <= 32);
+    if (fact) {
+      const [fs2, fe] = trimLead(text, fact[0], fact[0] + fact[1], s);
+      take(fs2, fe, true);
+    } else take(s, e, true);
+  }
+  const ordered = [...candidates].sort(
+    (a, b) => a.rank - b.rank || b.term.length - a.term.length
+  );
+  for (const c of ordered) {
+    if (spans.length >= limits.max) break;
+    const hit = findTerm(text, c.term);
+    if (hit) take(hit[0], hit[1]);
+  }
+  spans.sort((a, b) => a[0] - b[0]);
+  const suggested = spans.map(([s, e]) => text.slice(s, e)).filter((p, i, all2) => all2.indexOf(p) === i);
+  const placed = locateEmphasis(text, suggested).spans.length;
+  return { suggested, short: placed < limits.min };
+}
+function roleFields(roles, key) {
+  return roles.flatMap(
+    (role, ri) => role.bullets.map((b, bi) => ({
+      path: `${key}[${ri}].bullets[${bi}]`,
+      text: b.text,
+      current: b.emphasis
+    }))
+  );
+}
+function suggestBold(r, master, profile, keywords) {
+  const cands = boldCandidates(master, profile, keywords);
+  const facts = factPhrases(master);
+  const out = [];
+  const bulletLimits = { ...BOLD_RULES.bullet, maxRatio: BOLD_RULES.maxRatio };
+  for (const f of [
+    ...roleFields(r.experience, "experience"),
+    ...roleFields(r.projects, "projects")
+  ])
+    out.push({
+      ...f,
+      kind: "bullet",
+      ...suggestFor(f.text, cands, facts, bulletLimits)
+    });
+  if (r.summary.text.trim())
+    out.push({
+      path: "summary",
+      kind: "summary",
+      text: r.summary.text,
+      current: r.summary.emphasis,
+      ...suggestFor(r.summary.text, cands, facts, {
+        min: 1,
+        max: 4,
+        maxRatio: 0.25
+      })
+    });
+  (r.summary.highlights ?? []).forEach((h, i) => {
+    out.push({
+      path: `summary.highlights[${i}]`,
+      kind: "highlight",
+      text: h.text,
+      current: h.emphasis,
+      ...suggestFor(h.text, cands, facts, {
+        ...BOLD_RULES.highlight,
+        maxRatio: BOLD_RULES.maxRatio
+      })
+    });
+  });
+  return out;
+}
+function applyBold(r, suggestions) {
+  const copy = structuredClone(r);
+  const by = new Map(suggestions.map((s) => [s.path, s.suggested]));
+  const set2 = (roles, key) => roles.forEach((role, ri) => {
+    role.bullets.forEach((b, bi) => {
+      const s = by.get(`${key}[${ri}].bullets[${bi}]`);
+      if (s) b.emphasis = s;
+    });
+  });
+  set2(copy.experience, "experience");
+  set2(copy.projects, "projects");
+  const sum = by.get("summary");
+  if (sum) copy.summary.emphasis = sum;
+  (copy.summary.highlights ?? []).forEach((h, i) => {
+    const s = by.get(`summary.highlights[${i}]`);
+    if (s) h.emphasis = s;
+  });
+  return copy;
+}
+
+// src/resume/finalize.ts
+import { copyFileSync as copyFileSync2, existsSync as existsSync13, readFileSync as readFileSync11, writeFileSync as writeFileSync7 } from "node:fs";
+import { basename, join as join14 } from "node:path";
+init_errors3();
+init_paths();
+
+// src/db/jd.ts
+init_errors3();
+
+// src/jd/schema.ts
+init_zod();
+var Text2 = (max) => external_exports.string().trim().min(1).max(max);
+var JdTerm = external_exports.union([
+  Text2(120),
+  external_exports.object({
+    term: Text2(120),
+    aliases: external_exports.array(Text2(120)).max(10).default([])
+  })
+]).transform((t) => typeof t === "string" ? { term: t, aliases: [] } : t);
+var JdSnapshot = external_exports.object({
+  title_posted: Text2(200),
+  seniority: Text2(60).nullish(),
+  must_haves: external_exports.array(JdTerm).min(1).max(30),
+  nice_to_haves: external_exports.array(JdTerm).max(30).default([]),
+  keywords: external_exports.array(Text2(120)).max(60).default([]),
+  location: Text2(200).nullish(),
+  remote: Text2(60).nullish(),
+  salary: Text2(120).nullish(),
+  summary: Text2(800),
+  source_url: external_exports.string().trim().max(2e3).regex(/^https?:\/\//i, "source_url must be http(s)").nullish(),
+  captured_at: external_exports.iso.datetime({ offset: true }).optional()
+});
+
+// src/db/jd.ts
+function dedupeTerms(terms2) {
+  const seen = /* @__PURE__ */ new Set();
+  return terms2.filter((t) => {
+    const k = t.term.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+function dedupe(xs) {
+  const seen = /* @__PURE__ */ new Set();
+  return xs.filter((x) => {
+    const k = x.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+function upsertJdSnapshot(db, appId, input2) {
+  const parsed = JdSnapshot.safeParse(input2);
+  if (!parsed.success)
+    throw new ValidationError(
+      "invalid JD snapshot",
+      parsed.error.issues.map((i) => ({
+        path: i.path.join("."),
+        message: i.message
+      }))
+    );
+  const exists = db.prepare("SELECT 1 AS x FROM applications WHERE id = ?").get(appId);
+  if (!exists) throw new NotFoundError(`application ${appId} not found`);
+  const s = parsed.data;
+  const capturedAt = s.captured_at ?? nowIso();
+  db.prepare(
+    `INSERT INTO jd_snapshots(application_id, title_posted, seniority, must_haves_json, nice_to_haves_json,
+		   keywords_json, location, remote, salary, summary, source_url, captured_at)
+		 VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+		 ON CONFLICT(application_id) DO UPDATE SET title_posted=excluded.title_posted, seniority=excluded.seniority,
+		   must_haves_json=excluded.must_haves_json, nice_to_haves_json=excluded.nice_to_haves_json,
+		   keywords_json=excluded.keywords_json, location=excluded.location, remote=excluded.remote,
+		   salary=excluded.salary, summary=excluded.summary,
+		   source_url=COALESCE(excluded.source_url, jd_snapshots.source_url), captured_at=excluded.captured_at`
+  ).run(
+    appId,
+    s.title_posted,
+    s.seniority ?? null,
+    JSON.stringify(dedupeTerms(s.must_haves)),
+    JSON.stringify(dedupeTerms(s.nice_to_haves)),
+    JSON.stringify(dedupe(s.keywords)),
+    s.location ?? null,
+    s.remote ?? null,
+    s.salary ?? null,
+    s.summary,
+    s.source_url ?? null,
+    capturedAt
+  );
+  return getJdSnapshot(db, appId);
+}
+function parseTerms(json2) {
+  try {
+    const raw = JSON.parse(json2);
+    if (!Array.isArray(raw)) return [];
+    return raw.flatMap((t) => {
+      const r = JdTerm.safeParse(t);
+      return r.success ? [r.data] : [];
+    });
+  } catch {
+    return [];
+  }
+}
+function parseStrings(json2) {
+  try {
+    const raw = JSON.parse(json2);
+    return Array.isArray(raw) ? raw.filter((x) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+function getJdSnapshot(db, appId) {
+  const row = db.prepare("SELECT * FROM jd_snapshots WHERE application_id = ?").get(appId);
+  if (!row) return void 0;
+  return {
+    application_id: row.application_id,
+    title_posted: row.title_posted,
+    seniority: row.seniority,
+    must_haves: parseTerms(row.must_haves_json),
+    nice_to_haves: parseTerms(row.nice_to_haves_json),
+    keywords: parseStrings(row.keywords_json),
+    location: row.location,
+    remote: row.remote,
+    salary: row.salary,
+    summary: row.summary,
+    source_url: row.source_url,
+    captured_at: row.captured_at
+  };
+}
+
+// src/db/learn.ts
+init_zod();
+init_errors3();
+var TitleChoice = external_exports.object({
+  posted: external_exports.string().min(1),
+  headline: external_exports.string(),
+  display_titles: external_exports.array(external_exports.string().min(1)).default([]),
+  /** How many roles showed an approved variant instead of the official title. */
+  variants_used: external_exports.number().int().min(0).default(0)
+});
+var ResumeVariantInput = external_exports.object({
+  run_id: external_exports.string().min(1).nullish(),
+  angle: external_exports.string().min(1).nullish(),
+  framing: external_exports.string().min(1).nullish(),
+  keywords: external_exports.array(external_exports.string().min(1)).default([]),
+  bullet_ids: external_exports.array(external_exports.string().min(1)).default([]),
+  phrasing: external_exports.array(external_exports.string().min(1)).default([]),
+  ats_score: external_exports.number().int().min(0).max(100).nullish(),
+  pages: external_exports.number().int().min(1).max(10).nullish(),
+  role_family: external_exports.string().min(1).nullish(),
+  source: external_exports.string().min(1).nullish(),
+  submitted_at: external_exports.iso.datetime({ offset: true }).nullish(),
+  /** Which titles the resume showed for which posted title (learning feature title_choice). */
+  title_choice: TitleChoice.nullish()
+});
+var LearnState = external_exports.object({
+  last_run_at: external_exports.string().nullable().default(null),
+  resolved_at_last_run: external_exports.number().int().min(0).default(0)
+});
+var LEARN_STATE_KEY = "learn.state";
+function recordVariant(db, appId, v) {
+  if (!Number.isInteger(appId) || appId <= 0) {
+    throw new JhError(`invalid application id ${appId}`, 2, "validation");
+  }
+  const parsed = ResumeVariantInput.safeParse(v);
+  if (!parsed.success) {
+    throw new JhError(
+      "invalid resume variant",
+      2,
+      "validation",
+      parsed.error.issues
+    );
+  }
+  const x = parsed.data;
+  db.prepare(
+    `INSERT INTO resume_variants(application_id, run_id, angle, framing, keywords_json, bullet_ids_json, phrasing_json, ats_score, pages, role_family, source, submitted_at, title_choice_json)
+		 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+		 ON CONFLICT(application_id) DO UPDATE SET run_id=excluded.run_id, angle=excluded.angle, framing=excluded.framing,
+		   keywords_json=excluded.keywords_json, bullet_ids_json=excluded.bullet_ids_json, phrasing_json=excluded.phrasing_json,
+		   ats_score=excluded.ats_score, pages=excluded.pages, role_family=excluded.role_family, source=excluded.source,
+		   submitted_at=COALESCE(excluded.submitted_at, resume_variants.submitted_at),
+		   title_choice_json=COALESCE(excluded.title_choice_json, resume_variants.title_choice_json)`
+  ).run(
+    appId,
+    x.run_id ?? null,
+    x.angle ?? null,
+    x.framing ?? null,
+    JSON.stringify(dedupe2(x.keywords)),
+    JSON.stringify(dedupe2(x.bullet_ids)),
+    JSON.stringify(dedupe2(x.phrasing)),
+    x.ats_score ?? null,
+    x.pages ?? null,
+    x.role_family ?? null,
+    x.source ?? null,
+    x.submitted_at ?? null,
+    x.title_choice ? JSON.stringify(x.title_choice) : null
+  );
+}
+function listOutcomeRows(db) {
+  return db.prepare(
+    `SELECT a.id AS application_id, a.status, a.source AS app_source, a.applied_at, a.created_at,
+			        j.title AS job_title, c.name AS company,
+			        v.run_id, v.angle, v.framing, v.keywords_json, v.bullet_ids_json, v.phrasing_json,
+			        v.ats_score, v.pages, v.role_family, v.source AS variant_source, v.submitted_at, v.title_choice_json,
+			        (SELECT d.angle FROM resume_runs r JOIN resume_drafts d ON d.run_id = r.id AND d.id = r.final_draft_id
+			          WHERE r.application_id = a.id AND r.status = 'finalized' ORDER BY r.finalized_at DESC LIMIT 1) AS final_angle,
+			        (SELECT r.ats_score FROM resume_runs r
+			          WHERE r.application_id = a.id AND r.status = 'finalized' ORDER BY r.finalized_at DESC LIMIT 1) AS final_ats
+			   FROM applications a
+			   JOIN jobs j ON j.id = a.job_id
+			   JOIN companies c ON c.id = j.company_id
+			   LEFT JOIN resume_variants v ON v.application_id = a.id
+			  WHERE a.applied_at IS NOT NULL OR v.submitted_at IS NOT NULL
+			  ORDER BY a.id`
+  ).all();
+}
+function listOutcomeEvents(db) {
+  return db.prepare(
+    `SELECT e.application_id, e.kind, e.from_status, e.to_status, e.at
+			   FROM application_events e
+			   JOIN applications a ON a.id = e.application_id
+			  WHERE a.applied_at IS NOT NULL
+			     OR EXISTS (SELECT 1 FROM resume_variants v WHERE v.application_id = a.id AND v.submitted_at IS NOT NULL)
+			  ORDER BY e.application_id, e.at`
+  ).all();
+}
+function listOutcomeEmails(db) {
+  return db.prepare(
+    `SELECT application_id, kind, received_at FROM emails
+			  WHERE application_id IS NOT NULL ORDER BY application_id, received_at`
+  ).all();
+}
+function getLearnState(db) {
+  const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(LEARN_STATE_KEY);
+  if (!row) return LearnState.parse({});
+  try {
+    const parsed = LearnState.safeParse(JSON.parse(row.value));
+    return parsed.success ? parsed.data : LearnState.parse({});
+  } catch {
+    return LearnState.parse({});
+  }
+}
+function setLearnState(db, s) {
+  const value = JSON.stringify(LearnState.parse(s));
+  db.prepare(
+    "INSERT INTO settings(key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+  ).run(LEARN_STATE_KEY, value);
+}
+function dedupe2(xs) {
+  return [...new Set(xs.map((x) => x.trim()).filter(Boolean))];
+}
+
+// src/learn/features.ts
+init_schema();
+var ROLE_FAMILY_PATTERNS = [
+  [
+    "management",
+    /\b(engineering manager|manager|director|head of|vp|vice president)\b/
+  ],
+  [
+    "ml",
+    /\b(machine learning|ml|ai|deep learning|llm|nlp|computer vision|applied scientist)\b/
+  ],
+  [
+    "data",
+    /\b(data|analytics|analyst|bi|etl|warehouse|business intelligence)\b/
+  ],
+  ["security", /\b(security|appsec|infosec|cyber|penetration)\b/],
+  [
+    "devops",
+    /\b(devops|sre|site reliability|platform|infrastructure|cloud|devsecops)\b/
+  ],
+  ["mobile", /\b(ios|android|mobile|react native|flutter)\b/],
+  ["qa", /\b(qa|quality|test|sdet|automation engineer)\b/],
+  ["frontend", /\b(front[- ]?end|ui|web developer|react|angular|vue)\b/],
+  ["fullstack", /\b(full[- ]?stack)\b/],
+  [
+    "backend",
+    /\b(back[- ]?end|software engineer|software developer|developer|programmer|api|java|python|golang|\.net|node)\b/
+  ]
+];
+function classifyRoleFamily(title) {
+  const t = title.toLowerCase();
+  for (const [family, re] of ROLE_FAMILY_PATTERNS) {
+    if (re.test(t)) return family;
+  }
+  return "other";
+}
+function classifyFraming(headline) {
+  const h = headline.toLowerCase();
+  if (/\b(lead|leader|manager|head|director)\b/.test(h)) return "leadership";
+  if (/\b(senior|sr\.?|staff|principal|architect)\b/.test(h))
+    return "senior-ic";
+  if (/[|•·/]|\b(in|for|specializing|focused)\b/.test(h)) return "specialist";
+  return "generalist";
+}
+function normalizeKeyword(k) {
+  return k.trim().toLowerCase().replace(/\s+/g, " ");
+}
+var XYZ_CONNECTOR = /\b(by|using|through|via|leveraging)\b/i;
+var HAS_NUMBER = /\d/;
+function phrasingTags(text) {
+  const trimmed = text.trim();
+  const first = trimmed.split(/\s+/)[0] ?? "";
+  const verb = first.toLowerCase().replace(/[^a-z-]/g, "");
+  const tags = [];
+  if (verb) tags.push(`opener:${verb}`);
+  const hasNumber = HAS_NUMBER.test(trimmed);
+  if (hasNumber && XYZ_CONNECTOR.test(trimmed)) tags.push("shape:xyz");
+  else if (hasNumber) tags.push("shape:metric");
+  else tags.push("shape:plain");
+  const len = trimmed.length;
+  tags.push(`length:${len < 110 ? "short" : len < 180 ? "medium" : "long"}`);
+  return tags;
+}
+function titleChoiceOf(r, postedTitle) {
+  const shown = r.experience.filter((role) => role.title !== void 0).map((role) => ({
+    shown: role.display_title ?? role.title,
+    variant: usesTitleVariant(role)
+  }));
+  return {
+    posted: (postedTitle ?? "").trim() || r.job.title,
+    headline: r.basics.headline,
+    display_titles: shown.map((s) => s.shown),
+    variants_used: shown.filter((s) => s.variant).length
+  };
+}
+function titleChoiceValues(tc) {
+  const family = classifyRoleFamily(tc.posted);
+  const out = [];
+  const recent = tc.display_titles[0];
+  if (recent) out.push(`${family} <- ${normalizeKeyword(recent)}`);
+  out.push(
+    containsTitle(tc.headline, tc.posted) ? "headline:has-posted-title" : "headline:other-title"
+  );
+  if (tc.variants_used > 0) out.push("display:title-variant");
+  else out.push("display:official-titles");
+  return out;
+}
+function variantFromResume(r, extras = {}) {
+  const roles = [...r.experience, ...r.projects ?? []];
+  const bullets = roles.flatMap((role) => role.bullets);
+  const keywords = /* @__PURE__ */ new Set();
+  for (const k of extras.keywords ?? []) keywords.add(normalizeKeyword(k));
+  for (const b of bullets) {
+    for (const k of b.keywords ?? []) keywords.add(normalizeKeyword(k));
+  }
+  const bulletIds = /* @__PURE__ */ new Set();
+  for (const b of bullets) for (const id of b.source_ids) bulletIds.add(id);
+  const phrasing = /* @__PURE__ */ new Set();
+  for (const b of bullets)
+    for (const t of phrasingTags(b.text)) phrasing.add(t);
+  return {
+    run_id: r.run_id,
+    angle: r.angle,
+    framing: classifyFraming(r.basics.headline),
+    keywords: [...keywords].filter(Boolean),
+    bullet_ids: [...bulletIds],
+    phrasing: [...phrasing],
+    ats_score: extras.ats_score ?? null,
+    pages: extras.pages ?? r.layout?.pages ?? null,
+    role_family: classifyRoleFamily(r.job.title),
+    source: extras.source ?? null,
+    submitted_at: extras.submitted_at ?? null,
+    title_choice: titleChoiceOf(r, extras.posted_title)
+  };
+}
+
+// src/resume/finalize.ts
+init_render();
+init_schema();
+var FINAL_FORMATS = ["html", "pdf", "docx", "txt"];
+var FINALIZABLE = /* @__PURE__ */ new Set([
+  "discovered",
+  "shortlisted",
+  "tailored"
+]);
+var ACTOR = "jh resume finalize";
+function provenanceOf(r) {
+  const out = { summary: r.summary.source_ids };
+  for (const b of allBullets(r)) out[b.id] = b.source_ids;
+  return out;
+}
+function writeJson(path2, data) {
+  writeFileSync7(path2, `${JSON.stringify(data, null, 2)}
+`, "utf8");
+  return path2;
+}
+function assertFinalizable(db, runId, appId) {
+  const app = getApplication(db, appId);
+  if (!app)
+    throw new NotFoundError(`application ${appId} not found`, { appId, runId });
+  if (!FINALIZABLE.has(app.status))
+    throw new IllegalTransitionError(
+      `application ${appId} is ${app.status}; only discovered, shortlisted or tailored applications can be finalized`,
+      { appId, status: app.status }
+    );
+  return app.status;
+}
+function requireFactcheck(reviews) {
+  const fc = latestByReviewer(reviews)["fact-checker"];
+  if (fc?.verdict !== "pass")
+    throw new ValidationError(
+      fc ? `fact-checker verdict is "${fc.verdict}"; finalize needs a passing fact-check` : "no fact-checker review; run the fact-checker and jh resume review add first",
+      { factcheck: fc ?? null },
+      "factcheck_required"
+    );
+  return fc;
+}
+function renderedViews(r, render) {
+  const read = (f) => f && existsSync13(f) ? readFileSync11(f, "utf8") : void 0;
+  const docx = render.files.docx;
+  return {
+    html: read(render.files.html) ?? renderHtml(r),
+    text: read(render.files.txt) ?? renderText(r),
+    docxXml: docx && existsSync13(docx) ? docxDocumentXml(readFileSync11(docx)) : void 0
+  };
+}
+function placeArtifacts(r, render, dir) {
+  const files = {
+    json: writeJson(join14(dir, "resume.json"), r)
+  };
+  for (const [fmt, src] of Object.entries(render.files)) {
+    if (!src || !existsSync13(src)) continue;
+    const generic = join14(dir, `resume.${fmt}`);
+    copyFileSync2(src, generic);
+    files[fmt] = generic;
+    if (fmt === "pdf" || fmt === "docx") {
+      const named = join14(dir, basename(src));
+      if (named !== generic) copyFileSync2(src, named);
+      files[`${fmt}_named`] = named;
+    }
+  }
+  return files;
+}
+function variantKeywords(r, ats, kwTerms) {
+  if (!ats) return [...new Set(allBullets(r).flatMap((b) => b.keywords))];
+  const all2 = tokens(
+    allRoles(r).flatMap((x) => x.bullets.map((b) => b.text)).concat(
+      r.summary.text,
+      r.basics.headline,
+      ...r.skills.flatMap((g) => g.items)
+    ).join(" | ")
+  );
+  return kwTerms.filter((t) => countKeyword(all2, { term: t }) > 0);
+}
+function moveToTailored(db, appId, from, runId) {
+  const detail = { run_id: runId };
+  if (from === "discovered")
+    transition(db, appId, "shortlisted", { actor: ACTOR, detail });
+  if (from !== "tailored")
+    transition(db, appId, "tailored", { actor: ACTOR, detail });
+}
+async function finalizeResume(db, o) {
+  const run = requireRun(db, o.runId);
+  if (run.status !== "running")
+    throw new ConflictError(
+      `run ${run.id} is already ${run.status}`,
+      { status: run.status },
+      "run_not_running"
+    );
+  const me = o.me ?? loadMe();
+  const a = assessDraft(db, o.runId, o.draftId, me);
+  if (!a.validation.ok)
+    throw new ValidationError(
+      `draft ${o.draftId} fails validation (${a.validation.errors.length} errors)`,
+      { errors: a.validation.errors },
+      "validation_failed"
+    );
+  const fact = requireFactcheck(a.reviews);
+  const appId = run.application_id;
+  const fromStatus = assertFinalizable(db, run.id, appId);
+  const dir = ensureDir(artifactsDir(appId));
+  const stage = ensureDir(join14(run.workdir, "render", "final"));
+  const render = await renderAll(
+    a.draft,
+    stage,
+    o.formats ?? [...FINAL_FORMATS]
+  );
+  const wantFormats = o.formats ?? [...FINAL_FORMATS];
+  if (wantFormats.includes("pdf") && !render.files.pdf) {
+    throw new ValidationError(
+      "PDF rendering failed; the run stays open so finalize can be retried",
+      { warnings: render.warnings },
+      "pdf_failed"
+    );
+  }
+  const layout = await layoutGate(a.draft, {
+    spec: layoutSpecFrom(me.profile),
+    density: render.density,
+    pdfPath: render.files.pdf
+  });
+  if (!layout.pass)
+    throw new ValidationError(
+      `layout gate failed (${layout.failures.length} issue(s)): ${layout.failures.slice(0, 3).map((f) => `${f.code} ${f.path}`).join("; ")}`,
+      { layout },
+      "layout_gate_failed"
+    );
+  const kw = runKeywords(run);
+  const ats = kw ? scoreResume(a.draft, kw, renderedViews(a.draft, render), me.profile) : null;
+  const atsScore = ats?.total ?? a.atsScore;
+  const gate = evaluateGate({ ats: atsScore, valid: true, reviews: a.reviews });
+  const fits = render.overflow_lines === void 0;
+  const quality = o.quality ?? (gate.pass && fits ? "ok" : "below_bar");
+  const files = placeArtifacts(a.draft, render, dir);
+  files.provenance = writeJson(
+    join14(dir, "provenance.json"),
+    provenanceOf(a.draft)
+  );
+  files.ats = writeJson(
+    join14(dir, "ats.json"),
+    ats ?? { total: atsScore, source: "ats-screener" }
+  );
+  files.review = writeJson(join14(dir, "review.json"), {
+    run_id: run.id,
+    draft_id: o.draftId,
+    quality,
+    gate,
+    reviews: latestByReviewer(a.reviews),
+    open_fixes: mergedFixes(a.reviews)
+  });
+  files.factcheck = writeJson(join14(dir, "factcheck.json"), fact);
+  files.layout = writeJson(join14(dir, "layout.json"), layout);
+  const kwTerms = kw ? [...kw.required, ...kw.preferred].map((k) => k.term) : [];
+  const hm = gate.hm_verdict;
+  tx(db, () => {
+    upsertDraft(db, {
+      run_id: run.id,
+      id: o.draftId,
+      angle: a.draft.angle,
+      iteration: a.draft.iteration,
+      path: requireDraft(db, run.id, o.draftId).path,
+      ats_score: atsScore,
+      valid: true
+    });
+    finalizeRun(db, run.id, {
+      final_draft_id: o.draftId,
+      ats_score: atsScore,
+      hm_verdict: hm,
+      quality,
+      iterations: Math.max(run.iterations, a.draft.iteration)
+    });
+    setArtifactsDir(db, appId, dir);
+    const app = getApplication(db, appId);
+    recordVariant(
+      db,
+      appId,
+      // Bucketed features (framing class, phrasing tags, role family) so
+      // values repeat across applications and analysis can reach n>=3.
+      variantFromResume(a.draft, {
+        ats_score: Math.max(0, Math.min(100, Math.round(atsScore))),
+        pages: render.pages ?? a.draft.layout.pages,
+        source: app?.source ?? null,
+        keywords: variantKeywords(a.draft, ats, kwTerms),
+        posted_title: getJdSnapshot(db, appId)?.title_posted ?? null
+      })
+    );
+    moveToTailored(db, appId, fromStatus, run.id);
+  });
+  audit({
+    actor: ACTOR,
+    action: "resume.finalize",
+    target: `application:${appId}`,
+    detail: {
+      run_id: run.id,
+      draft_id: o.draftId,
+      ats: atsScore,
+      quality,
+      dir
+    }
+  });
+  return {
+    run_id: run.id,
+    app_id: appId,
+    draft_id: o.draftId,
+    artifacts_dir: dir,
+    files,
+    ats: atsScore,
+    quality,
+    gate,
+    pages: render.pages,
+    warnings: render.warnings,
+    status: "tailored",
+    layout
+  };
+}
+
+// src/commands/resume.ts
+init_schema();
+function withDb4(fn) {
+  const db = openDb();
+  try {
+    return fn(db);
+  } finally {
+    db.close();
+  }
+}
+async function withDbAsync(fn) {
+  const db = openDb();
+  try {
+    return await fn(db);
+  } finally {
+    db.close();
+  }
+}
+function parseIntArg(v, name) {
+  if (v === void 0) return void 0;
+  const n = Number(v);
+  if (!Number.isInteger(n) || n <= 0)
+    throw new ValidationError(`--${name} must be a positive integer`);
+  return n;
+}
+function newRunId(appId, now = /* @__PURE__ */ new Date()) {
+  const stamp = now.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
+  return `${appId}-${stamp}-${randomBytes(2).toString("hex")}`;
+}
+function resolveApplication(db, o, jdText) {
+  if (o.app !== void 0) {
+    const app = getApplication(db, o.app);
+    if (!app) throw new NotFoundError(`application ${o.app} not found`);
+    const job2 = getJob(db, app.job_id);
+    if (job2 && !job2.jd_text) setJobJd(db, job2.id, jdText);
+    return app.id;
+  }
+  const company = upsertCompany(db, { name: o.company });
+  const job = insertJob(db, {
+    company_id: company.id,
+    title: o.title,
+    url: o.url,
+    jd_text: jdText
+  });
+  if (!job.jd_text) setJobJd(db, job.id, jdText);
+  return createApplication(db, { job_id: job.id }).id;
+}
+function prepareRun(db, o) {
+  if (!existsSync14(o.jd)) throw new NotFoundError(`JD file not found: ${o.jd}`);
+  const jdText = readFileSync12(o.jd, "utf8");
+  if (jdText.trim().length < 50)
+    throw new ValidationError(`JD file ${o.jd} is too short to tailor against`);
+  const paths = mePaths();
+  if (!existsSync14(paths.masterResume))
+    throw new NotFoundError(
+      `master resume not found at ${paths.masterResume}; run /intake first`,
+      { path: paths.masterResume },
+      "master_missing"
+    );
+  const appId = resolveApplication(db, o, jdText);
+  const runId = newRunId(appId);
+  const workdir = ensureDir(join15(artifactsDir(appId), "runs", runId));
+  const jdPath = join15(workdir, "jd.txt");
+  copyFileSync3(o.jd, jdPath);
+  createRun(db, { id: runId, application_id: appId, workdir, jd_path: jdPath });
+  audit({
+    actor: "jh resume prepare",
+    action: "resume.prepare",
+    target: `application:${appId}`,
+    detail: { run_id: runId, company: o.company, title: o.title }
+  });
+  return {
+    run_id: runId,
+    app_id: appId,
+    workdir,
+    jd_path: jdPath,
+    master_path: paths.masterResume,
+    profile_path: paths.profile,
+    pending_estimates: pendingMetricCount(paths)
+  };
+}
+function runMismatch(run, appId) {
+  if (run.application_id === appId) return [];
+  return [
+    {
+      path: "job.app_id",
+      code: "SCHEMA",
+      message: `run ${run.id} is for application ${run.application_id}, draft says ${appId}`
+    }
+  ];
+}
+function validateDraftFile(db, file2, json2, me = loadMe()) {
+  const result = validateTailored(json2, me.master, me.profile);
+  const parsed = TailoredResume.safeParse(json2);
+  if (!parsed.success) return { ...result, registered: false };
+  const draft = parsed.data;
+  const run = getRun(db, draft.run_id);
+  if (!run) return { ...result, registered: false, draft_id: draft.draft_id };
+  result.errors.push(...runMismatch(run, draft.job.app_id));
+  result.ok = result.errors.length === 0;
+  const kw = runKeywords(run);
+  const ats = kw && result.ok ? scoreResume(draft, kw, void 0, me.profile).total : void 0;
+  upsertDraft(db, {
+    run_id: run.id,
+    id: draft.draft_id,
+    angle: draft.angle,
+    iteration: draft.iteration,
+    path: resolve7(file2),
+    ats_score: ats,
+    valid: result.ok
+  });
+  return {
+    ...result,
+    registered: true,
+    run_id: run.id,
+    draft_id: draft.draft_id,
+    ats
+  };
+}
+function humanValidation(v) {
+  const lines = [v.ok ? "valid" : `INVALID (${v.errors.length} errors)`];
+  for (const e of v.errors)
+    lines.push(`  error ${e.code} ${e.path}: ${e.message}`);
+  for (const w of v.warnings)
+    lines.push(`  warn  ${w.code} ${w.path}: ${w.message}`);
+  if (v.registered)
+    lines.push(
+      `registered ${v.draft_id} on run ${v.run_id}${v.ats !== void 0 ? ` (ATS ${v.ats})` : ""}`
+    );
+  return lines.join("\n");
+}
+function parseFormats(csv) {
+  if (!csv) return [...FORMATS];
+  const parts = csv.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const bad = parts.filter((p) => !FORMATS.includes(p));
+  if (bad.length || !parts.length)
+    throw new ValidationError(`unknown format: ${bad.join(", ") || "(none)"}`, {
+      allowed: FORMATS
+    });
+  return parts;
+}
+function defaultRenderDir(db, file2, r) {
+  const run = getRun(db, r.run_id);
+  const base = run ? run.workdir : dirname6(resolve7(file2));
+  return join15(base, "render", r.draft_id);
+}
+function addReviewFromJson(db, runId, json2) {
+  const run = requireRun(db, runId);
+  const rep = parseReview(json2);
+  requireDraft(db, run.id, rep.draft_id);
+  const id = addReview(db, run.id, rep);
+  const copy = join15(
+    ensureDir(run.workdir),
+    `review-${rep.draft_id}-${rep.reviewer}-${id}.json`
+  );
+  writeFileSync8(copy, `${JSON.stringify(rep, null, 2)}
+`, "utf8");
+  return {
+    id,
+    run_id: run.id,
+    draft_id: rep.draft_id,
+    reviewer: rep.reviewer,
+    verdict: rep.verdict,
+    score: rep.score,
+    path: copy
+  };
+}
+function runStatus(db, runId) {
+  const run = requireRun(db, runId);
+  const drafts = listDrafts(db, run.id).map((d) => {
+    const latest = latestByReviewer(listReviews(db, run.id, d.id));
+    return {
+      id: d.id,
+      angle: d.angle,
+      iteration: d.iteration,
+      path: d.path,
+      ats_score: d.ats_score,
+      valid: d.valid === null ? null : d.valid === 1,
+      reviews: Object.values(latest).map((r) => ({
+        reviewer: r.reviewer,
+        verdict: r.verdict,
+        score: r.score
+      }))
+    };
+  });
+  return {
+    run: {
+      ...run,
+      keywords_json: void 0,
+      has_keywords: run.keywords_json !== null
+    },
+    drafts
+  };
+}
+function humanStatus(s) {
+  const lines = [
+    `run ${s.run.id} (${s.run.status}) app ${s.run.application_id} iterations ${s.run.iterations}`
+  ];
+  for (const d of s.drafts) {
+    const reviews = d.reviews.map((r) => `${r.reviewer}=${r.verdict}/${r.score}`).join(" ");
+    lines.push(
+      `  ${d.id} [${d.angle} i${d.iteration}] valid=${d.valid} ats=${d.ats_score ?? "-"} ${reviews}`
+    );
+  }
+  return lines.join("\n");
+}
+async function runPrepare(o) {
+  const out = withDb4(
+    (db) => prepareRun(db, {
+      jd: o.jd,
+      company: o.company,
+      title: o.title,
+      url: o.url,
+      app: parseIntArg(o.app, "app")
+    })
+  );
+  emit(
+    out,
+    o.json,
+    (r) => `run ${r.run_id} for application ${r.app_id}
+workdir ${r.workdir}
+pending estimates: ${r.pending_estimates}`
+  );
+}
+async function runValidate(file2, o) {
+  const json2 = await readJsonInput(file2);
+  const out = withDb4((db) => validateDraftFile(db, file2, json2));
+  emit(out, o.json, humanValidation);
+  if (!out.ok) process.exitCode = 2;
+}
+async function runRender(file2, o) {
+  const r = TailoredResume.parse(await readJsonInput(file2));
+  if (o.pages !== void 0) {
+    if (o.pages !== "1" && o.pages !== "2")
+      throw new ValidationError("--pages must be 1 or 2");
+    r.layout = { ...r.layout, pages: o.pages === "1" ? 1 : 2 };
+  }
+  const formats = parseFormats(o.formats);
+  const outDir = o.out ? resolve7(o.out) : withDb4((db) => defaultRenderDir(db, file2, r));
+  const result = await renderAll(r, ensureDir(outDir), formats);
+  emit(
+    { ...result, out_dir: outDir },
+    o.json,
+    (x) => [
+      `rendered to ${x.out_dir} (pages ${x.pages ?? "?"}, density ${x.density})`,
+      ...Object.values(x.files),
+      ...x.warnings.map((w) => `warning: ${w}`)
+    ].join("\n")
+  );
+}
+async function runLayout(file2, o) {
+  const r = TailoredResume.parse(await readJsonInput(file2));
+  const me = loadMe();
+  const spec = layoutSpecFrom(me.profile);
+  r.layout = { ...r.layout, pages: spec.pages === 1 ? 1 : 2 };
+  const outDir = o.out ? resolve7(o.out) : withDb4((db) => defaultRenderDir(db, file2, r));
+  const render = await renderAll(r, ensureDir(outDir), ["pdf", "html", "docx"]);
+  const gate = await layoutGate(r, {
+    spec,
+    density: render.density,
+    pdfPath: render.files.pdf
+  });
+  emit(
+    { ...gate, files: render.files, density: render.density, out_dir: outDir },
+    o.json,
+    (x) => [
+      `layout ${x.pass ? "PASS" : "FAIL"}: pages ${x.pages}, last page ${Math.round((x.last_page_fill ?? 0) * 100)}% full (${x.out_dir})`,
+      ...x.failures.map((f) => `  - ${f.code} ${f.path}: ${f.message}`),
+      ...x.warnings.map((w) => `  warning ${w.code}: ${w.message}`)
+    ].join(String.fromCharCode(10))
+  );
+  if (!gate.pass) process.exitCode = 2;
+}
+async function runBold(file2, o) {
+  const r = TailoredResume.parse(await readJsonInput(file2));
+  const me = loadMe();
+  let keywords = null;
+  if (o.keywords)
+    keywords = JdKeywords.parse(JSON.parse(readFileSync12(o.keywords, "utf8")));
+  else
+    try {
+      keywords = withDb4((db) => {
+        const run = getRun(db, r.run_id);
+        return run ? runKeywords(run) : null;
+      });
+    } catch {
+      keywords = null;
+    }
+  const suggestions = suggestBold(r, me.master, me.profile, keywords);
+  let written;
+  if (o.apply) {
+    written = resolve7(o.out ?? file2);
+    writeFileSync8(
+      written,
+      `${JSON.stringify(applyBold(r, suggestions), null, 2)}
+`
+    );
+  }
+  const out = {
+    draft_id: r.draft_id,
+    keywords: keywords !== null,
+    written,
+    short: suggestions.filter((s) => s.short).map((s) => s.path),
+    suggestions
+  };
+  emit(
+    out,
+    o.json,
+    (x) => [
+      `bold suggestions for ${x.draft_id} (JD keywords ${x.keywords ? "used" : "not found"})`,
+      ...x.suggestions.map(
+        (s) => `  ${s.path}${s.short ? " [SHORT: add a core-concept term]" : ""}: ${s.suggested.map((p) => `**${p}**`).join(", ")}`
+      ),
+      ...x.written ? [`written to ${x.written}`] : []
+    ].join(String.fromCharCode(10))
+  );
+}
+async function runReviewAdd(runId, o) {
+  const json2 = await readJsonInput(o.file);
+  const out = withDb4((db) => addReviewFromJson(db, runId, json2));
+  emit(
+    out,
+    o.json,
+    (x) => `review ${x.id}: ${x.reviewer} ${x.verdict} (${x.score}) on ${x.draft_id}`
+  );
+}
+async function runGate(runId, o) {
+  const gate = withDb4((db) => {
+    const a = assessDraft(db, runId, o.draft);
+    const row = requireDraft(db, runId, o.draft);
+    upsertDraft(db, { ...row, ats_score: a.atsScore, valid: a.validation.ok });
+    return a.gate;
+  });
+  emit(
+    gate,
+    o.json,
+    (g) => [
+      `gate ${g.pass ? "PASS" : "FAIL"}: ats ${g.ats}, hm ${g.hm_verdict ?? "-"}, recruiter ${g.recruiter_passes}/8, valid ${g.valid}, factcheck ${g.factcheck}`,
+      ...g.reasons.map((r) => `  - ${r}`)
+    ].join("\n")
+  );
+}
+async function runStatusCmd(runId, o) {
+  emit(
+    withDb4((db) => runStatus(db, runId)),
+    o.json,
+    humanStatus
+  );
+}
+async function runFinalize(runId, o) {
+  if (o.quality !== void 0 && o.quality !== "ok" && o.quality !== "below_bar")
+    throw new ValidationError("--quality must be ok or below_bar");
+  const out = await withDbAsync(
+    (db) => finalizeResume(db, {
+      runId,
+      draftId: o.draft,
+      quality: o.quality,
+      formats: o.formats ? parseFormats(o.formats) : void 0
+    })
+  );
+  emit(
+    out,
+    o.json,
+    (x) => [
+      `finalized ${x.draft_id} for application ${x.app_id} (ATS ${x.ats}, ${x.quality})`,
+      `artifacts ${x.artifacts_dir}`,
+      ...x.warnings.map((w) => `warning: ${w}`)
+    ].join("\n")
+  );
+}
+function register5(program3) {
+  const resume = program3.command("resume").description(
+    "tailor a resume per job: prepare, validate, render, review, gate, status, finalize"
+  );
+  resume.command("prepare").description(
+    "open a resume run for a JD (creates company/job/application if needed)"
+  ).requiredOption("--jd <file>", "job description text file").requiredOption("--company <name>", "company name").requiredOption("--title <title>", "job title").option("--url <url>", "posting URL").option("--app <id>", "existing application id").option("--json", "machine-readable output").action(action(runPrepare));
+  resume.command("validate <draft>").description(
+    "check a TailoredResume draft against me/ (fixed facts, provenance, numbers, skills); exit 2 if invalid"
+  ).option("--json", "machine-readable output").action(action(runValidate));
+  resume.command("render <draft>").description(
+    "render a draft to html/pdf/docx/txt, auto-fitting to 1 or 2 pages"
+  ).option("--formats <list>", "comma-separated: html,pdf,docx,txt").option(
+    "--out <dir>",
+    "output directory (default <workdir>/render/<draft_id>)"
+  ).option("--pages <n>", "target pages: 1 or 2").option("--json", "machine-readable output").action(action(runRender));
+  resume.command("layout <draft>").description(
+    "render a draft and run the layout gate (pages, 2-line bullets at 60-80% fill, one-line skills/Environment/publications, full last page, bullets per role, no em dash); exit 2 on failure"
+  ).option(
+    "--out <dir>",
+    "output directory (default <workdir>/render/<draft_id>)"
+  ).option("--json", "machine-readable output").action(action(runLayout));
+  resume.command("bold <draft>").description(
+    "suggest bold key terms per bullet/summary/highlight (metrics, JD keywords, recorded skills); --apply writes them into the draft"
+  ).option("--suggest", "print suggestions (the default)").option("--apply", "write the suggestions into the draft's emphasis lists").option("--out <file>", "with --apply: write here instead of in place").option(
+    "--keywords <file>",
+    "JdKeywords JSON (default: the run's stored keywords)"
+  ).option("--json", "machine-readable output").action(action(runBold));
+  const review = resume.command("review").description("store reviewer reports for a run");
+  review.command("add <run_id>").description(
+    "add a ReviewReport (hiring-manager, recruiter-screen, ats-screener, fact-checker)"
+  ).requiredOption("--file <path>", "review JSON file, or - for stdin").option("--json", "machine-readable output").action(action(runReviewAdd));
+  resume.command("gate <run_id>").description(
+    "apply the quality gate: ATS >= 80, HM interview, recruiter >= 6/8, valid"
+  ).requiredOption("--draft <id>", "draft id").option("--json", "machine-readable output").action(action(runGate));
+  resume.command("status <run_id>").description("drafts, reviews and scores of a run").option("--json", "machine-readable output").action(action(runStatusCmd));
+  resume.command("finalize <run_id>").description(
+    "write final artifacts and mark the application tailored (exit 2 without a fact-check pass)"
+  ).requiredOption("--draft <id>", "draft id to ship").option("--quality <q>", "ok|below_bar (default: from the gate)").option("--formats <list>", "comma-separated: html,pdf,docx,txt").option("--json", "machine-readable output").action(action(runFinalize));
+}
+
+// src/commands/cloud.ts
+function dataRepoDir() {
+  const dir = process.env.JOB_HUNTER_DATA_REPO;
+  if (!dir)
+    throw new JhError(
+      "set JOB_HUNTER_DATA_REPO (see ADR 006)",
+      1,
+      "data_repo_unset"
+    );
+  return resolve8(dir);
+}
+function withDb5(fn) {
+  const db = openDb();
+  try {
+    return fn(db);
+  } finally {
+    db.close();
+  }
+}
+function parseIds(csv) {
+  const ids = csv.split(",").map((s) => s.trim()).filter(Boolean).map(Number);
+  if (!ids.length || ids.some((n) => !Number.isInteger(n) || n <= 0))
+    throw new ValidationError("--apps must be comma-separated application ids");
+  return ids;
+}
+function parseQueue(v) {
+  if (v === void 0) return void 0;
+  const n = Number(v);
+  if (!Number.isInteger(n) || n <= 0)
+    throw new ValidationError("--queue must be a positive integer");
+  return n;
+}
+async function runExport(o) {
+  const dataDir = dataRepoDir();
+  const db = openDb();
+  try {
+    const m = await exportPacket({
+      db,
+      meDir: meDir().path,
+      dataDir,
+      codeRepoRoot: repoRoot() ?? process.cwd(),
+      appIds: o.apps ? parseIds(o.apps) : void 0,
+      queue: parseQueue(o.queue)
+    });
+    emit(
+      m,
+      o.json,
+      (x) => `packet ${x.id}: ${x.apps.length} apps pushed
+${x.apps.map((a) => `  ${a.app_id} ${a.company} - ${a.title}`).join("\n")}`
+    );
+  } finally {
+    db.close();
+  }
+}
+async function runImport(packet, o) {
+  const dataDir = dataRepoDir();
+  const db = openDb();
+  try {
+    const me = loadMe();
+    const report = await importResults({
+      db,
+      dataDir,
+      packetId: packet,
+      artifactsRoot: artifactsDir(),
+      validate: (draftPath) => {
+        const json2 = JSON.parse(readFileSync13(draftPath, "utf8"));
+        const v = validateDraftFile(db, draftPath, json2, me);
+        return {
+          ok: v.ok,
+          errors: v.errors.map((e) => `${e.code} ${e.path}: ${e.message}`)
+        };
+      }
+    });
+    emit(
+      report,
+      o.json,
+      (r) => [
+        `packet ${r.packet_id}: ${r.imported.length} imported, ${r.skipped.length} skipped, ${r.missing.length} missing`,
+        ...r.imported.map(
+          (i) => `  ${i.app_id} ${i.run_id} ${i.valid ? "valid: ready for layout and finalize" : `INVALID ${i.errors.join("; ")}`}`
+        ),
+        ...r.missing.length ? [`  missing: ${r.missing.join(", ")}`] : []
+      ].join("\n")
+    );
+  } finally {
+    db.close();
+  }
+}
+function packetStatus(db, dataDir) {
+  const root = join16(dataDir, "packets");
+  if (!existsSync15(root)) return [];
+  const has = db.prepare("SELECT 1 FROM resume_runs WHERE id = ?");
+  return readdirSync4(root, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort().map((id) => {
+    const manifest = join16(root, id, "packet.json");
+    const apps = existsSync15(manifest) ? JSON.parse(readFileSync13(manifest, "utf8")).apps?.length ?? 0 : 0;
+    const resDir = join16(dataDir, "results", id);
+    const summaryPath = join16(resDir, "summary.json");
+    let imported = false;
+    if (existsSync15(summaryPath)) {
+      const s = CloudSummary.safeParse(
+        JSON.parse(readFileSync13(summaryPath, "utf8"))
+      );
+      const runIds = s.success ? s.data.apps.flatMap((a) => a.run_id ? [a.run_id] : []) : [];
+      imported = runIds.length > 0 && runIds.every((r) => has.get(r));
+    }
+    return { id, apps, has_results: existsSync15(resDir), imported };
+  });
+}
+function runStatusCmd2(o) {
+  const dataDir = dataRepoDir();
+  const packets = withDb5((db) => packetStatus(db, dataDir));
+  emit(
+    { data_dir: dataDir, packets },
+    o.json,
+    (r) => r.packets.length ? r.packets.map(
+      (p) => `${p.id}  ${p.apps} apps  results=${p.has_results ? "yes" : "no"}  imported=${p.imported ? "yes" : "no"}`
+    ).join("\n") : "no packets"
+  );
+}
+function register6(program3) {
+  const cloud = program3.command("cloud").description(
+    "run the resume loop in cloud sessions via the private data repo (ADR 006): export, import, status"
+  );
+  cloud.command("export").description(
+    "build a packet (apps, JD text, DB snapshot, allowlisted me/) and push it to the private data repo"
+  ).option("--apps <ids>", "comma-separated application ids").option(
+    "--queue <n>",
+    "take the next n shortlisted apps with JD text and no finalized resume (default 10)"
+  ).option("--json", "machine-readable output").action(action(runExport));
+  cloud.command("import <packet>").description(
+    "pull the data repo and merge a packet's cloud resume runs into the local DB, then re-validate each winner"
+  ).option("--json", "machine-readable output").action(action(runImport));
+  cloud.command("status").description("list packets in the data repo with results and import state").option("--json", "machine-readable output").action(action(runStatusCmd2));
+}
+
 // src/commands/cover.ts
 init_zod();
-import { copyFileSync, existsSync as existsSync10, readFileSync as readFileSync10 } from "node:fs";
-import { join as join11, resolve as resolve5 } from "node:path";
+import { copyFileSync as copyFileSync4, existsSync as existsSync16, readFileSync as readFileSync14 } from "node:fs";
+import { join as join17, resolve as resolve9 } from "node:path";
 init_errors3();
 init_paths();
 init_load();
@@ -59445,9 +61271,9 @@ function basicsFromProfile(p) {
   });
 }
 function resolveBasics(dir, profile = loadProfile) {
-  const file2 = join11(dir, "resume.json");
-  if (existsSync10(file2)) {
-    const raw = JSON.parse(readFileSync10(file2, "utf8"));
+  const file2 = join17(dir, "resume.json");
+  if (existsSync16(file2)) {
+    const raw = JSON.parse(readFileSync14(file2, "utf8"));
     const parsed = BasicsSchema.safeParse(raw.basics);
     if (!parsed.success)
       throw new ValidationError(
@@ -59459,8 +61285,8 @@ function resolveBasics(dir, profile = loadProfile) {
   return basicsFromProfile(profile());
 }
 function readMarkdown(path2) {
-  if (!existsSync10(path2)) throw new NotFoundError(`file not found: ${path2}`);
-  const md = readFileSync10(path2, "utf8").replace(/^﻿/, "");
+  if (!existsSync16(path2)) throw new NotFoundError(`file not found: ${path2}`);
+  const md = readFileSync14(path2, "utf8").replace(/^﻿/, "");
   if (!md.trim()) throw new ValidationError(`cover letter is empty: ${path2}`);
   return md;
 }
@@ -59470,8 +61296,8 @@ async function coverRender(db, mdPath, appId, formats, profile = loadProfile) {
   if (!app) throw new NotFoundError(`application ${appId} not found`);
   const outDir = ensureDir(app.artifacts_dir ?? artifactsDir(appId));
   if (!app.artifacts_dir) setArtifactsDir(db, appId, outDir);
-  const mdOut = join11(outDir, "cover.md");
-  if (resolve5(mdPath) !== resolve5(mdOut)) copyFileSync(mdPath, mdOut);
+  const mdOut = join17(outDir, "cover.md");
+  if (resolve9(mdPath) !== resolve9(mdOut)) copyFileSync4(mdPath, mdOut);
   const basics = resolveBasics(outDir, profile);
   const result = await renderCover(md, basics, app.company, outDir, formats);
   audit({
@@ -59496,7 +61322,7 @@ function human(r) {
   for (const w of r.warnings) lines.push(`  warning: ${w}`);
   return lines.join("\n");
 }
-function register5(program3) {
+function register7(program3) {
   const cover = program3.command("cover").description("cover letters rendered in the resume theme");
   cover.command("render <coverMd>").description(
     "render a cover-letter markdown file to <artifacts>/<app>/cover.{pdf,docx,txt}"
@@ -59523,18 +61349,18 @@ function register5(program3) {
 // src/commands/dashboard.ts
 init_zod();
 import { spawn as spawn2, spawnSync } from "node:child_process";
-import { existsSync as existsSync18 } from "node:fs";
-import { join as join18, resolve as resolve8 } from "node:path";
+import { existsSync as existsSync24 } from "node:fs";
+import { join as join24, resolve as resolve12 } from "node:path";
 import { fileURLToPath as fileURLToPath3 } from "node:url";
 init_errors3();
 init_paths();
 
 // src/dashboard/lan.ts
 init_paths();
-import { createHash as createHash2, randomBytes, timingSafeEqual } from "node:crypto";
-import { chmodSync, existsSync as existsSync11, readFileSync as readFileSync11, writeFileSync as writeFileSync6 } from "node:fs";
+import { createHash as createHash2, randomBytes as randomBytes2, timingSafeEqual } from "node:crypto";
+import { chmodSync, existsSync as existsSync17, readFileSync as readFileSync15, writeFileSync as writeFileSync9 } from "node:fs";
 import { networkInterfaces } from "node:os";
-import { join as join12 } from "node:path";
+import { join as join18 } from "node:path";
 var TOKEN_FILE = "dashboard-token";
 var TOKEN_COOKIE = "jh_token";
 var TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
@@ -59561,13 +61387,13 @@ function isLoopback(addr) {
   return a === "::1" || a.startsWith("127.") || a.startsWith("::ffff:127.");
 }
 function tokenPath(home = jhHome()) {
-  return join12(home, TOKEN_FILE);
+  return join18(home, TOKEN_FILE);
 }
 function generateToken() {
-  return randomBytes(32).toString("base64url");
+  return randomBytes2(32).toString("base64url");
 }
 function writeToken(path2, token) {
-  writeFileSync6(path2, `${token}
+  writeFileSync9(path2, `${token}
 `, { encoding: "utf8", mode: 384 });
   try {
     chmodSync(path2, 384);
@@ -59577,8 +61403,8 @@ function writeToken(path2, token) {
 function loadOrCreateToken(home = jhHome()) {
   ensureDir(home);
   const path2 = tokenPath(home);
-  if (existsSync11(path2)) {
-    const t2 = readFileSync11(path2, "utf8").trim();
+  if (existsSync17(path2)) {
+    const t2 = readFileSync15(path2, "utf8").trim();
     if (TOKEN_RE.test(t2)) return t2;
   }
   const t = generateToken();
@@ -59611,16 +61437,16 @@ function readCookie(header3, name) {
 init_zod();
 init_errors3();
 init_paths();
-import { existsSync as existsSync15, readFileSync as readFileSync15 } from "node:fs";
+import { existsSync as existsSync21, readFileSync as readFileSync19 } from "node:fs";
 import http from "node:http";
-import { dirname as dirname5, join as join16 } from "node:path";
+import { dirname as dirname7, join as join22 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
 // src/dashboard/api.ts
 init_errors3();
 init_paths();
-import { existsSync as existsSync14, readFileSync as readFileSync14, realpathSync as realpathSync3 } from "node:fs";
-import { join as join15 } from "node:path";
+import { existsSync as existsSync20, readFileSync as readFileSync18, realpathSync as realpathSync4 } from "node:fs";
+import { join as join21 } from "node:path";
 
 // src/db/tracking.ts
 var orNull = (v) => v === void 0 ? null : v;
@@ -59636,7 +61462,7 @@ function insert(db, sql, ...params) {
 function exec(db, sql, ...params) {
   return Number(db.prepare(sql).run(...params).changes);
 }
-async function withDb4(fn) {
+async function withDb6(fn) {
   const db = openDb();
   try {
     return await fn(db);
@@ -60007,142 +61833,16 @@ function lastOkSyncAt(db, kind) {
 }
 
 // src/jd/compare.ts
-import { existsSync as existsSync12, readFileSync as readFileSync12, realpathSync } from "node:fs";
-import { join as join13, resolve as resolve7 } from "node:path";
+import { existsSync as existsSync18, readFileSync as readFileSync16, realpathSync as realpathSync2 } from "node:fs";
+import { join as join19, resolve as resolve11 } from "node:path";
 init_errors3();
 init_paths();
-
-// src/db/jd.ts
-init_errors3();
-
-// src/jd/schema.ts
-init_zod();
-var Text2 = (max) => external_exports.string().trim().min(1).max(max);
-var JdTerm = external_exports.union([
-  Text2(120),
-  external_exports.object({
-    term: Text2(120),
-    aliases: external_exports.array(Text2(120)).max(10).default([])
-  })
-]).transform((t) => typeof t === "string" ? { term: t, aliases: [] } : t);
-var JdSnapshot = external_exports.object({
-  title_posted: Text2(200),
-  seniority: Text2(60).nullish(),
-  must_haves: external_exports.array(JdTerm).min(1).max(30),
-  nice_to_haves: external_exports.array(JdTerm).max(30).default([]),
-  keywords: external_exports.array(Text2(120)).max(60).default([]),
-  location: Text2(200).nullish(),
-  remote: Text2(60).nullish(),
-  salary: Text2(120).nullish(),
-  summary: Text2(800),
-  source_url: external_exports.string().trim().max(2e3).regex(/^https?:\/\//i, "source_url must be http(s)").nullish(),
-  captured_at: external_exports.iso.datetime({ offset: true }).optional()
-});
-
-// src/db/jd.ts
-function dedupeTerms(terms2) {
-  const seen = /* @__PURE__ */ new Set();
-  return terms2.filter((t) => {
-    const k = t.term.toLowerCase();
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
-}
-function dedupe(xs) {
-  const seen = /* @__PURE__ */ new Set();
-  return xs.filter((x) => {
-    const k = x.toLowerCase();
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
-}
-function upsertJdSnapshot(db, appId, input2) {
-  const parsed = JdSnapshot.safeParse(input2);
-  if (!parsed.success)
-    throw new ValidationError(
-      "invalid JD snapshot",
-      parsed.error.issues.map((i) => ({
-        path: i.path.join("."),
-        message: i.message
-      }))
-    );
-  const exists = db.prepare("SELECT 1 AS x FROM applications WHERE id = ?").get(appId);
-  if (!exists) throw new NotFoundError(`application ${appId} not found`);
-  const s = parsed.data;
-  const capturedAt = s.captured_at ?? nowIso();
-  db.prepare(
-    `INSERT INTO jd_snapshots(application_id, title_posted, seniority, must_haves_json, nice_to_haves_json,
-		   keywords_json, location, remote, salary, summary, source_url, captured_at)
-		 VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
-		 ON CONFLICT(application_id) DO UPDATE SET title_posted=excluded.title_posted, seniority=excluded.seniority,
-		   must_haves_json=excluded.must_haves_json, nice_to_haves_json=excluded.nice_to_haves_json,
-		   keywords_json=excluded.keywords_json, location=excluded.location, remote=excluded.remote,
-		   salary=excluded.salary, summary=excluded.summary,
-		   source_url=COALESCE(excluded.source_url, jd_snapshots.source_url), captured_at=excluded.captured_at`
-  ).run(
-    appId,
-    s.title_posted,
-    s.seniority ?? null,
-    JSON.stringify(dedupeTerms(s.must_haves)),
-    JSON.stringify(dedupeTerms(s.nice_to_haves)),
-    JSON.stringify(dedupe(s.keywords)),
-    s.location ?? null,
-    s.remote ?? null,
-    s.salary ?? null,
-    s.summary,
-    s.source_url ?? null,
-    capturedAt
-  );
-  return getJdSnapshot(db, appId);
-}
-function parseTerms(json2) {
-  try {
-    const raw = JSON.parse(json2);
-    if (!Array.isArray(raw)) return [];
-    return raw.flatMap((t) => {
-      const r = JdTerm.safeParse(t);
-      return r.success ? [r.data] : [];
-    });
-  } catch {
-    return [];
-  }
-}
-function parseStrings(json2) {
-  try {
-    const raw = JSON.parse(json2);
-    return Array.isArray(raw) ? raw.filter((x) => typeof x === "string") : [];
-  } catch {
-    return [];
-  }
-}
-function getJdSnapshot(db, appId) {
-  const row = db.prepare("SELECT * FROM jd_snapshots WHERE application_id = ?").get(appId);
-  if (!row) return void 0;
-  return {
-    application_id: row.application_id,
-    title_posted: row.title_posted,
-    seniority: row.seniority,
-    must_haves: parseTerms(row.must_haves_json),
-    nice_to_haves: parseTerms(row.nice_to_haves_json),
-    keywords: parseStrings(row.keywords_json),
-    location: row.location,
-    remote: row.remote,
-    salary: row.salary,
-    summary: row.summary,
-    source_url: row.source_url,
-    captured_at: row.captured_at
-  };
-}
-
-// src/jd/compare.ts
 init_load();
 init_schema();
 
 // src/tracking/interviews.ts
 init_paths();
-import { isAbsolute, relative as relative2, resolve as resolve6 } from "node:path";
+import { isAbsolute, relative as relative3, resolve as resolve10 } from "node:path";
 var MERGE_WINDOW_MINUTES = 30;
 function linkFor(db, item) {
   if (item.application_id) {
@@ -60228,12 +61928,12 @@ function upsertInterviews(db, items) {
   for (const item of items) res[tx(db, () => upsertOne(db, item))]++;
   return res;
 }
-function isInside3(root, p) {
-  const rel = relative2(resolve6(root), resolve6(p));
+function isInside4(root, p) {
+  const rel = relative3(resolve10(root), resolve10(p));
   return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
 }
 function isAllowedPrepPath(p) {
-  return isInside3(artifactsDir(), p);
+  return isInside4(artifactsDir(), p);
 }
 
 // src/jd/compare.ts
@@ -60337,7 +62037,7 @@ function compareResumeToJd(appId, r, snap, resumeSource = null, targets = []) {
 function readResume(path2) {
   let raw;
   try {
-    raw = JSON.parse(readFileSync12(path2, "utf8").replace(/^﻿/, ""));
+    raw = JSON.parse(readFileSync16(path2, "utf8").replace(/^﻿/, ""));
   } catch (e) {
     throw new ValidationError(
       `resume JSON is unreadable: ${e.message}`
@@ -60347,15 +62047,15 @@ function readResume(path2) {
 }
 function insideArtifacts(path2) {
   const root = artifactsDir();
-  if (!existsSync12(path2) || !existsSync12(root)) return null;
-  const real = realpathSync(path2);
-  return isInside3(realpathSync(root), real) ? real : null;
+  if (!existsSync18(path2) || !existsSync18(root)) return null;
+  const real = realpathSync2(path2);
+  return isInside4(realpathSync2(root), real) ? real : null;
 }
 function loadFinalResume(db, appId) {
   const run = latestFinalRun(db, appId);
   if (!run)
     throw new NotFoundError(`application ${appId} has no finalized resume yet`);
-  const candidates = [join13(artifactsDir(appId), "resume.json")];
+  const candidates = [join19(artifactsDir(appId), "resume.json")];
   const full = getRun(db, run.run_id);
   const draft = full?.final_draft_id ? getDraft(db, run.run_id, full.final_draft_id) : void 0;
   if (draft) candidates.push(draft.path);
@@ -60386,8 +62086,8 @@ function jdCompareForApp(db, appId, o = {}) {
       "no_snapshot"
     );
   if (o.draftPath) {
-    const p = resolve7(o.draftPath);
-    if (!existsSync12(p))
+    const p = resolve11(o.draftPath);
+    if (!existsSync18(p))
       throw new NotFoundError(`file not found: ${o.draftPath}`);
     return compareResumeToJd(appId, readResume(p), snap, p, targets);
   }
@@ -61014,13 +62714,13 @@ function applicationsView(db, statuses, limit, now = /* @__PURE__ */ new Date())
 init_zod();
 import { createHash as createHash3 } from "node:crypto";
 import {
-  existsSync as existsSync13,
-  readdirSync as readdirSync3,
-  readFileSync as readFileSync13,
-  realpathSync as realpathSync2,
+  existsSync as existsSync19,
+  readdirSync as readdirSync5,
+  readFileSync as readFileSync17,
+  realpathSync as realpathSync3,
   statSync as statSync2
 } from "node:fs";
-import { join as join14 } from "node:path";
+import { join as join20 } from "node:path";
 init_errors3();
 init_paths();
 
@@ -61075,7 +62775,7 @@ function applicationIdForJob(db, jobId) {
 }
 
 // src/dashboard/csrf.ts
-import { randomBytes as randomBytes2 } from "node:crypto";
+import { randomBytes as randomBytes3 } from "node:crypto";
 var CSRF_COOKIE = "jh_csrf";
 var CSRF_HEADER = "x-csrf-token";
 var CSRF_RE = /^[A-Za-z0-9_-]{32,64}$/;
@@ -61090,7 +62790,7 @@ function csrfCookie(h) {
 function issueCsrf(h) {
   const existing = csrfCookie(h);
   if (existing) return { token: existing };
-  const token = randomBytes2(32).toString("base64url");
+  const token = randomBytes3(32).toString("base64url");
   return {
     token,
     setCookie: `${CSRF_COOKIE}=${token}; HttpOnly; SameSite=Strict; Path=/`
@@ -61422,13 +63122,13 @@ function isSafePdfName(name) {
 }
 function resumePdfName(appId) {
   const dir = artifactsDir(appId);
-  if (!existsSync13(dir)) return null;
+  if (!existsSync19(dir)) return null;
   let best = null;
-  for (const name of readdirSync3(dir)) {
+  for (const name of readdirSync5(dir)) {
     if (!isSafePdfName(name) || !/resume/i.test(name) || /cover/i.test(name))
       continue;
     try {
-      const st = statSync2(join14(dir, name));
+      const st = statSync2(join20(dir, name));
       if (!st.isFile()) continue;
       if (!best || st.mtimeMs > best.mtime) best = { name, mtime: st.mtimeMs };
     } catch {
@@ -61437,11 +63137,11 @@ function resumePdfName(appId) {
   return best?.name ?? null;
 }
 function answersStatus(appId) {
-  const file2 = join14(artifactsDir(appId), "answers.json");
-  if (!existsSync13(file2)) return null;
+  const file2 = join20(artifactsDir(appId), "answers.json");
+  if (!existsSync19(file2)) return null;
   try {
     if (statSync2(file2).size > 256e3) return "present";
-    const j = JSON.parse(readFileSync13(file2, "utf8"));
+    const j = JSON.parse(readFileSync17(file2, "utf8"));
     return typeof j.status === "string" ? j.status.slice(0, 60) : "present";
   } catch {
     return "present";
@@ -61456,13 +63156,13 @@ function readArtifactPdf(appId, rawName) {
   }
   if (!isSafePdfName(name)) throw new NotFoundError("file not found");
   const dir = artifactsDir(appId);
-  const full = join14(dir, name);
-  if (!existsSync13(dir) || !existsSync13(full))
+  const full = join20(dir, name);
+  if (!existsSync19(dir) || !existsSync19(full))
     throw new NotFoundError("file not found");
-  const real = realpathSync2(full);
-  if (!isInside3(realpathSync2(dir), real)) return null;
+  const real = realpathSync3(full);
+  if (!isInside4(realpathSync3(dir), real)) return null;
   if (!statSync2(real).isFile()) throw new NotFoundError("file not found");
-  return readFileSync13(real);
+  return readFileSync17(real);
 }
 var MAX_CARDS_PER_COLUMN = 300;
 function safeHttpUrl(u) {
@@ -61913,17 +63613,17 @@ var getPrep = (r, d) => {
   const iv = getInterview(d.db, idParam(r));
   if (!iv?.prep_path) throw new NotFoundError("no prep for this interview");
   const root = artifactsDir();
-  if (!existsSync14(iv.prep_path) || !existsSync14(root))
+  if (!existsSync20(iv.prep_path) || !existsSync20(root))
     throw new NotFoundError("prep file missing");
-  const real = realpathSync3(iv.prep_path);
-  if (!isInside3(realpathSync3(root), real))
+  const real = realpathSync4(iv.prep_path);
+  if (!isInside4(realpathSync4(root), real))
     return ok(
       { error: "forbidden", message: "prep path outside artifacts" },
       403
     );
   return {
     status: 200,
-    body: readFileSync14(real, "utf8"),
+    body: readFileSync18(real, "utf8"),
     contentType: "text/markdown; charset=utf-8"
   };
 };
@@ -61938,18 +63638,18 @@ var getArtifact = (r) => {
   const file2 = r.params[1] ?? "";
   const type = ARTIFACT_TYPES[file2];
   const root = artifactsDir();
-  const full = join15(artifactsDir(appId), file2);
-  if (!type || !existsSync14(full) || !existsSync14(root))
+  const full = join21(artifactsDir(appId), file2);
+  if (!type || !existsSync20(full) || !existsSync20(root))
     throw new NotFoundError("artifact not found");
-  const real = realpathSync3(full);
-  if (!isInside3(realpathSync3(root), real))
+  const real = realpathSync4(full);
+  if (!isInside4(realpathSync4(root), real))
     return ok(
       { error: "forbidden", message: "artifact path outside artifacts" },
       403
     );
   return {
     status: 200,
-    body: readFileSync14(real),
+    body: readFileSync18(real),
     contentType: type,
     headers: {
       "Content-Disposition": `${file2.endsWith(".pdf") ? "inline" : "attachment"}; filename="${file2}"`
@@ -62024,16 +63724,16 @@ var STATIC = {
   "/board.css": { file: "board.css", type: "text/css; charset=utf-8" }
 };
 function resolveUiDir(explicit) {
-  const here = dirname5(fileURLToPath2(import.meta.url));
+  const here = dirname7(fileURLToPath2(import.meta.url));
   const root = repoRoot();
   const candidates = [
     explicit,
-    join16(here, "dashboard-ui"),
-    root ? join16(root, "dashboard-ui") : void 0,
-    join16(here, "..", "..", "dashboard-ui")
+    join22(here, "dashboard-ui"),
+    root ? join22(root, "dashboard-ui") : void 0,
+    join22(here, "..", "..", "dashboard-ui")
   ];
   for (const c of candidates) {
-    if (c && existsSync15(join16(c, "index.html"))) return c;
+    if (c && existsSync21(join22(c, "index.html"))) return c;
   }
   return null;
 }
@@ -62158,7 +63858,7 @@ function checkPost(req) {
     );
 }
 function readBody(req) {
-  return new Promise((resolve11, reject) => {
+  return new Promise((resolve14, reject) => {
     const tooLarge = () => new HttpError(413, "too_large", "request body over 4 KB");
     const declared = Number(req.headers["content-length"]);
     if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
@@ -62185,9 +63885,9 @@ function readBody(req) {
       if (done) return;
       done = true;
       const text = Buffer.concat(chunks).toString("utf8").trim();
-      if (!text) return resolve11({});
+      if (!text) return resolve14({});
       try {
-        resolve11(JSON.parse(text));
+        resolve14(JSON.parse(text));
       } catch {
         reject(new HttpError(400, "validation", "body is not valid JSON"));
       }
@@ -62210,7 +63910,7 @@ function serveStatic(uiDir, path2) {
     };
   return {
     status: 200,
-    body: readFileSync15(join16(uiDir, entry.file)),
+    body: readFileSync19(join22(uiDir, entry.file)),
     contentType: entry.type
   };
 }
@@ -62300,8 +64000,8 @@ function createServer(db, o) {
 }
 function listening(server) {
   if (server.listening) return Promise.resolve(boundPort(server));
-  return new Promise((resolve11, reject) => {
-    server.once("listening", () => resolve11(boundPort(server)));
+  return new Promise((resolve14, reject) => {
+    server.once("listening", () => resolve14(boundPort(server)));
     server.once("error", reject);
   });
 }
@@ -62310,9 +64010,9 @@ function listening(server) {
 import { fork } from "node:child_process";
 import {
   appendFileSync as appendFileSync2,
-  existsSync as existsSync16,
+  existsSync as existsSync22,
   renameSync as renameSync2,
-  rmSync as rmSync3,
+  rmSync as rmSync5,
   statSync as statSync3
 } from "node:fs";
 var LOG_MAX_BYTES = 1024 * 1024;
@@ -62326,246 +64026,8 @@ function storedPort(raw, fallback, log) {
 }
 
 // src/learn/index.ts
-import { existsSync as existsSync17, mkdirSync as mkdirSync5, writeFileSync as writeFileSync7 } from "node:fs";
-import { join as join17 } from "node:path";
-
-// src/db/learn.ts
-init_zod();
-init_errors3();
-var TitleChoice = external_exports.object({
-  posted: external_exports.string().min(1),
-  headline: external_exports.string(),
-  display_titles: external_exports.array(external_exports.string().min(1)).default([]),
-  /** How many roles showed an approved variant instead of the official title. */
-  variants_used: external_exports.number().int().min(0).default(0)
-});
-var ResumeVariantInput = external_exports.object({
-  run_id: external_exports.string().min(1).nullish(),
-  angle: external_exports.string().min(1).nullish(),
-  framing: external_exports.string().min(1).nullish(),
-  keywords: external_exports.array(external_exports.string().min(1)).default([]),
-  bullet_ids: external_exports.array(external_exports.string().min(1)).default([]),
-  phrasing: external_exports.array(external_exports.string().min(1)).default([]),
-  ats_score: external_exports.number().int().min(0).max(100).nullish(),
-  pages: external_exports.number().int().min(1).max(10).nullish(),
-  role_family: external_exports.string().min(1).nullish(),
-  source: external_exports.string().min(1).nullish(),
-  submitted_at: external_exports.iso.datetime({ offset: true }).nullish(),
-  /** Which titles the resume showed for which posted title (learning feature title_choice). */
-  title_choice: TitleChoice.nullish()
-});
-var LearnState = external_exports.object({
-  last_run_at: external_exports.string().nullable().default(null),
-  resolved_at_last_run: external_exports.number().int().min(0).default(0)
-});
-var LEARN_STATE_KEY = "learn.state";
-function recordVariant(db, appId, v) {
-  if (!Number.isInteger(appId) || appId <= 0) {
-    throw new JhError(`invalid application id ${appId}`, 2, "validation");
-  }
-  const parsed = ResumeVariantInput.safeParse(v);
-  if (!parsed.success) {
-    throw new JhError(
-      "invalid resume variant",
-      2,
-      "validation",
-      parsed.error.issues
-    );
-  }
-  const x = parsed.data;
-  db.prepare(
-    `INSERT INTO resume_variants(application_id, run_id, angle, framing, keywords_json, bullet_ids_json, phrasing_json, ats_score, pages, role_family, source, submitted_at, title_choice_json)
-		 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
-		 ON CONFLICT(application_id) DO UPDATE SET run_id=excluded.run_id, angle=excluded.angle, framing=excluded.framing,
-		   keywords_json=excluded.keywords_json, bullet_ids_json=excluded.bullet_ids_json, phrasing_json=excluded.phrasing_json,
-		   ats_score=excluded.ats_score, pages=excluded.pages, role_family=excluded.role_family, source=excluded.source,
-		   submitted_at=COALESCE(excluded.submitted_at, resume_variants.submitted_at),
-		   title_choice_json=COALESCE(excluded.title_choice_json, resume_variants.title_choice_json)`
-  ).run(
-    appId,
-    x.run_id ?? null,
-    x.angle ?? null,
-    x.framing ?? null,
-    JSON.stringify(dedupe2(x.keywords)),
-    JSON.stringify(dedupe2(x.bullet_ids)),
-    JSON.stringify(dedupe2(x.phrasing)),
-    x.ats_score ?? null,
-    x.pages ?? null,
-    x.role_family ?? null,
-    x.source ?? null,
-    x.submitted_at ?? null,
-    x.title_choice ? JSON.stringify(x.title_choice) : null
-  );
-}
-function listOutcomeRows(db) {
-  return db.prepare(
-    `SELECT a.id AS application_id, a.status, a.source AS app_source, a.applied_at, a.created_at,
-			        j.title AS job_title, c.name AS company,
-			        v.run_id, v.angle, v.framing, v.keywords_json, v.bullet_ids_json, v.phrasing_json,
-			        v.ats_score, v.pages, v.role_family, v.source AS variant_source, v.submitted_at, v.title_choice_json,
-			        (SELECT d.angle FROM resume_runs r JOIN resume_drafts d ON d.run_id = r.id AND d.id = r.final_draft_id
-			          WHERE r.application_id = a.id AND r.status = 'finalized' ORDER BY r.finalized_at DESC LIMIT 1) AS final_angle,
-			        (SELECT r.ats_score FROM resume_runs r
-			          WHERE r.application_id = a.id AND r.status = 'finalized' ORDER BY r.finalized_at DESC LIMIT 1) AS final_ats
-			   FROM applications a
-			   JOIN jobs j ON j.id = a.job_id
-			   JOIN companies c ON c.id = j.company_id
-			   LEFT JOIN resume_variants v ON v.application_id = a.id
-			  WHERE a.applied_at IS NOT NULL OR v.submitted_at IS NOT NULL
-			  ORDER BY a.id`
-  ).all();
-}
-function listOutcomeEvents(db) {
-  return db.prepare(
-    `SELECT e.application_id, e.kind, e.from_status, e.to_status, e.at
-			   FROM application_events e
-			   JOIN applications a ON a.id = e.application_id
-			  WHERE a.applied_at IS NOT NULL
-			     OR EXISTS (SELECT 1 FROM resume_variants v WHERE v.application_id = a.id AND v.submitted_at IS NOT NULL)
-			  ORDER BY e.application_id, e.at`
-  ).all();
-}
-function listOutcomeEmails(db) {
-  return db.prepare(
-    `SELECT application_id, kind, received_at FROM emails
-			  WHERE application_id IS NOT NULL ORDER BY application_id, received_at`
-  ).all();
-}
-function getLearnState(db) {
-  const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(LEARN_STATE_KEY);
-  if (!row) return LearnState.parse({});
-  try {
-    const parsed = LearnState.safeParse(JSON.parse(row.value));
-    return parsed.success ? parsed.data : LearnState.parse({});
-  } catch {
-    return LearnState.parse({});
-  }
-}
-function setLearnState(db, s) {
-  const value = JSON.stringify(LearnState.parse(s));
-  db.prepare(
-    "INSERT INTO settings(key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
-  ).run(LEARN_STATE_KEY, value);
-}
-function dedupe2(xs) {
-  return [...new Set(xs.map((x) => x.trim()).filter(Boolean))];
-}
-
-// src/learn/features.ts
-init_schema();
-var ROLE_FAMILY_PATTERNS = [
-  [
-    "management",
-    /\b(engineering manager|manager|director|head of|vp|vice president)\b/
-  ],
-  [
-    "ml",
-    /\b(machine learning|ml|ai|deep learning|llm|nlp|computer vision|applied scientist)\b/
-  ],
-  [
-    "data",
-    /\b(data|analytics|analyst|bi|etl|warehouse|business intelligence)\b/
-  ],
-  ["security", /\b(security|appsec|infosec|cyber|penetration)\b/],
-  [
-    "devops",
-    /\b(devops|sre|site reliability|platform|infrastructure|cloud|devsecops)\b/
-  ],
-  ["mobile", /\b(ios|android|mobile|react native|flutter)\b/],
-  ["qa", /\b(qa|quality|test|sdet|automation engineer)\b/],
-  ["frontend", /\b(front[- ]?end|ui|web developer|react|angular|vue)\b/],
-  ["fullstack", /\b(full[- ]?stack)\b/],
-  [
-    "backend",
-    /\b(back[- ]?end|software engineer|software developer|developer|programmer|api|java|python|golang|\.net|node)\b/
-  ]
-];
-function classifyRoleFamily(title) {
-  const t = title.toLowerCase();
-  for (const [family, re] of ROLE_FAMILY_PATTERNS) {
-    if (re.test(t)) return family;
-  }
-  return "other";
-}
-function classifyFraming(headline) {
-  const h = headline.toLowerCase();
-  if (/\b(lead|leader|manager|head|director)\b/.test(h)) return "leadership";
-  if (/\b(senior|sr\.?|staff|principal|architect)\b/.test(h))
-    return "senior-ic";
-  if (/[|•·/]|\b(in|for|specializing|focused)\b/.test(h)) return "specialist";
-  return "generalist";
-}
-function normalizeKeyword(k) {
-  return k.trim().toLowerCase().replace(/\s+/g, " ");
-}
-var XYZ_CONNECTOR = /\b(by|using|through|via|leveraging)\b/i;
-var HAS_NUMBER = /\d/;
-function phrasingTags(text) {
-  const trimmed = text.trim();
-  const first = trimmed.split(/\s+/)[0] ?? "";
-  const verb = first.toLowerCase().replace(/[^a-z-]/g, "");
-  const tags = [];
-  if (verb) tags.push(`opener:${verb}`);
-  const hasNumber = HAS_NUMBER.test(trimmed);
-  if (hasNumber && XYZ_CONNECTOR.test(trimmed)) tags.push("shape:xyz");
-  else if (hasNumber) tags.push("shape:metric");
-  else tags.push("shape:plain");
-  const len = trimmed.length;
-  tags.push(`length:${len < 110 ? "short" : len < 180 ? "medium" : "long"}`);
-  return tags;
-}
-function titleChoiceOf(r, postedTitle) {
-  const shown = r.experience.filter((role) => role.title !== void 0).map((role) => ({
-    shown: role.display_title ?? role.title,
-    variant: usesTitleVariant(role)
-  }));
-  return {
-    posted: (postedTitle ?? "").trim() || r.job.title,
-    headline: r.basics.headline,
-    display_titles: shown.map((s) => s.shown),
-    variants_used: shown.filter((s) => s.variant).length
-  };
-}
-function titleChoiceValues(tc) {
-  const family = classifyRoleFamily(tc.posted);
-  const out = [];
-  const recent = tc.display_titles[0];
-  if (recent) out.push(`${family} <- ${normalizeKeyword(recent)}`);
-  out.push(
-    containsTitle(tc.headline, tc.posted) ? "headline:has-posted-title" : "headline:other-title"
-  );
-  if (tc.variants_used > 0) out.push("display:title-variant");
-  else out.push("display:official-titles");
-  return out;
-}
-function variantFromResume(r, extras = {}) {
-  const roles = [...r.experience, ...r.projects ?? []];
-  const bullets = roles.flatMap((role) => role.bullets);
-  const keywords = /* @__PURE__ */ new Set();
-  for (const k of extras.keywords ?? []) keywords.add(normalizeKeyword(k));
-  for (const b of bullets) {
-    for (const k of b.keywords ?? []) keywords.add(normalizeKeyword(k));
-  }
-  const bulletIds = /* @__PURE__ */ new Set();
-  for (const b of bullets) for (const id of b.source_ids) bulletIds.add(id);
-  const phrasing = /* @__PURE__ */ new Set();
-  for (const b of bullets)
-    for (const t of phrasingTags(b.text)) phrasing.add(t);
-  return {
-    run_id: r.run_id,
-    angle: r.angle,
-    framing: classifyFraming(r.basics.headline),
-    keywords: [...keywords].filter(Boolean),
-    bullet_ids: [...bulletIds],
-    phrasing: [...phrasing],
-    ats_score: extras.ats_score ?? null,
-    pages: extras.pages ?? r.layout?.pages ?? null,
-    role_family: classifyRoleFamily(r.job.title),
-    source: extras.source ?? null,
-    submitted_at: extras.submitted_at ?? null,
-    title_choice: titleChoiceOf(r, extras.posted_title)
-  };
-}
+import { existsSync as existsSync23, mkdirSync as mkdirSync6, writeFileSync as writeFileSync10 } from "node:fs";
+import { join as join23 } from "node:path";
 
 // src/learn/analyze.ts
 var DIMENSIONS = [
@@ -63095,19 +64557,19 @@ function learnSummary(db, now = /* @__PURE__ */ new Date()) {
   };
 }
 function learningsDir(meRoot) {
-  return join17(meRoot, "learnings");
+  return join23(meRoot, "learnings");
 }
 function writeStats(dir, a) {
-  mkdirSync5(dir, { recursive: true });
-  const path2 = join17(dir, "stats.json");
-  writeFileSync7(path2, `${JSON.stringify(a, null, 2)}
+  mkdirSync6(dir, { recursive: true });
+  const path2 = join23(dir, "stats.json");
+  writeFileSync10(path2, `${JSON.stringify(a, null, 2)}
 `, "utf8");
   return path2;
 }
 function writePlaybook(dir, md) {
-  mkdirSync5(dir, { recursive: true });
-  const path2 = join17(dir, "playbook.md");
-  writeFileSync7(path2, md.endsWith("\n") ? md : `${md}
+  mkdirSync6(dir, { recursive: true });
+  const path2 = join23(dir, "playbook.md");
+  writeFileSync10(path2, md.endsWith("\n") ? md : `${md}
 `, "utf8");
   return path2;
 }
@@ -63137,7 +64599,7 @@ function learnStatus(db, dir, o = {}) {
     a.totals.resolved - state.resolved_at_last_run
   );
   const days = state.last_run_at ? (now.getTime() - Date.parse(state.last_run_at)) / 864e5 : null;
-  const playbookPath = dir ? join17(dir, "playbook.md") : null;
+  const playbookPath = dir ? join23(dir, "playbook.md") : null;
   const status = {
     last_run_at: state.last_run_at,
     resolved_now: a.totals.resolved,
@@ -63146,8 +64608,8 @@ function learnStatus(db, dir, o = {}) {
     days_since_last_run: days === null ? null : Math.round(days * 10) / 10,
     ...dueReason(a.totals.resolved, newOutcomes, days),
     playbook_path: playbookPath,
-    playbook_exists: playbookPath ? existsSync17(playbookPath) : false,
-    stats_path: dir ? join17(dir, "stats.json") : null
+    playbook_exists: playbookPath ? existsSync23(playbookPath) : false,
+    stats_path: dir ? join23(dir, "stats.json") : null
   };
   if (o.appId !== void 0) {
     const ratio = a.params.exploration_ratio;
@@ -63167,17 +64629,17 @@ var Port = external_exports.coerce.number().int().min(1).max(65535);
 function scriptsDir() {
   const candidates = [
     fileURLToPath3(new URL("../scripts/", import.meta.url)),
-    repoRoot() ? join18(repoRoot(), "scripts") : void 0
+    repoRoot() ? join24(repoRoot(), "scripts") : void 0
   ];
   for (const c of candidates)
-    if (c && existsSync18(join18(c, "install-dashboard.ps1"))) return c;
+    if (c && existsSync24(join24(c, "install-dashboard.ps1"))) return c;
   throw new NotFoundError(
     "scripts/install-dashboard.ps1 not found next to dist/"
   );
 }
 async function configuredPort(explicit) {
   if (explicit) return Port.parse(explicit);
-  return withDb4(
+  return withDb6(
     (db) => storedPort(getSetting(db, "dashboard.port", DEFAULT_PORT), DEFAULT_PORT)
   );
 }
@@ -63257,7 +64719,7 @@ function lanBanner(ips, port, token, readOnly) {
 `;
 }
 async function serve(opts) {
-  if (opts.home) process.env.JOB_HUNTER_HOME = resolve8(opts.home);
+  if (opts.home) process.env.JOB_HUNTER_HOME = resolve12(opts.home);
   if (opts.readOnly && !opts.lan)
     throw new ValidationError("--read-only only applies with --lan");
   const db = openDb();
@@ -63287,7 +64749,7 @@ async function serve(opts) {
   process.on("SIGTERM", stop);
   await new Promise((r) => server.on("close", () => r()));
 }
-function register6(program3) {
+function register8(program3) {
   const dash = program3.command("dashboard").description(
     "local dashboard on 127.0.0.1 (study clock, interviews, pipeline)"
   );
@@ -63350,11 +64812,11 @@ function register6(program3) {
     action(
       async (opts) => {
         const port = await configuredPort(opts.port);
-        const script = join18(scriptsDir(), "install-dashboard.ps1");
+        const script = join24(scriptsDir(), "install-dashboard.ps1");
         const args = ["-Port", String(port), "-JhHome", jhHome()];
         if (opts.openAtLogon) args.push("-OpenAtLogon");
         runPowerShellScript(script, args, opts.json);
-        await withDb4((db) => setSetting(db, "dashboard.port", port));
+        await withDb6((db) => setSetting(db, "dashboard.port", port));
         audit({
           actor: "user",
           action: "dashboard.install",
@@ -63372,7 +64834,7 @@ function register6(program3) {
   dash.command("uninstall").description(`stop and remove the '${TASK_NAME}' logon task`).option("--json", "machine-readable output").action(
     action(async (opts) => {
       runPowerShellScript(
-        join18(scriptsDir(), "uninstall-dashboard.ps1"),
+        join24(scriptsDir(), "uninstall-dashboard.ps1"),
         [],
         opts.json
       );
@@ -63842,7 +65304,7 @@ function linkEmailToApp(db, emailId, appId) {
     ...result.interviewId !== void 0 ? { interview_id: result.interviewId } : {}
   };
 }
-function register7(program3) {
+function register9(program3) {
   const email3 = program3.command("email").description("ingest and link job-related Gmail messages");
   email3.command("ingest").description(
     "ingest classified emails (JSON array or {items}) from a file or - for stdin"
@@ -63850,7 +65312,7 @@ function register7(program3) {
     action(
       async (opts) => {
         const items = EmailIngestBatch.parse(await readJsonInput(opts.file));
-        const res = await withDb4(
+        const res = await withDb6(
           (db) => ingestEmails(db, items, { dryRun: opts.dryRun })
         );
         emit(res, opts.json, humanIngest);
@@ -63863,14 +65325,14 @@ function register7(program3) {
   ).option("--limit <n>", "max rows", "50").option("--json", "machine-readable output").action(
     action(async (opts) => {
       const f = ListOpts2.parse(opts);
-      const rows = await withDb4((db) => listEmails(db, f));
+      const rows = await withDb6((db) => listEmails(db, f));
       emit(rows, opts.json, humanEmails);
     })
   );
   email3.command("link <emailId> <appId>").description("link an email to an application and apply its status effect").option("--json", "machine-readable output").action(
     action(
       async (emailId, appId, opts) => {
-        const res = await withDb4(
+        const res = await withDb6(
           (db) => linkEmailToApp(db, Id.parse(emailId), Id.parse(appId))
         );
         emit(
@@ -63900,7 +65362,7 @@ function humanInterviews(rows) {
     (i) => `${String(i.id).padStart(4)}  ${(i.start_at ?? "unscheduled").slice(0, 16).replace("T", " ")}Z  ${i.company_name}${i.role ? ` - ${i.role}` : ""}  [${i.round}, ${i.status}, prep ${i.prep_status}]`
   ).join("\n");
 }
-function register8(program3) {
+function register10(program3) {
   const iv = program3.command("interview").description("interviews synced from calendar and email");
   iv.command("upsert").description(
     "upsert calendar events (JSON array or {items}); merges with email-sourced interviews within 30m"
@@ -63909,7 +65371,7 @@ function register8(program3) {
       const items = InterviewUpsertBatch.parse(
         await readJsonInput(opts.file)
       );
-      const res = await withDb4((db) => upsertInterviews(db, items));
+      const res = await withDb6((db) => upsertInterviews(db, items));
       audit({
         actor: "calendar-sync",
         action: "interview.upsert",
@@ -63926,7 +65388,7 @@ function register8(program3) {
     action(async (opts) => {
       const f = ListOpts3.parse(opts);
       const now = Date.now();
-      const rows = await withDb4(
+      const rows = await withDb6(
         (db) => listInterviews(db, {
           prep: f.prep,
           ...f.upcoming ? {
@@ -63949,7 +65411,7 @@ function register8(program3) {
           throw new ValidationError(
             `prep path must be inside ${artifactsDir()}`
           );
-        const row = await withDb4((db) => {
+        const row = await withDb6((db) => {
           if (!getInterview(db, interviewId))
             throw new NotFoundError(`interview ${interviewId} not found`);
           setInterviewPrep(db, interviewId, status, opts.path);
@@ -63969,7 +65431,7 @@ function register8(program3) {
 init_zod();
 init_errors3();
 var AppId2 = external_exports.coerce.number().int().positive();
-function withDb5(fn) {
+function withDb7(fn) {
   const db = openDb();
   try {
     return fn(db);
@@ -64010,7 +65472,7 @@ function humanCompare(c) {
 async function runSnapshotSet(id, o) {
   const appId = AppId2.parse(id);
   const input2 = await readJsonInput(o.file);
-  const snap = withDb5((db) => upsertJdSnapshot(db, appId, input2));
+  const snap = withDb7((db) => upsertJdSnapshot(db, appId, input2));
   audit({
     actor: "jh jd snapshot set",
     action: "jd.snapshot",
@@ -64029,7 +65491,7 @@ async function runSnapshotSet(id, o) {
 }
 async function runShow2(id, o) {
   const appId = AppId2.parse(id);
-  const snap = withDb5((db) => getJdSnapshot(db, appId));
+  const snap = withDb7((db) => getJdSnapshot(db, appId));
   if (!snap)
     throw new NotFoundError(
       `application ${appId} has no JD snapshot`,
@@ -64040,10 +65502,10 @@ async function runShow2(id, o) {
 }
 async function runCompare(id, o) {
   const appId = AppId2.parse(id);
-  const c = withDb5((db) => jdCompareForApp(db, appId, { draftPath: o.draft }));
+  const c = withDb7((db) => jdCompareForApp(db, appId, { draftPath: o.draft }));
   emit(c, o.json, humanCompare);
 }
-function register9(program3) {
+function register11(program3) {
   const jd = program3.command("jd").description(
     "short JD snapshot per application and a deterministic resume-vs-JD compare"
   );
@@ -64062,9 +65524,9 @@ function register9(program3) {
 
 // src/commands/learn.ts
 init_errors3();
-import { readFileSync as readFileSync16 } from "node:fs";
+import { readFileSync as readFileSync20 } from "node:fs";
 init_paths();
-function withDb6(fn) {
+function withDb8(fn) {
   const db = openDb();
   try {
     return fn(db);
@@ -64107,7 +65569,7 @@ function humanAnalysis(d) {
 function analyzeCmd(opts) {
   const ghostDays = parsePositiveInt("ghost-days", opts.ghostDays);
   const dir = resolveLearningsDir();
-  const result = withDb6((db) => {
+  const result = withDb8((db) => {
     const analysis = runAnalysis(db, { ghostDays });
     if (!opts.dryRun) markRun(db, analysis);
     return analysis;
@@ -64116,8 +65578,8 @@ function analyzeCmd(opts) {
   emit({ analysis: result, stats_path: statsPath }, opts.json, humanAnalysis);
 }
 function playbookCmd(opts) {
-  const analysis = withDb6((db) => runAnalysis(db));
-  const markdown = opts.file ? readFileSync16(opts.file, "utf8") : renderPlaybook(analysis);
+  const analysis = withDb8((db) => runAnalysis(db));
+  const markdown = opts.file ? readFileSync20(opts.file, "utf8") : renderPlaybook(analysis);
   const lint = lintPlaybook(markdown);
   if (!lint.ok) {
     throw new JhError(
@@ -64154,7 +65616,7 @@ function playbookCmd(opts) {
 function statusCmd(opts) {
   const appId = parsePositiveInt("app", opts.app);
   const dir = resolveLearningsDir();
-  const status = withDb6((db) => learnStatus(db, dir, { appId }));
+  const status = withDb8((db) => learnStatus(db, dir, { appId }));
   emit(
     status,
     opts.json,
@@ -64168,7 +65630,7 @@ function statusCmd(opts) {
     ].join("\n")
   );
 }
-function register10(program3) {
+function register12(program3) {
   const learn = program3.command("learn").description("learn which resume variants earn callbacks");
   learn.command("analyze").description(
     "label outcomes, compute callback rates per feature, write me/learnings/stats.json"
@@ -64187,8 +65649,8 @@ init_paths();
 // src/me/extract.ts
 init_errors3();
 init_paths();
-import { readdirSync as readdirSync5, readFileSync as readFileSync18, statSync as statSync5 } from "node:fs";
-import { extname, join as join20 } from "node:path";
+import { readdirSync as readdirSync7, readFileSync as readFileSync22, statSync as statSync5 } from "node:fs";
+import { extname, join as join26 } from "node:path";
 import { inflateRawSync as inflateRawSync2 } from "node:zlib";
 
 // src/me/init.ts
@@ -64200,13 +65662,13 @@ init_load();
 init_schema2();
 import { createHash as createHash4 } from "node:crypto";
 import {
-  copyFileSync as copyFileSync2,
-  existsSync as existsSync19,
-  readdirSync as readdirSync4,
-  readFileSync as readFileSync17,
+  copyFileSync as copyFileSync5,
+  existsSync as existsSync25,
+  readdirSync as readdirSync6,
+  readFileSync as readFileSync21,
   statSync as statSync4
 } from "node:fs";
-import { basename, dirname as dirname6, join as join19, relative as relative3, resolve as resolve9, sep as sep2 } from "node:path";
+import { basename as basename2, dirname as dirname8, join as join25, relative as relative4, resolve as resolve13, sep as sep3 } from "node:path";
 import { fileURLToPath as fileURLToPath4 } from "node:url";
 var PROTECTED = /* @__PURE__ */ new Set([
   "master-resume.yaml",
@@ -64220,12 +65682,12 @@ var EXAMPLE_DIRS = /* @__PURE__ */ new Set([
   "learnings"
 ]);
 var INTAKE_STATE = "state.json";
-function templatesMeDir(start = dirname6(fileURLToPath4(import.meta.url))) {
-  let dir = resolve9(start);
+function templatesMeDir(start = dirname8(fileURLToPath4(import.meta.url))) {
+  let dir = resolve13(start);
   for (; ; ) {
-    const candidate = join19(dir, "templates", "me");
-    if (existsSync19(join19(candidate, "README.md"))) return candidate;
-    const parent = dirname6(dir);
+    const candidate = join25(dir, "templates", "me");
+    if (existsSync25(join25(candidate, "README.md"))) return candidate;
+    const parent = dirname8(dir);
     if (parent === dir)
       throw new NotFoundError("templates/me not found next to the jh CLI");
     dir = parent;
@@ -64233,8 +65695,8 @@ function templatesMeDir(start = dirname6(fileURLToPath4(import.meta.url))) {
 }
 function walk(dir) {
   const out = [];
-  for (const e of readdirSync4(dir, { withFileTypes: true })) {
-    const p = join19(dir, e.name);
+  for (const e of readdirSync6(dir, { withFileTypes: true })) {
+    const p = join25(dir, e.name);
     if (e.isDirectory()) out.push(...walk(p));
     else if (e.isFile()) out.push(p);
   }
@@ -64264,23 +65726,23 @@ function upsertEnvLine(content, key, value) {
   return lines.join(eol);
 }
 function toForwardSlashes(p) {
-  return p.split(sep2).join("/").replace(/\\/g, "/");
+  return p.split(sep3).join("/").replace(/\\/g, "/");
 }
 function writeMeEnv(dir) {
-  const envFile = join19(jhHome(), ".env");
-  const before = existsSync19(envFile) ? readFileSync17(envFile, "utf8") : "";
+  const envFile = join25(jhHome(), ".env");
+  const before = existsSync25(envFile) ? readFileSync21(envFile, "utf8") : "";
   const after = upsertEnvLine(before, "JOB_HUNTER_ME", toForwardSlashes(dir));
   if (after !== before) writeFileAtomic(envFile, after);
   process.env.JOB_HUNTER_ME = dir;
   return { envFile, changed: after !== before };
 }
 function defaultMeDir() {
-  if (process.env.JOB_HUNTER_ME) return resolve9(process.env.JOB_HUNTER_ME);
+  if (process.env.JOB_HUNTER_ME) return resolve13(process.env.JOB_HUNTER_ME);
   const loc = meDir();
-  return loc.source === "repo" ? loc.path : join19(jhHome(), "me");
+  return loc.source === "repo" ? loc.path : join25(jhHome(), "me");
 }
 function initWorkspace(o = {}) {
-  const dir = resolve9(o.dir ?? defaultMeDir());
+  const dir = resolve13(o.dir ?? defaultMeDir());
   const src = o.templatesDir ?? templatesMeDir();
   const result = {
     dir,
@@ -64291,15 +65753,15 @@ function initWorkspace(o = {}) {
     envUpdated: false
   };
   for (const file2 of walk(src)) {
-    const rel = workspaceRel(toForwardSlashes(relative3(src, file2)));
-    const dest = join19(dir, rel);
-    const present = existsSync19(dest);
+    const rel = workspaceRel(toForwardSlashes(relative4(src, file2)));
+    const dest = join25(dir, rel);
+    const present = existsSync25(dest);
     if (present && (!o.force || PROTECTED.has(rel))) {
       result.skipped.push(rel);
       continue;
     }
-    ensureDir(dirname6(dest));
-    copyFileSync2(file2, dest);
+    ensureDir(dirname8(dest));
+    copyFileSync5(file2, dest);
     (present ? result.overwritten : result.created).push(rel);
   }
   for (const sub of [
@@ -64309,7 +65771,7 @@ function initWorkspace(o = {}) {
     ".intake",
     ".cache"
   ])
-    ensureDir(join19(dir, sub));
+    ensureDir(join25(dir, sub));
   const env = writeMeEnv(dir);
   return { ...result, envFile: env.envFile, envUpdated: env.changed };
 }
@@ -64318,56 +65780,56 @@ var IntakeState = external_exports.object({
   files: external_exports.record(external_exports.string(), external_exports.string())
 });
 function sha1(file2) {
-  return createHash4("sha1").update(readFileSync17(file2)).digest("hex");
+  return createHash4("sha1").update(readFileSync21(file2)).digest("hex");
 }
 function inputFiles(paths) {
   const root = paths.root;
-  if (!existsSync19(root)) return [];
+  if (!existsSync25(root)) return [];
   const top = [
     paths.readme,
     paths.profile,
     paths.preferences,
     paths.targets
-  ].filter((f) => existsSync19(f));
+  ].filter((f) => existsSync25(f));
   const dirs = [
     paths.sampleResumeDir,
     paths.experienceDir,
     paths.storiesDir
-  ].filter((d) => existsSync19(d));
+  ].filter((d) => existsSync25(d));
   const nested = dirs.flatMap((d) => walk(d));
-  return [...top, ...nested].map((f) => toForwardSlashes(relative3(root, f))).sort();
+  return [...top, ...nested].map((f) => toForwardSlashes(relative4(root, f))).sort();
 }
 function writeIntakeState(paths, now) {
   const files = {};
-  for (const rel of inputFiles(paths)) files[rel] = sha1(join19(paths.root, rel));
+  for (const rel of inputFiles(paths)) files[rel] = sha1(join25(paths.root, rel));
   const state = { at: now.toISOString(), files };
   writeFileAtomic(
-    join19(paths.intakeDir, INTAKE_STATE),
+    join25(paths.intakeDir, INTAKE_STATE),
     `${JSON.stringify(state, null, 2)}
 `
   );
 }
 function readIntakeState(paths) {
-  const file2 = join19(paths.intakeDir, INTAKE_STATE);
-  if (!existsSync19(file2)) return null;
-  const r = IntakeState.safeParse(JSON.parse(readFileSync17(file2, "utf8")));
+  const file2 = join25(paths.intakeDir, INTAKE_STATE);
+  if (!existsSync25(file2)) return null;
+  const r = IntakeState.safeParse(JSON.parse(readFileSync21(file2, "utf8")));
   return r.success ? r.data : null;
 }
 function isUserContent(rel) {
-  const name = basename(rel);
+  const name = basename2(rel);
   return name !== "README.md" && !name.startsWith("_") && !name.startsWith(".");
 }
 function meStatus(paths = mePaths()) {
   const state = readIntakeState(paths);
   const files = inputFiles(paths).map((rel) => {
-    const h = sha1(join19(paths.root, rel));
+    const h = sha1(join25(paths.root, rel));
     return { rel, sha1: h, changed: state?.files[rel] !== h };
   });
   const missing = ["profile.yaml", "preferences.md", "targets.md"].filter(
-    (f) => !existsSync19(join19(paths.root, f))
+    (f) => !existsSync25(join25(paths.root, f))
   );
   const has = (dir) => files.some((f) => f.rel.startsWith(`${dir}/`) && isUserContent(f.rel));
-  const misplaced = existsSync19(paths.root) ? readdirSync4(paths.root, { withFileTypes: true }).filter((e) => e.isFile() && /\.(pdf|docx)$/i.test(e.name)).map((e) => e.name).sort() : [];
+  const misplaced = existsSync25(paths.root) ? readdirSync6(paths.root, { withFileTypes: true }).filter((e) => e.isFile() && /\.(pdf|docx)$/i.test(e.name)).map((e) => e.name).sort() : [];
   if (!has("sample-resume"))
     missing.push(
       misplaced.length ? `sample-resume/<your resume>.pdf|docx|md (move ${misplaced.join(", ")} from the workspace root into sample-resume/)` : "sample-resume/<your resume>.pdf|docx|md"
@@ -64376,12 +65838,12 @@ function meStatus(paths = mePaths()) {
   const removed = state ? Object.keys(state.files).some((rel) => !files.some((f) => f.rel === rel)) : false;
   return {
     root: paths.root,
-    exists: existsSync19(paths.root),
+    exists: existsSync25(paths.root),
     files,
     lastIntake: state?.at ?? null,
     missing,
     misplaced,
-    needsIntake: !state || !existsSync19(paths.masterResume) || removed || files.some((f) => f.changed && isUserContent(f.rel))
+    needsIntake: !state || !existsSync25(paths.masterResume) || removed || files.some((f) => f.changed && isUserContent(f.rel))
   };
 }
 function collect(file2, fn, errors) {
@@ -64456,7 +65918,7 @@ function validateMaster(paths, errors) {
   return m;
 }
 function markdownIn(dir) {
-  return existsSync19(dir) ? readdirSync4(dir).filter((f) => f.endsWith(".md") && isUserContent(f)) : [];
+  return existsSync25(dir) ? readdirSync6(dir).filter((f) => f.endsWith(".md") && isUserContent(f)) : [];
 }
 function validateExperience(paths, errors, warnings) {
   for (const f of markdownIn(paths.experienceDir)) {
@@ -64465,7 +65927,7 @@ function validateExperience(paths, errors, warnings) {
       file2,
       () => {
         const doc = readFrontMatter(
-          readFileSync17(join19(paths.experienceDir, f), "utf8")
+          readFileSync21(join25(paths.experienceDir, f), "utf8")
         );
         if (!doc.hasFrontMatter)
           throw new ValidationError("missing front matter");
@@ -64500,7 +65962,7 @@ function validateStories(paths, master, errors) {
       file2,
       () => {
         const doc = readFrontMatter(
-          readFileSync17(join19(paths.storiesDir, f), "utf8")
+          readFileSync21(join25(paths.storiesDir, f), "utf8")
         );
         const fm = StoryFrontMatter.parse(doc.data ?? {});
         if (master && !roleIds.has(fm.role_id))
@@ -64520,20 +65982,20 @@ function validateStories(paths, master, errors) {
 function validateWorkspace(paths = mePaths()) {
   const errors = [];
   const warnings = [];
-  if (!existsSync19(paths.root))
+  if (!existsSync25(paths.root))
     throw new NotFoundError(`me/ workspace not found: ${paths.root}`);
   collect(
     "profile.yaml",
     () => readValidated(paths.profile, Profile, "profile"),
     errors
   );
-  const master = existsSync19(paths.masterResume) ? validateMaster(paths, errors) : null;
+  const master = existsSync25(paths.masterResume) ? validateMaster(paths, errors) : null;
   if (!master)
     warnings.push({
       file: "master-resume.yaml",
       message: "no master resume yet; run /intake"
     });
-  if (existsSync19(paths.confirmedMetrics))
+  if (existsSync25(paths.confirmedMetrics))
     collect(
       "confirmed-metrics.yaml",
       () => readValidated(
@@ -64637,31 +66099,31 @@ function migrateLegacy(paths) {
     converted: [],
     skipped: []
   };
-  const legacyProfile = join19(home, "profile.yaml");
-  const legacyResume = join19(home, "resume.yaml");
-  if (!existsSync19(legacyProfile) && !existsSync19(legacyResume))
+  const legacyProfile = join25(home, "profile.yaml");
+  const legacyResume = join25(home, "resume.yaml");
+  if (!existsSync25(legacyProfile) && !existsSync25(legacyResume))
     throw new NotFoundError(`no legacy profile.yaml or resume.yaml in ${home}`);
-  if (resolve9(paths.root) === resolve9(home))
+  if (resolve13(paths.root) === resolve13(home))
     throw new ConflictError(
       "me/ resolves to the legacy home; run `jh me init --dir <path>` first"
     );
-  const backup = ensureDir(join19(paths.intakeDir, "legacy"));
-  if (existsSync19(legacyProfile)) {
-    copyFileSync2(legacyProfile, join19(backup, "profile.yaml"));
-    if (existsSync19(paths.profile) && statSync4(paths.profile).size > 0 && !isTemplateProfile(paths.profile))
+  const backup = ensureDir(join25(paths.intakeDir, "legacy"));
+  if (existsSync25(legacyProfile)) {
+    copyFileSync5(legacyProfile, join25(backup, "profile.yaml"));
+    if (existsSync25(paths.profile) && statSync4(paths.profile).size > 0 && !isTemplateProfile(paths.profile))
       result.skipped.push("profile.yaml");
     else {
-      copyFileSync2(legacyProfile, paths.profile);
+      copyFileSync5(legacyProfile, paths.profile);
       result.copied.push("profile.yaml");
     }
   }
-  if (existsSync19(legacyResume)) {
-    copyFileSync2(legacyResume, join19(backup, "resume.yaml"));
-    if (existsSync19(paths.masterResume) && hasRoles(paths.masterResume))
+  if (existsSync25(legacyResume)) {
+    copyFileSync5(legacyResume, join25(backup, "resume.yaml"));
+    if (existsSync25(paths.masterResume) && hasRoles(paths.masterResume))
       result.skipped.push("master-resume.yaml");
     else {
       saveMaster(
-        convertLegacyResume((0, import_yaml3.parse)(readFileSync17(legacyResume, "utf8"))),
+        convertLegacyResume((0, import_yaml3.parse)(readFileSync21(legacyResume, "utf8"))),
         paths
       );
       result.converted.push("resume.yaml -> master-resume.yaml");
@@ -64670,11 +66132,11 @@ function migrateLegacy(paths) {
   return result;
 }
 function isTemplateProfile(file2) {
-  const raw = (0, import_yaml3.parse)(readFileSync17(file2, "utf8"));
+  const raw = (0, import_yaml3.parse)(readFileSync21(file2, "utf8"));
   return !raw?.identity?.name;
 }
 function hasRoles(file2) {
-  const raw = (0, import_yaml3.parse)(readFileSync17(file2, "utf8"));
+  const raw = (0, import_yaml3.parse)(readFileSync21(file2, "utf8"));
   return Array.isArray(raw?.roles) && raw.roles.length > 0;
 }
 
@@ -64764,9 +66226,9 @@ function extractDocxText(buf) {
 }
 function textOf2(file2) {
   const ext = extname(file2).toLowerCase();
-  if (ext === ".docx") return { text: extractDocxText(readFileSync18(file2)) };
+  if (ext === ".docx") return { text: extractDocxText(readFileSync22(file2)) };
   if (ext === ".md" || ext === ".txt")
-    return { text: readFileSync18(file2, "utf8").replace(/^﻿/, "") };
+    return { text: readFileSync22(file2, "utf8").replace(/^﻿/, "") };
   if (ext === ".pdf")
     return {
       reason: "PDF: resume-intake reads it directly with the Read tool (pages parameter)"
@@ -64774,16 +66236,16 @@ function textOf2(file2) {
   return { reason: `unsupported file type ${ext || "(none)"}` };
 }
 function extractSampleResumes(paths = mePaths()) {
-  const outDir = ensureDir(join20(paths.cacheDir, "text"));
+  const outDir = ensureDir(join26(paths.cacheDir, "text"));
   const result = { outDir, written: [], skipped: [] };
   let names = [];
   try {
-    names = readdirSync5(paths.sampleResumeDir).sort();
+    names = readdirSync7(paths.sampleResumeDir).sort();
   } catch {
     return result;
   }
   for (const name of names) {
-    const file2 = join20(paths.sampleResumeDir, name);
+    const file2 = join26(paths.sampleResumeDir, name);
     if (!statSync5(file2).isFile() || !isUserContent(name)) continue;
     const source = `sample-resume/${name}`;
     try {
@@ -64792,7 +66254,7 @@ function extractSampleResumes(paths = mePaths()) {
         result.skipped.push({ source, reason: r.reason });
         continue;
       }
-      const out = join20(outDir, `${name}.txt`);
+      const out = join26(outDir, `${name}.txt`);
       writeFileAtomic(out, `${r.text}
 `);
       result.written.push({ source, out, chars: r.text.length });
@@ -64806,7 +66268,7 @@ function extractSampleResumes(paths = mePaths()) {
 // src/me/ingest.ts
 init_errors3();
 init_paths();
-import { existsSync as existsSync20, readFileSync as readFileSync19 } from "node:fs";
+import { existsSync as existsSync26, readFileSync as readFileSync23 } from "node:fs";
 init_load();
 init_metrics();
 init_schema2();
@@ -65138,7 +66600,7 @@ function ingestDraft(input2, o = {}) {
     ...draft.roles.flatMap((r) => dateConflicts(r, baseRoleId(r)))
   ];
   if (pre.length) return emptyResult(dryRun, pre);
-  const exists = existsSync20(paths.masterResume);
+  const exists = existsSync26(paths.masterResume);
   const master = exists ? structuredClone(loadMaster(paths)) : emptyMaster();
   const log = { added: [], updated: [], retired: [] };
   const merged = mergeRoles(master, draft, o, log);
@@ -65170,11 +66632,11 @@ function ingestDraft(input2, o = {}) {
     ...master.roles.flatMap(lintRole)
   ];
   const yaml = masterToYaml(master);
-  const before = exists ? readFileSync19(paths.masterResume, "utf8") : null;
+  const before = exists ? readFileSync23(paths.masterResume, "utf8") : null;
   const changed = yaml !== before;
   if (!dryRun) {
     if (changed) writeFileAtomic(paths.masterResume, yaml);
-    if (changed || !existsSync20(paths.metricsMd))
+    if (changed || !existsSync26(paths.metricsMd))
       writeFileAtomic(paths.metricsMd, renderMetricsMd(master, ledger));
     writeIntakeState(paths, o.now ?? /* @__PURE__ */ new Date());
   }
@@ -65342,7 +66804,7 @@ function registerIntake(me) {
     })
   );
 }
-function register11(program3) {
+function register13(program3) {
   const me = program3.command("me").description(
     "the personal me/ workspace (resume, experience READMEs, stories)"
   );
@@ -65381,7 +66843,7 @@ function decisionFromOpts(o) {
   if (o.reject) return { action: "reject" };
   return { action: "edit", value: o.edit, phrase: o.phrase };
 }
-function register12(program3) {
+function register14(program3) {
   const metrics = program3.command("metrics").description(
     "numbers attached to master-resume bullets: facts, estimates and your decisions"
   );
@@ -65435,8 +66897,8 @@ function register12(program3) {
 // src/commands/policy.ts
 var import_yaml4 = __toESM(require_dist(), 1);
 init_zod();
-import { existsSync as existsSync21, readFileSync as readFileSync20 } from "node:fs";
-import { join as join21 } from "node:path";
+import { existsSync as existsSync27, readFileSync as readFileSync24 } from "node:fs";
+import { join as join27 } from "node:path";
 init_errors3();
 init_paths();
 
@@ -65700,7 +67162,7 @@ function policyGate(e, input2) {
 }
 
 // src/commands/policy.ts
-function withDb7(fn) {
+function withDb9(fn) {
   const db = openDb();
   try {
     return fn(db);
@@ -65709,7 +67171,7 @@ function withDb7(fn) {
   }
 }
 var IdSchema3 = external_exports.coerce.number().int().positive();
-function parseIds(csv) {
+function parseIds2(csv) {
   if (!csv) return void 0;
   return csv.split(",").map((s) => s.trim()).filter(Boolean).map((s) => IdSchema3.parse(s));
 }
@@ -65748,13 +67210,13 @@ function buildOps(o) {
 }
 function readText(path2) {
   if (!path2) return null;
-  if (!existsSync21(path2)) throw new NotFoundError(`file not found: ${path2}`);
-  return readFileSync20(path2, "utf8");
+  if (!existsSync27(path2)) throw new NotFoundError(`file not found: ${path2}`);
+  return readFileSync24(path2, "utf8");
 }
 function readJsonFile(path2) {
-  if (!existsSync21(path2)) return null;
+  if (!existsSync27(path2)) return null;
   try {
-    return JSON.parse(readFileSync20(path2, "utf8").replace(/^﻿/, ""));
+    return JSON.parse(readFileSync24(path2, "utf8").replace(/^﻿/, ""));
   } catch {
     return null;
   }
@@ -65783,11 +67245,11 @@ function appDir(db, appId) {
   return { dir: app.artifacts_dir ?? artifactsDir(appId), title: app.title };
 }
 function gateInputFromArtifacts(dir, title) {
-  const review = readJsonFile(join21(dir, "review.json"));
+  const review = readJsonFile(join27(dir, "review.json"));
   const gate = review?.gate ?? {};
-  const ats = readJsonFile(join21(dir, "ats.json"));
-  const fact = readJsonFile(join21(dir, "factcheck.json"));
-  const layout = readJsonFile(join21(dir, "layout.json"));
+  const ats = readJsonFile(join27(dir, "ats.json"));
+  const fact = readJsonFile(join27(dir, "factcheck.json"));
+  const layout = readJsonFile(join27(dir, "layout.json"));
   const num2 = (v) => typeof v === "number" ? v : null;
   return {
     title,
@@ -65801,7 +67263,7 @@ function gateInputFromArtifacts(dir, title) {
     finalized: review !== null
   };
 }
-function register13(program3) {
+function register15(program3) {
   const policy = program3.command("policy").description(
     "the structured decision policy in me/decision-policy.yaml (ADR-005)"
   );
@@ -65877,11 +67339,11 @@ ${JSON.stringify(d.policy, null, 2)}`
     action(
       (opts) => {
         const e = loadEffective();
-        const results = withDb7(
+        const results = withDb9(
           (db) => runTriage(db, e, {
-            ids: parseIds(opts.app),
+            ids: parseIds2(opts.app),
             statuses: opts.status?.split(",").map((s) => s.trim()),
-            strong: parseIds(opts.strong)
+            strong: parseIds2(opts.strong)
           })
         );
         const counts = { include: 0, review: 0, skip: 0 };
@@ -65916,17 +67378,17 @@ ${JSON.stringify(d.policy, null, 2)}`
       (appIdRaw, opts) => {
         const appId = IdSchema3.parse(appIdRaw);
         const e = loadEffective();
-        const texts = withDb7((db) => {
+        const texts = withDb9((db) => {
           const job = jobTextFor(db, appId);
           if (!job)
             throw new NotFoundError(`application ${appId} not found`, {
               appId
             });
           const { dir } = appDir(db, appId);
-          const formDefault = join21(dir, "form.txt");
+          const formDefault = join27(dir, "form.txt");
           return {
             jd: readText(opts.jd) ?? job.jd_text,
-            form: readText(opts.form) ?? (existsSync21(formDefault) ? readText(formDefault) : null)
+            form: readText(opts.form) ?? (existsSync27(formDefault) ? readText(formDefault) : null)
           };
         });
         const r = evaluateEligibility(e, appId, texts);
@@ -65956,7 +67418,7 @@ ${JSON.stringify(d.policy, null, 2)}`
     action((appIdRaw, opts) => {
       const appId = IdSchema3.parse(appIdRaw);
       const e = loadEffective();
-      const input2 = withDb7((db) => {
+      const input2 = withDb9((db) => {
         const { dir, title } = appDir(db, appId);
         return gateInputFromArtifacts(dir, title);
       });
@@ -65984,824 +67446,6 @@ ${JSON.stringify(d.policy, null, 2)}`
       );
     })
   );
-}
-
-// src/commands/resume.ts
-import { randomBytes as randomBytes3 } from "node:crypto";
-import { copyFileSync as copyFileSync4, existsSync as existsSync23, readFileSync as readFileSync22, writeFileSync as writeFileSync9 } from "node:fs";
-import { dirname as dirname7, join as join23, resolve as resolve10 } from "node:path";
-init_errors3();
-init_paths();
-init_metrics();
-init_render();
-
-// src/resume/bold.ts
-init_emphasis();
-var RANGE_GAP_RE = /^\s*(?:to|to under|to over|to below|to above|to about|to roughly|->|→|-|–|and)\s*$/i;
-function escapeRe2(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-function metricPhrases(text) {
-  const raw = metricSpans(text).map(({ start, end }) => {
-    let e = end;
-    const tail = /^(?:\+|-[A-Za-z]+|\s(?:years?|yrs?)\b)+/.exec(text.slice(e));
-    if (tail) e += tail[0].length;
-    return [start, e];
-  });
-  const out = [];
-  for (const span of raw) {
-    const last = out[out.length - 1];
-    if (last && RANGE_GAP_RE.test(text.slice(last[1], span[0])))
-      last[1] = span[1];
-    else if (last && span[0] < last[1]) last[1] = Math.max(last[1], span[1]);
-    else out.push([...span]);
-  }
-  return out;
-}
-function findTerm(text, term) {
-  const t = term.trim();
-  if (t.length < 2) return null;
-  const m = new RegExp(
-    `(^|[^A-Za-z0-9])(${escapeRe2(t)})(?=$|[^A-Za-z0-9])`,
-    "i"
-  ).exec(text);
-  if (!m) return null;
-  const start = m.index + (m[1]?.length ?? 0);
-  return [start, start + t.length];
-}
-function boldCandidates(master, profile, keywords) {
-  const out = [];
-  const seen = /* @__PURE__ */ new Set();
-  const add = (term, rank) => {
-    const k = term.trim().toLowerCase();
-    if (k.length < 2 || seen.has(k)) return;
-    seen.add(k);
-    out.push({ term: term.trim(), rank });
-  };
-  const kw = (list, base) => [...list].sort((a, b) => (b.weight ?? 1) - (a.weight ?? 1)).forEach((k) => {
-    for (const t of [k.term, ...k.aliases ?? []])
-      add(t, base + (3 - (k.weight ?? 1)));
-  });
-  if (keywords) {
-    kw(keywords.required, 0);
-    kw(keywords.preferred, 10);
-  }
-  const skills = [
-    ...master.skills,
-    ...master.roles.flatMap(
-      (r) => r.bullets.filter((b) => !b.retired).flatMap((b) => b.skills)
-    ),
-    ...profile?.skills?.expert ?? [],
-    ...profile?.skills?.proficient ?? [],
-    ...profile?.skills?.familiar ?? []
-  ];
-  for (const s of skills) add(s, 20);
-  return out;
-}
-function factPhrases(master) {
-  return master.roles.flatMap((r) => r.bullets).flatMap((b) => b.metrics).filter((m) => m.status === "fact").flatMap((m) => [m.phrase, m.value]).filter((p) => p && p.length <= 40);
-}
-var LEAD_WORD_RE = /^(?:a|an|the|at|by|to|of|for|in|on|from|with|across|over|while|and)$|(?:ing|ed)$/i;
-function trimLead(text, start, end, limit) {
-  let s = start;
-  for (; ; ) {
-    const m = /^(\S+)\s+/.exec(text.slice(s, limit));
-    if (!m?.[1] || !LEAD_WORD_RE.test(m[1])) break;
-    s += m[0].length;
-  }
-  return [s, end];
-}
-function suggestFor(text, candidates, facts, limits) {
-  const spans = [];
-  const budget = limits.maxRatio ? text.length * limits.maxRatio : Infinity;
-  const used = () => spans.reduce((n, [s, e]) => n + (e - s), 0);
-  const free = (s, e) => !spans.some(([a, b]) => s < b && e > a);
-  const take = (s, e, force = false) => {
-    if (spans.length >= limits.max || !free(s, e)) return;
-    if (!force && used() + (e - s) > budget) return;
-    spans.push([s, e]);
-  };
-  for (const [s, e] of metricPhrases(text)) {
-    const fact = facts.map((f) => [text.indexOf(f), f.length]).find(([at, len]) => at >= 0 && at <= s && at + len >= e && len <= 32);
-    if (fact) {
-      const [fs2, fe] = trimLead(text, fact[0], fact[0] + fact[1], s);
-      take(fs2, fe, true);
-    } else take(s, e, true);
-  }
-  const ordered = [...candidates].sort(
-    (a, b) => a.rank - b.rank || b.term.length - a.term.length
-  );
-  for (const c of ordered) {
-    if (spans.length >= limits.max) break;
-    const hit = findTerm(text, c.term);
-    if (hit) take(hit[0], hit[1]);
-  }
-  spans.sort((a, b) => a[0] - b[0]);
-  const suggested = spans.map(([s, e]) => text.slice(s, e)).filter((p, i, all2) => all2.indexOf(p) === i);
-  const placed = locateEmphasis(text, suggested).spans.length;
-  return { suggested, short: placed < limits.min };
-}
-function roleFields(roles, key) {
-  return roles.flatMap(
-    (role, ri) => role.bullets.map((b, bi) => ({
-      path: `${key}[${ri}].bullets[${bi}]`,
-      text: b.text,
-      current: b.emphasis
-    }))
-  );
-}
-function suggestBold(r, master, profile, keywords) {
-  const cands = boldCandidates(master, profile, keywords);
-  const facts = factPhrases(master);
-  const out = [];
-  const bulletLimits = { ...BOLD_RULES.bullet, maxRatio: BOLD_RULES.maxRatio };
-  for (const f of [
-    ...roleFields(r.experience, "experience"),
-    ...roleFields(r.projects, "projects")
-  ])
-    out.push({
-      ...f,
-      kind: "bullet",
-      ...suggestFor(f.text, cands, facts, bulletLimits)
-    });
-  if (r.summary.text.trim())
-    out.push({
-      path: "summary",
-      kind: "summary",
-      text: r.summary.text,
-      current: r.summary.emphasis,
-      ...suggestFor(r.summary.text, cands, facts, {
-        min: 1,
-        max: 4,
-        maxRatio: 0.25
-      })
-    });
-  (r.summary.highlights ?? []).forEach((h, i) => {
-    out.push({
-      path: `summary.highlights[${i}]`,
-      kind: "highlight",
-      text: h.text,
-      current: h.emphasis,
-      ...suggestFor(h.text, cands, facts, {
-        ...BOLD_RULES.highlight,
-        maxRatio: BOLD_RULES.maxRatio
-      })
-    });
-  });
-  return out;
-}
-function applyBold(r, suggestions) {
-  const copy = structuredClone(r);
-  const by = new Map(suggestions.map((s) => [s.path, s.suggested]));
-  const set2 = (roles, key) => roles.forEach((role, ri) => {
-    role.bullets.forEach((b, bi) => {
-      const s = by.get(`${key}[${ri}].bullets[${bi}]`);
-      if (s) b.emphasis = s;
-    });
-  });
-  set2(copy.experience, "experience");
-  set2(copy.projects, "projects");
-  const sum = by.get("summary");
-  if (sum) copy.summary.emphasis = sum;
-  (copy.summary.highlights ?? []).forEach((h, i) => {
-    const s = by.get(`summary.highlights[${i}]`);
-    if (s) h.emphasis = s;
-  });
-  return copy;
-}
-
-// src/resume/finalize.ts
-import { copyFileSync as copyFileSync3, existsSync as existsSync22, readFileSync as readFileSync21, writeFileSync as writeFileSync8 } from "node:fs";
-import { basename as basename2, join as join22 } from "node:path";
-init_errors3();
-init_paths();
-init_render();
-init_schema();
-var FINAL_FORMATS = ["html", "pdf", "docx", "txt"];
-var FINALIZABLE = /* @__PURE__ */ new Set([
-  "discovered",
-  "shortlisted",
-  "tailored"
-]);
-var ACTOR = "jh resume finalize";
-function provenanceOf(r) {
-  const out = { summary: r.summary.source_ids };
-  for (const b of allBullets(r)) out[b.id] = b.source_ids;
-  return out;
-}
-function writeJson(path2, data) {
-  writeFileSync8(path2, `${JSON.stringify(data, null, 2)}
-`, "utf8");
-  return path2;
-}
-function assertFinalizable(db, runId, appId) {
-  const app = getApplication(db, appId);
-  if (!app)
-    throw new NotFoundError(`application ${appId} not found`, { appId, runId });
-  if (!FINALIZABLE.has(app.status))
-    throw new IllegalTransitionError(
-      `application ${appId} is ${app.status}; only discovered, shortlisted or tailored applications can be finalized`,
-      { appId, status: app.status }
-    );
-  return app.status;
-}
-function requireFactcheck(reviews) {
-  const fc = latestByReviewer(reviews)["fact-checker"];
-  if (fc?.verdict !== "pass")
-    throw new ValidationError(
-      fc ? `fact-checker verdict is "${fc.verdict}"; finalize needs a passing fact-check` : "no fact-checker review; run the fact-checker and jh resume review add first",
-      { factcheck: fc ?? null },
-      "factcheck_required"
-    );
-  return fc;
-}
-function renderedViews(r, render) {
-  const read = (f) => f && existsSync22(f) ? readFileSync21(f, "utf8") : void 0;
-  const docx = render.files.docx;
-  return {
-    html: read(render.files.html) ?? renderHtml(r),
-    text: read(render.files.txt) ?? renderText(r),
-    docxXml: docx && existsSync22(docx) ? docxDocumentXml(readFileSync21(docx)) : void 0
-  };
-}
-function placeArtifacts(r, render, dir) {
-  const files = {
-    json: writeJson(join22(dir, "resume.json"), r)
-  };
-  for (const [fmt, src] of Object.entries(render.files)) {
-    if (!src || !existsSync22(src)) continue;
-    const generic = join22(dir, `resume.${fmt}`);
-    copyFileSync3(src, generic);
-    files[fmt] = generic;
-    if (fmt === "pdf" || fmt === "docx") {
-      const named = join22(dir, basename2(src));
-      if (named !== generic) copyFileSync3(src, named);
-      files[`${fmt}_named`] = named;
-    }
-  }
-  return files;
-}
-function variantKeywords(r, ats, kwTerms) {
-  if (!ats) return [...new Set(allBullets(r).flatMap((b) => b.keywords))];
-  const all2 = tokens(
-    allRoles(r).flatMap((x) => x.bullets.map((b) => b.text)).concat(
-      r.summary.text,
-      r.basics.headline,
-      ...r.skills.flatMap((g) => g.items)
-    ).join(" | ")
-  );
-  return kwTerms.filter((t) => countKeyword(all2, { term: t }) > 0);
-}
-function moveToTailored(db, appId, from, runId) {
-  const detail = { run_id: runId };
-  if (from === "discovered")
-    transition(db, appId, "shortlisted", { actor: ACTOR, detail });
-  if (from !== "tailored")
-    transition(db, appId, "tailored", { actor: ACTOR, detail });
-}
-async function finalizeResume(db, o) {
-  const run = requireRun(db, o.runId);
-  if (run.status !== "running")
-    throw new ConflictError(
-      `run ${run.id} is already ${run.status}`,
-      { status: run.status },
-      "run_not_running"
-    );
-  const me = o.me ?? loadMe();
-  const a = assessDraft(db, o.runId, o.draftId, me);
-  if (!a.validation.ok)
-    throw new ValidationError(
-      `draft ${o.draftId} fails validation (${a.validation.errors.length} errors)`,
-      { errors: a.validation.errors },
-      "validation_failed"
-    );
-  const fact = requireFactcheck(a.reviews);
-  const appId = run.application_id;
-  const fromStatus = assertFinalizable(db, run.id, appId);
-  const dir = ensureDir(artifactsDir(appId));
-  const stage = ensureDir(join22(run.workdir, "render", "final"));
-  const render = await renderAll(
-    a.draft,
-    stage,
-    o.formats ?? [...FINAL_FORMATS]
-  );
-  const wantFormats = o.formats ?? [...FINAL_FORMATS];
-  if (wantFormats.includes("pdf") && !render.files.pdf) {
-    throw new ValidationError(
-      "PDF rendering failed; the run stays open so finalize can be retried",
-      { warnings: render.warnings },
-      "pdf_failed"
-    );
-  }
-  const layout = await layoutGate(a.draft, {
-    spec: layoutSpecFrom(me.profile),
-    density: render.density,
-    pdfPath: render.files.pdf
-  });
-  if (!layout.pass)
-    throw new ValidationError(
-      `layout gate failed (${layout.failures.length} issue(s)): ${layout.failures.slice(0, 3).map((f) => `${f.code} ${f.path}`).join("; ")}`,
-      { layout },
-      "layout_gate_failed"
-    );
-  const kw = runKeywords(run);
-  const ats = kw ? scoreResume(a.draft, kw, renderedViews(a.draft, render), me.profile) : null;
-  const atsScore = ats?.total ?? a.atsScore;
-  const gate = evaluateGate({ ats: atsScore, valid: true, reviews: a.reviews });
-  const fits = render.overflow_lines === void 0;
-  const quality = o.quality ?? (gate.pass && fits ? "ok" : "below_bar");
-  const files = placeArtifacts(a.draft, render, dir);
-  files.provenance = writeJson(
-    join22(dir, "provenance.json"),
-    provenanceOf(a.draft)
-  );
-  files.ats = writeJson(
-    join22(dir, "ats.json"),
-    ats ?? { total: atsScore, source: "ats-screener" }
-  );
-  files.review = writeJson(join22(dir, "review.json"), {
-    run_id: run.id,
-    draft_id: o.draftId,
-    quality,
-    gate,
-    reviews: latestByReviewer(a.reviews),
-    open_fixes: mergedFixes(a.reviews)
-  });
-  files.factcheck = writeJson(join22(dir, "factcheck.json"), fact);
-  files.layout = writeJson(join22(dir, "layout.json"), layout);
-  const kwTerms = kw ? [...kw.required, ...kw.preferred].map((k) => k.term) : [];
-  const hm = gate.hm_verdict;
-  tx(db, () => {
-    upsertDraft(db, {
-      run_id: run.id,
-      id: o.draftId,
-      angle: a.draft.angle,
-      iteration: a.draft.iteration,
-      path: requireDraft(db, run.id, o.draftId).path,
-      ats_score: atsScore,
-      valid: true
-    });
-    finalizeRun(db, run.id, {
-      final_draft_id: o.draftId,
-      ats_score: atsScore,
-      hm_verdict: hm,
-      quality,
-      iterations: Math.max(run.iterations, a.draft.iteration)
-    });
-    setArtifactsDir(db, appId, dir);
-    const app = getApplication(db, appId);
-    recordVariant(
-      db,
-      appId,
-      // Bucketed features (framing class, phrasing tags, role family) so
-      // values repeat across applications and analysis can reach n>=3.
-      variantFromResume(a.draft, {
-        ats_score: Math.max(0, Math.min(100, Math.round(atsScore))),
-        pages: render.pages ?? a.draft.layout.pages,
-        source: app?.source ?? null,
-        keywords: variantKeywords(a.draft, ats, kwTerms),
-        posted_title: getJdSnapshot(db, appId)?.title_posted ?? null
-      })
-    );
-    moveToTailored(db, appId, fromStatus, run.id);
-  });
-  audit({
-    actor: ACTOR,
-    action: "resume.finalize",
-    target: `application:${appId}`,
-    detail: {
-      run_id: run.id,
-      draft_id: o.draftId,
-      ats: atsScore,
-      quality,
-      dir
-    }
-  });
-  return {
-    run_id: run.id,
-    app_id: appId,
-    draft_id: o.draftId,
-    artifacts_dir: dir,
-    files,
-    ats: atsScore,
-    quality,
-    gate,
-    pages: render.pages,
-    warnings: render.warnings,
-    status: "tailored",
-    layout
-  };
-}
-
-// src/commands/resume.ts
-init_schema();
-function withDb8(fn) {
-  const db = openDb();
-  try {
-    return fn(db);
-  } finally {
-    db.close();
-  }
-}
-async function withDbAsync(fn) {
-  const db = openDb();
-  try {
-    return await fn(db);
-  } finally {
-    db.close();
-  }
-}
-function parseIntArg(v, name) {
-  if (v === void 0) return void 0;
-  const n = Number(v);
-  if (!Number.isInteger(n) || n <= 0)
-    throw new ValidationError(`--${name} must be a positive integer`);
-  return n;
-}
-function newRunId(appId, now = /* @__PURE__ */ new Date()) {
-  const stamp = now.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
-  return `${appId}-${stamp}-${randomBytes3(2).toString("hex")}`;
-}
-function resolveApplication(db, o, jdText) {
-  if (o.app !== void 0) {
-    const app = getApplication(db, o.app);
-    if (!app) throw new NotFoundError(`application ${o.app} not found`);
-    const job2 = getJob(db, app.job_id);
-    if (job2 && !job2.jd_text) setJobJd(db, job2.id, jdText);
-    return app.id;
-  }
-  const company = upsertCompany(db, { name: o.company });
-  const job = insertJob(db, {
-    company_id: company.id,
-    title: o.title,
-    url: o.url,
-    jd_text: jdText
-  });
-  if (!job.jd_text) setJobJd(db, job.id, jdText);
-  return createApplication(db, { job_id: job.id }).id;
-}
-function prepareRun(db, o) {
-  if (!existsSync23(o.jd)) throw new NotFoundError(`JD file not found: ${o.jd}`);
-  const jdText = readFileSync22(o.jd, "utf8");
-  if (jdText.trim().length < 50)
-    throw new ValidationError(`JD file ${o.jd} is too short to tailor against`);
-  const paths = mePaths();
-  if (!existsSync23(paths.masterResume))
-    throw new NotFoundError(
-      `master resume not found at ${paths.masterResume}; run /intake first`,
-      { path: paths.masterResume },
-      "master_missing"
-    );
-  const appId = resolveApplication(db, o, jdText);
-  const runId = newRunId(appId);
-  const workdir = ensureDir(join23(artifactsDir(appId), "runs", runId));
-  const jdPath = join23(workdir, "jd.txt");
-  copyFileSync4(o.jd, jdPath);
-  createRun(db, { id: runId, application_id: appId, workdir, jd_path: jdPath });
-  audit({
-    actor: "jh resume prepare",
-    action: "resume.prepare",
-    target: `application:${appId}`,
-    detail: { run_id: runId, company: o.company, title: o.title }
-  });
-  return {
-    run_id: runId,
-    app_id: appId,
-    workdir,
-    jd_path: jdPath,
-    master_path: paths.masterResume,
-    profile_path: paths.profile,
-    pending_estimates: pendingMetricCount(paths)
-  };
-}
-function runMismatch(run, appId) {
-  if (run.application_id === appId) return [];
-  return [
-    {
-      path: "job.app_id",
-      code: "SCHEMA",
-      message: `run ${run.id} is for application ${run.application_id}, draft says ${appId}`
-    }
-  ];
-}
-function validateDraftFile(db, file2, json2, me = loadMe()) {
-  const result = validateTailored(json2, me.master, me.profile);
-  const parsed = TailoredResume.safeParse(json2);
-  if (!parsed.success) return { ...result, registered: false };
-  const draft = parsed.data;
-  const run = getRun(db, draft.run_id);
-  if (!run) return { ...result, registered: false, draft_id: draft.draft_id };
-  result.errors.push(...runMismatch(run, draft.job.app_id));
-  result.ok = result.errors.length === 0;
-  const kw = runKeywords(run);
-  const ats = kw && result.ok ? scoreResume(draft, kw, void 0, me.profile).total : void 0;
-  upsertDraft(db, {
-    run_id: run.id,
-    id: draft.draft_id,
-    angle: draft.angle,
-    iteration: draft.iteration,
-    path: resolve10(file2),
-    ats_score: ats,
-    valid: result.ok
-  });
-  return {
-    ...result,
-    registered: true,
-    run_id: run.id,
-    draft_id: draft.draft_id,
-    ats
-  };
-}
-function humanValidation(v) {
-  const lines = [v.ok ? "valid" : `INVALID (${v.errors.length} errors)`];
-  for (const e of v.errors)
-    lines.push(`  error ${e.code} ${e.path}: ${e.message}`);
-  for (const w of v.warnings)
-    lines.push(`  warn  ${w.code} ${w.path}: ${w.message}`);
-  if (v.registered)
-    lines.push(
-      `registered ${v.draft_id} on run ${v.run_id}${v.ats !== void 0 ? ` (ATS ${v.ats})` : ""}`
-    );
-  return lines.join("\n");
-}
-function parseFormats(csv) {
-  if (!csv) return [...FORMATS];
-  const parts = csv.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
-  const bad = parts.filter((p) => !FORMATS.includes(p));
-  if (bad.length || !parts.length)
-    throw new ValidationError(`unknown format: ${bad.join(", ") || "(none)"}`, {
-      allowed: FORMATS
-    });
-  return parts;
-}
-function defaultRenderDir(db, file2, r) {
-  const run = getRun(db, r.run_id);
-  const base = run ? run.workdir : dirname7(resolve10(file2));
-  return join23(base, "render", r.draft_id);
-}
-function addReviewFromJson(db, runId, json2) {
-  const run = requireRun(db, runId);
-  const rep = parseReview(json2);
-  requireDraft(db, run.id, rep.draft_id);
-  const id = addReview(db, run.id, rep);
-  const copy = join23(
-    ensureDir(run.workdir),
-    `review-${rep.draft_id}-${rep.reviewer}-${id}.json`
-  );
-  writeFileSync9(copy, `${JSON.stringify(rep, null, 2)}
-`, "utf8");
-  return {
-    id,
-    run_id: run.id,
-    draft_id: rep.draft_id,
-    reviewer: rep.reviewer,
-    verdict: rep.verdict,
-    score: rep.score,
-    path: copy
-  };
-}
-function runStatus(db, runId) {
-  const run = requireRun(db, runId);
-  const drafts = listDrafts(db, run.id).map((d) => {
-    const latest = latestByReviewer(listReviews(db, run.id, d.id));
-    return {
-      id: d.id,
-      angle: d.angle,
-      iteration: d.iteration,
-      path: d.path,
-      ats_score: d.ats_score,
-      valid: d.valid === null ? null : d.valid === 1,
-      reviews: Object.values(latest).map((r) => ({
-        reviewer: r.reviewer,
-        verdict: r.verdict,
-        score: r.score
-      }))
-    };
-  });
-  return {
-    run: {
-      ...run,
-      keywords_json: void 0,
-      has_keywords: run.keywords_json !== null
-    },
-    drafts
-  };
-}
-function humanStatus(s) {
-  const lines = [
-    `run ${s.run.id} (${s.run.status}) app ${s.run.application_id} iterations ${s.run.iterations}`
-  ];
-  for (const d of s.drafts) {
-    const reviews = d.reviews.map((r) => `${r.reviewer}=${r.verdict}/${r.score}`).join(" ");
-    lines.push(
-      `  ${d.id} [${d.angle} i${d.iteration}] valid=${d.valid} ats=${d.ats_score ?? "-"} ${reviews}`
-    );
-  }
-  return lines.join("\n");
-}
-async function runPrepare(o) {
-  const out = withDb8(
-    (db) => prepareRun(db, {
-      jd: o.jd,
-      company: o.company,
-      title: o.title,
-      url: o.url,
-      app: parseIntArg(o.app, "app")
-    })
-  );
-  emit(
-    out,
-    o.json,
-    (r) => `run ${r.run_id} for application ${r.app_id}
-workdir ${r.workdir}
-pending estimates: ${r.pending_estimates}`
-  );
-}
-async function runValidate(file2, o) {
-  const json2 = await readJsonInput(file2);
-  const out = withDb8((db) => validateDraftFile(db, file2, json2));
-  emit(out, o.json, humanValidation);
-  if (!out.ok) process.exitCode = 2;
-}
-async function runRender(file2, o) {
-  const r = TailoredResume.parse(await readJsonInput(file2));
-  if (o.pages !== void 0) {
-    if (o.pages !== "1" && o.pages !== "2")
-      throw new ValidationError("--pages must be 1 or 2");
-    r.layout = { ...r.layout, pages: o.pages === "1" ? 1 : 2 };
-  }
-  const formats = parseFormats(o.formats);
-  const outDir = o.out ? resolve10(o.out) : withDb8((db) => defaultRenderDir(db, file2, r));
-  const result = await renderAll(r, ensureDir(outDir), formats);
-  emit(
-    { ...result, out_dir: outDir },
-    o.json,
-    (x) => [
-      `rendered to ${x.out_dir} (pages ${x.pages ?? "?"}, density ${x.density})`,
-      ...Object.values(x.files),
-      ...x.warnings.map((w) => `warning: ${w}`)
-    ].join("\n")
-  );
-}
-async function runLayout(file2, o) {
-  const r = TailoredResume.parse(await readJsonInput(file2));
-  const me = loadMe();
-  const spec = layoutSpecFrom(me.profile);
-  r.layout = { ...r.layout, pages: spec.pages === 1 ? 1 : 2 };
-  const outDir = o.out ? resolve10(o.out) : withDb8((db) => defaultRenderDir(db, file2, r));
-  const render = await renderAll(r, ensureDir(outDir), ["pdf", "html", "docx"]);
-  const gate = await layoutGate(r, {
-    spec,
-    density: render.density,
-    pdfPath: render.files.pdf
-  });
-  emit(
-    { ...gate, files: render.files, density: render.density, out_dir: outDir },
-    o.json,
-    (x) => [
-      `layout ${x.pass ? "PASS" : "FAIL"}: pages ${x.pages}, last page ${Math.round((x.last_page_fill ?? 0) * 100)}% full (${x.out_dir})`,
-      ...x.failures.map((f) => `  - ${f.code} ${f.path}: ${f.message}`),
-      ...x.warnings.map((w) => `  warning ${w.code}: ${w.message}`)
-    ].join(String.fromCharCode(10))
-  );
-  if (!gate.pass) process.exitCode = 2;
-}
-async function runBold(file2, o) {
-  const r = TailoredResume.parse(await readJsonInput(file2));
-  const me = loadMe();
-  let keywords = null;
-  if (o.keywords)
-    keywords = JdKeywords.parse(JSON.parse(readFileSync22(o.keywords, "utf8")));
-  else
-    try {
-      keywords = withDb8((db) => {
-        const run = getRun(db, r.run_id);
-        return run ? runKeywords(run) : null;
-      });
-    } catch {
-      keywords = null;
-    }
-  const suggestions = suggestBold(r, me.master, me.profile, keywords);
-  let written;
-  if (o.apply) {
-    written = resolve10(o.out ?? file2);
-    writeFileSync9(
-      written,
-      `${JSON.stringify(applyBold(r, suggestions), null, 2)}
-`
-    );
-  }
-  const out = {
-    draft_id: r.draft_id,
-    keywords: keywords !== null,
-    written,
-    short: suggestions.filter((s) => s.short).map((s) => s.path),
-    suggestions
-  };
-  emit(
-    out,
-    o.json,
-    (x) => [
-      `bold suggestions for ${x.draft_id} (JD keywords ${x.keywords ? "used" : "not found"})`,
-      ...x.suggestions.map(
-        (s) => `  ${s.path}${s.short ? " [SHORT: add a core-concept term]" : ""}: ${s.suggested.map((p) => `**${p}**`).join(", ")}`
-      ),
-      ...x.written ? [`written to ${x.written}`] : []
-    ].join(String.fromCharCode(10))
-  );
-}
-async function runReviewAdd(runId, o) {
-  const json2 = await readJsonInput(o.file);
-  const out = withDb8((db) => addReviewFromJson(db, runId, json2));
-  emit(
-    out,
-    o.json,
-    (x) => `review ${x.id}: ${x.reviewer} ${x.verdict} (${x.score}) on ${x.draft_id}`
-  );
-}
-async function runGate(runId, o) {
-  const gate = withDb8((db) => {
-    const a = assessDraft(db, runId, o.draft);
-    const row = requireDraft(db, runId, o.draft);
-    upsertDraft(db, { ...row, ats_score: a.atsScore, valid: a.validation.ok });
-    return a.gate;
-  });
-  emit(
-    gate,
-    o.json,
-    (g) => [
-      `gate ${g.pass ? "PASS" : "FAIL"}: ats ${g.ats}, hm ${g.hm_verdict ?? "-"}, recruiter ${g.recruiter_passes}/8, valid ${g.valid}, factcheck ${g.factcheck}`,
-      ...g.reasons.map((r) => `  - ${r}`)
-    ].join("\n")
-  );
-}
-async function runStatusCmd(runId, o) {
-  emit(
-    withDb8((db) => runStatus(db, runId)),
-    o.json,
-    humanStatus
-  );
-}
-async function runFinalize(runId, o) {
-  if (o.quality !== void 0 && o.quality !== "ok" && o.quality !== "below_bar")
-    throw new ValidationError("--quality must be ok or below_bar");
-  const out = await withDbAsync(
-    (db) => finalizeResume(db, {
-      runId,
-      draftId: o.draft,
-      quality: o.quality,
-      formats: o.formats ? parseFormats(o.formats) : void 0
-    })
-  );
-  emit(
-    out,
-    o.json,
-    (x) => [
-      `finalized ${x.draft_id} for application ${x.app_id} (ATS ${x.ats}, ${x.quality})`,
-      `artifacts ${x.artifacts_dir}`,
-      ...x.warnings.map((w) => `warning: ${w}`)
-    ].join("\n")
-  );
-}
-function register14(program3) {
-  const resume = program3.command("resume").description(
-    "tailor a resume per job: prepare, validate, render, review, gate, status, finalize"
-  );
-  resume.command("prepare").description(
-    "open a resume run for a JD (creates company/job/application if needed)"
-  ).requiredOption("--jd <file>", "job description text file").requiredOption("--company <name>", "company name").requiredOption("--title <title>", "job title").option("--url <url>", "posting URL").option("--app <id>", "existing application id").option("--json", "machine-readable output").action(action(runPrepare));
-  resume.command("validate <draft>").description(
-    "check a TailoredResume draft against me/ (fixed facts, provenance, numbers, skills); exit 2 if invalid"
-  ).option("--json", "machine-readable output").action(action(runValidate));
-  resume.command("render <draft>").description(
-    "render a draft to html/pdf/docx/txt, auto-fitting to 1 or 2 pages"
-  ).option("--formats <list>", "comma-separated: html,pdf,docx,txt").option(
-    "--out <dir>",
-    "output directory (default <workdir>/render/<draft_id>)"
-  ).option("--pages <n>", "target pages: 1 or 2").option("--json", "machine-readable output").action(action(runRender));
-  resume.command("layout <draft>").description(
-    "render a draft and run the layout gate (pages, 2-line bullets at 60-80% fill, one-line skills/Environment/publications, full last page, bullets per role, no em dash); exit 2 on failure"
-  ).option(
-    "--out <dir>",
-    "output directory (default <workdir>/render/<draft_id>)"
-  ).option("--json", "machine-readable output").action(action(runLayout));
-  resume.command("bold <draft>").description(
-    "suggest bold key terms per bullet/summary/highlight (metrics, JD keywords, recorded skills); --apply writes them into the draft"
-  ).option("--suggest", "print suggestions (the default)").option("--apply", "write the suggestions into the draft's emphasis lists").option("--out <file>", "with --apply: write here instead of in place").option(
-    "--keywords <file>",
-    "JdKeywords JSON (default: the run's stored keywords)"
-  ).option("--json", "machine-readable output").action(action(runBold));
-  const review = resume.command("review").description("store reviewer reports for a run");
-  review.command("add <run_id>").description(
-    "add a ReviewReport (hiring-manager, recruiter-screen, ats-screener, fact-checker)"
-  ).requiredOption("--file <path>", "review JSON file, or - for stdin").option("--json", "machine-readable output").action(action(runReviewAdd));
-  resume.command("gate <run_id>").description(
-    "apply the quality gate: ATS >= 80, HM interview, recruiter >= 6/8, valid"
-  ).requiredOption("--draft <id>", "draft id").option("--json", "machine-readable output").action(action(runGate));
-  resume.command("status <run_id>").description("drafts, reviews and scores of a run").option("--json", "machine-readable output").action(action(runStatusCmd));
-  resume.command("finalize <run_id>").description(
-    "write final artifacts and mark the application tailored (exit 2 without a fact-check pass)"
-  ).requiredOption("--draft <id>", "draft id to ship").option("--quality <q>", "ok|below_bar (default: from the gate)").option("--formats <list>", "comma-separated: html,pdf,docx,txt").option("--json", "machine-readable output").action(action(runFinalize));
 }
 
 // src/commands/study.ts
@@ -66851,7 +67495,7 @@ function registerBlocks(study) {
   blocks.command("list").option("--all", "include inactive blocks").option("--json", "machine-readable output").action(
     action(async (opts) => {
       emit(
-        await withDb4((db) => listBlocks(db, !opts.all)),
+        await withDb6((db) => listBlocks(db, !opts.all)),
         opts.json,
         humanBlocks
       );
@@ -66860,7 +67504,7 @@ function registerBlocks(study) {
   blocks.command("add").requiredOption("--label <s>", "block label").requiredOption("--days <list>", "ISO weekdays, e.g. 1,2,3,4,5 (1=Mon)").requiredOption("--start <HH:MM>", "local start time").requiredOption("--end <HH:MM>", "local end time").option("--json", "machine-readable output").action(
     action(async (opts) => {
       const b = StudyBlockInput.parse(opts);
-      const row = await withDb4((db) => getBlock(db, insertBlock(db, b)));
+      const row = await withDb6((db) => getBlock(db, insertBlock(db, b)));
       emit(row, opts.json, (r) => humanBlocks([r]));
     })
   );
@@ -66870,7 +67514,7 @@ function registerBlocks(study) {
         const blockId = Id3.parse(id);
         const { json: _json, ...rest } = opts;
         const patch = StudyBlockPatch.parse(rest);
-        const row = await withDb4((db) => {
+        const row = await withDb6((db) => {
           const cur = getBlock(db, blockId);
           if (!cur)
             throw new NotFoundError(`study block ${blockId} not found`);
@@ -66886,7 +67530,7 @@ function registerBlocks(study) {
   blocks.command("rm <id>").description("deactivate a block (history is kept)").option("--json", "machine-readable output").action(
     action(async (id, opts) => {
       const blockId = Id3.parse(id);
-      const changed = await withDb4((db) => deactivateBlock(db, blockId));
+      const changed = await withDb6((db) => deactivateBlock(db, blockId));
       if (!changed)
         throw new NotFoundError(`study block ${blockId} not found`);
       emit(
@@ -66902,13 +67546,13 @@ function registerTasks(study) {
   task.command("add <title>").option("--for <date>", "planned date YYYY-MM-DD").option("--json", "machine-readable output").action(
     action(async (title, opts) => {
       const body = StudyTaskBody.parse({ title, planned_for: opts.for });
-      const row = await withDb4((db) => addStudyTask(db, body));
+      const row = await withDb6((db) => addStudyTask(db, body));
       emit(row, opts.json, (t) => humanTasks([t]));
     })
   );
   task.command("list").option("--all", "include tasks completed before today").option("--json", "machine-readable output").action(
     action(async (opts) => {
-      const rows = await withDb4(
+      const rows = await withDb6(
         (db) => opts.all ? listTasks(db, { all: true }) : studySummary(db).tasks
       );
       emit(rows, opts.json, humanTasks);
@@ -66916,17 +67560,17 @@ function registerTasks(study) {
   );
   task.command("done <id>").option("--json", "machine-readable output").action(
     action(async (id, opts) => {
-      const row = await withDb4((db) => finishStudyTask(db, Id3.parse(id)));
+      const row = await withDb6((db) => finishStudyTask(db, Id3.parse(id)));
       emit(row, opts.json, (t) => humanTasks([t]));
     })
   );
 }
-function register15(program3) {
+function register16(program3) {
   const study = program3.command("study").description("study clock: clock in/out, blocks, streak and weekly hours");
   study.command("in").description("clock in").option("--topic <s>", "what you are studying (<=120 chars)").option("--json", "machine-readable output").action(
     action(async (opts) => {
       const b = ClockInBody.parse({ topic: opts.topic });
-      const s = await withDb4(
+      const s = await withDb6(
         (db) => clockIn(db, { topic: b.topic, source: "cli" })
       );
       emit(s, opts.json, humanSession);
@@ -66935,13 +67579,13 @@ function register15(program3) {
   study.command("out").description("clock out").option("--notes <s>", "session notes (<=1000 chars)").option("--json", "machine-readable output").action(
     action(async (opts) => {
       const b = ClockOutBody.parse({ notes: opts.notes });
-      const s = await withDb4((db) => clockOut(db, { notes: b.notes }));
+      const s = await withDb6((db) => clockOut(db, { notes: b.notes }));
       emit(s, opts.json, humanSession);
     })
   );
   study.command("status").description("today's blocks, open session, streak and week progress").option("--json", "machine-readable output").action(
     action(async (opts) => {
-      emit(await withDb4((db) => studySummary(db)), opts.json, humanStudy);
+      emit(await withDb6((db) => studySummary(db)), opts.json, humanStudy);
     })
   );
   study.command("set <key> <value>").description(
@@ -66949,7 +67593,7 @@ function register15(program3) {
   ).option("--json", "machine-readable output").action(
     action(async (key, value, opts) => {
       const s = parseStudySetting(key, value);
-      await withDb4((db) => setSetting(db, s.key, s.value));
+      await withDb6((db) => setSetting(db, s.key, s.value));
       audit({
         actor: "user",
         action: "study.set",
@@ -67002,14 +67646,14 @@ function endSync(db, runId, o) {
 var humanFreshness = (rows) => rows.map(
   (f) => `${f.kind.padEnd(9)} last ok ${f.lastOkAt ?? "never"}${f.stale ? " (stale)" : ""}${f.error ? `  ERROR ${f.error}` : ""}`
 ).join("\n");
-function register16(program3) {
+function register17(program3) {
   const sync = program3.command("sync").description("bookkeeping for Gmail/Calendar sync runs done by agents");
   sync.command("begin").description(
     "start a sync run; returns {runId, cursor} (cursor = last successful one)"
   ).requiredOption("--kind <kind>", "gmail|calendar").option("--actor <name>", "agent name", "agent").option("--json", "machine-readable output").action(
     action(async (opts) => {
       const kind = SyncKind.parse(opts.kind);
-      const res = await withDb4((db) => beginSync(db, kind, opts.actor));
+      const res = await withDb6((db) => beginSync(db, kind, opts.actor));
       emit(
         res,
         opts.json,
@@ -67031,7 +67675,7 @@ function register16(program3) {
           throw new ValidationError(
             parsed.error.issues[0]?.message ?? "invalid options"
           );
-        const row = await withDb4((db) => endSync(db, id, parsed.data));
+        const row = await withDb6((db) => endSync(db, id, parsed.data));
         audit({
           actor: row.actor,
           action: "sync.end",
@@ -67054,7 +67698,7 @@ function register16(program3) {
   sync.command("status").description("freshness of the last gmail and calendar syncs").option("--json", "machine-readable output").action(
     action(async (opts) => {
       const now = /* @__PURE__ */ new Date();
-      const rows = await withDb4((db) => [
+      const rows = await withDb6((db) => [
         syncFreshness(db, "gmail", now),
         syncFreshness(db, "calendar", now)
       ]);
@@ -67066,11 +67710,11 @@ function register16(program3) {
 // src/core/env.ts
 init_paths();
 init_paths();
-import { existsSync as existsSync24 } from "node:fs";
-import { join as join24 } from "node:path";
+import { existsSync as existsSync28 } from "node:fs";
+import { join as join28 } from "node:path";
 function loadEnv() {
-  const file2 = join24(jhHome(), ".env");
-  if (existsSync24(file2)) process.loadEnvFile(file2);
+  const file2 = join28(jhHome(), ".env");
+  if (existsSync28(file2)) process.loadEnvFile(file2);
 }
 
 // src/sources/exa.ts
@@ -67158,25 +67802,26 @@ var program2 = new Command();
 program2.name("jh").description(
   "conscience: deterministic job-hunt engine used by the plugin's agents"
 ).version("0.1.0");
-for (const register17 of [
+for (const register18 of [
   register3,
   register,
-  register11,
-  register12,
-  register14,
-  register2,
-  register9,
-  register5,
-  register7,
-  register8,
-  register15,
-  register16,
-  register6,
-  register10,
   register13,
-  register4
+  register14,
+  register5,
+  register2,
+  register11,
+  register7,
+  register9,
+  register10,
+  register16,
+  register17,
+  register8,
+  register12,
+  register15,
+  register4,
+  register6
 ]) {
-  register17(program2);
+  register18(program2);
 }
 program2.command("discover <company>").description(
   "find where a company posts jobs and which ATS serves them (uses Exa)"

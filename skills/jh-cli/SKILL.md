@@ -1,6 +1,6 @@
 ---
 name: jh-cli
-description: Reference for the jh CLI that every conscience agent and command uses to read and write state - the canonical call form, exit codes, JSON conventions, and every command with its flags (doctor, discover, app, me, metrics, resume, ats, cover, email, interview, study, sync, dashboard, learn, policy, autopilot).
+description: Reference for the jh CLI that every conscience agent and command uses to read and write state - the canonical call form, exit codes, JSON conventions, and every command with its flags (doctor, discover, app, me, metrics, resume, ats, cover, email, interview, study, sync, dashboard, learn, policy, autopilot, cloud).
 ---
 
 # jh CLI reference
@@ -130,3 +130,13 @@ The user's structured decisions live in `me/decision-policy.yaml`. Precedence: `
 | `jh autopilot escalations list [--status open\|answered\|dismissed\|all] [--app id]` | `{escalations:[…]}`, blocking first |
 | `jh autopilot escalations add --kind <k> --question <q> --actor <a> [--app id] [--blocking] [--hold] [--context json]` | queues a question (deduplicated while open): `{escalation, created, held}`. Kinds: `plugin_feature_or_code`, `account_creation_signin_sso`, `legal_consent_not_preapproved`, `hard_fact_unknown`, `spending_money`, `withdraw_or_decline_offer_or_interview`; exit 2 `not_escalated` if the policy no longer lists the kind. `--hold` moves the application to `held` |
 | `jh autopilot escalations answer <id> (--answer a \| --dismiss) [--actor user]` | the user's answer; only `--actor user` (exit 2 `user_only_field`). Release a held application afterwards with `jh app transition <id> shortlisted\|tailored` |
+
+## Cloud sessions (`jh cloud`, ADR 006)
+
+The resume loop can run in Claude Code cloud sessions through the user's private `conscience-data` repo. `JOB_HUNTER_DATA_REPO` names its local clone; without it every subcommand exits 1 (`data_repo_unset`).
+
+| Command | Result |
+|---|---|
+| `jh cloud export [--apps 1,2] [--queue n]` | `PacketManifest {id, created_at, schema_version, apps:[{app_id, company, title, url, jd_path}]}`; writes `packets/<id>/` (packet.json, `jd/<appId>.txt`, a `jh.db` snapshot), mirrors the allowlisted `me/` (never `tk.sh`, `.env*`, `*.backup*` or files over 5 MB), commits and pushes. `--queue` (default 10) takes shortlisted apps with JD text and no finalized run. Exit 2 if the repo is not private or sits inside the code repo |
+| `jh cloud import <packet>` | `ImportReport {packet_id, imported:[{app_id, run_id, valid, errors}], skipped:[run_id], missing:[app_id]}`; pulls, copies run dirs into `<artifacts>/<appId>/runs/`, inserts only new runs (re-running is safe), re-validates each winner. Exit 2 `schema_mismatch` when the cloud DB's schema differs. Never changes application status |
+| `jh cloud status` | `{data_dir, packets:[{id, apps, has_results, imported}]}` |

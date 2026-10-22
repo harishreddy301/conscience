@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { register as registerApp } from "./commands/app.js";
 import { register as registerAts } from "./commands/ats.js";
 import { register as registerAutopilot } from "./commands/autopilot.js";
+import { register as registerCloud } from "./commands/cloud.js";
 import { register as registerCover } from "./commands/cover.js";
 import { register as registerDashboard } from "./commands/dashboard.js";
 import { register as registerDoctor } from "./commands/doctor.js";
@@ -46,6 +47,7 @@ for (const register of [
 	registerLearn,
 	registerPolicy,
 	registerAutopilot,
+	registerCloud,
 ]) {
 	register(program);
 }
