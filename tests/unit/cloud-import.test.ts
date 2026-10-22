@@ -270,3 +270,87 @@ describe("importResults", () => {
 		expect(s.status).toBe("shortlisted");
 	});
 });
+
+function rewriteSummary(mut: (s: CloudSummary) => void): void {
+	const p = join(dataDir, "results", PACKET, "summary.json");
+	const s = JSON.parse(readFileSync(p, "utf8")) as CloudSummary;
+	mut(s);
+	writeFileSync(p, JSON.stringify(s));
+}
+
+describe("importResults path safety", () => {
+	it("rejects a traversal run_id and writes nothing", async () => {
+		const victim = join(tmp, "victim");
+		mkdirSync(victim);
+		writeFileSync(join(victim, "keep.txt"), "keep");
+		rewriteSummary((s) => {
+			for (const a of s.apps) a.run_id = "../../../../victim";
+		});
+		await expect(importResults(opts())).rejects.toBeInstanceOf(ValidationError);
+		expect(existsSync(artifactsRoot)).toBe(false);
+		expect(existsSync(join(victim, "keep.txt"))).toBe(true);
+		expect(count("resume_runs")).toBe(0);
+	});
+
+	it("rejects a traversal packet id before touching git or disk", async () => {
+		await expect(
+			importResults({ ...opts(), packetId: "../../etc" }),
+		).rejects.toBeInstanceOf(ValidationError);
+		expect(runs).toEqual([]);
+		expect(existsSync(artifactsRoot)).toBe(false);
+	});
+});
+
+describe("importResults rollback", () => {
+	it("removes a partially copied run dir when the copy fails", async () => {
+		const target = join(artifactsRoot, "1", "runs", RUN_ID);
+		await expect(
+			importResults({
+				...opts(),
+				copy: (_src: string, dest: string) => {
+					mkdirSync(dest, { recursive: true });
+					writeFileSync(join(dest, "partial.json"), "{}");
+					throw new Error("disk full");
+				},
+			}),
+		).rejects.toThrow("disk full");
+		expect(existsSync(target)).toBe(false);
+		expect(count("resume_runs")).toBe(0);
+		// The cloud DB was detached: a second ATTACH under the same alias works.
+		db.prepare("ATTACH DATABASE ':memory:' AS cloud").run();
+		db.exec("DETACH DATABASE cloud");
+	});
+});
+
+describe("importResults run state", () => {
+	it("imports a cloud run marked finalized as a non-final local run", async () => {
+		const cloud = openDb(join(dataDir, "results", PACKET, "jh.db"));
+		try {
+			cloud
+				.prepare(
+					"UPDATE resume_runs SET status = 'finalized', final_draft_id = 'd1-impact', finalized_at = ? WHERE id = ?",
+				)
+				.run(nowIso(), RUN_ID);
+		} finally {
+			cloud.close();
+		}
+		await importResults(opts());
+		const local = getRun(db, RUN_ID);
+		expect(local?.status).toBe("running");
+		expect(local?.final_draft_id).toBeNull();
+		expect(local?.finalized_at).toBeNull();
+	});
+
+	it("stores the local re-validation result on the winner draft", async () => {
+		await importResults({
+			...opts(),
+			validate: () => ({ ok: false, errors: ["ESTIMATED_METRIC"] }),
+		});
+		const d = db
+			.prepare(
+				"SELECT valid FROM resume_drafts WHERE run_id = ? AND id = 'd1-impact'",
+			)
+			.get(RUN_ID) as { valid: number };
+		expect(d.valid).toBe(0);
+	});
+});

@@ -3,8 +3,14 @@ import { join, resolve } from "node:path";
 import { audit } from "../core/audit.js";
 import { NotFoundError, ValidationError } from "../core/errors.js";
 import { type Db, tx, userVersion } from "../db/index.js";
+import { isInside } from "./export.js";
 import { defaultRun, type Run } from "./git.js";
-import { CloudSummary, PacketManifest } from "./schema.js";
+import {
+	CloudSummary,
+	PACKET_ID_RE,
+	PacketManifest,
+	RUN_ID_RE,
+} from "./schema.js";
 
 export interface ImportReport {
 	packet_id: string;
@@ -25,6 +31,20 @@ export interface ImportOptions {
 	artifactsRoot: string;
 	validate: (draftPath: string) => { ok: boolean; errors: string[] };
 	run?: Run;
+	/** Copies a run dir (recursive). Injected in tests. */
+	copy?: (src: string, dest: string) => void;
+}
+
+const defaultCopy = (src: string, dest: string): void =>
+	cpSync(src, dest, { recursive: true });
+
+function assertInside(child: string, parent: string, what: string): void {
+	if (!isInside(child, parent))
+		throw new ValidationError(
+			`${what} ${child} escapes ${parent}`,
+			{ path: child, root: parent },
+			"path_escape",
+		);
 }
 
 const RUN_COLS =
@@ -124,11 +144,20 @@ export async function importResults(
 	opts: ImportOptions,
 ): Promise<ImportReport> {
 	const run = opts.run ?? defaultRun;
+	const copy = opts.copy ?? defaultCopy;
 	const { db } = opts;
+	if (!PACKET_ID_RE.test(opts.packetId))
+		throw new ValidationError(
+			`invalid packet id ${JSON.stringify(opts.packetId)} (expected p-YYYYMMDD-HHMM)`,
+			{ packet: opts.packetId },
+			"bad_packet_id",
+		);
 	const dataDir = resolve(opts.dataDir);
+	const artifactsRoot = resolve(opts.artifactsRoot);
 	await run("git", ["pull", "-q", "--ff-only"], dataDir);
 
 	const resDir = join(dataDir, "results", opts.packetId);
+	assertInside(resDir, dataDir, "results dir");
 	const manifestPath = join(dataDir, "packets", opts.packetId, "packet.json");
 	const manifest = existsSync(manifestPath)
 		? PacketManifest.parse(readJson(manifestPath, "packet manifest"))
@@ -136,6 +165,13 @@ export async function importResults(
 	const summary = CloudSummary.parse(
 		readJson(join(resDir, "summary.json"), "cloud summary"),
 	);
+	for (const a of summary.apps)
+		if (a.run_id !== null && !RUN_ID_RE.test(a.run_id))
+			throw new ValidationError(
+				`invalid run id ${JSON.stringify(a.run_id)} for app ${a.app_id} in summary.json`,
+				{ app_id: a.app_id },
+				"bad_run_id",
+			);
 	const cloudDb = join(resDir, "jh.db");
 	if (!existsSync(cloudDb))
 		throw new NotFoundError(`cloud DB not found: ${cloudDb}`);
@@ -189,6 +225,7 @@ export async function importResults(
 				.prepare(`SELECT ${RUN_COLS} FROM ${ALIAS}.resume_runs WHERE id = ?`)
 				.get(app.run_id) as RunRow | undefined;
 			const srcDir = join(resDir, String(app.app_id), app.run_id);
+			assertInside(srcDir, resDir, "cloud run dir");
 			const known = db
 				.prepare("SELECT 1 FROM main.applications WHERE id = ?")
 				.get(app.app_id);
@@ -202,11 +239,12 @@ export async function importResults(
 				continue;
 			}
 			const localDir = join(
-				opts.artifactsRoot,
+				artifactsRoot,
 				String(app.app_id),
 				"runs",
 				app.run_id,
 			);
+			assertInside(localDir, artifactsRoot, "local run dir");
 			if (existsSync(localDir))
 				throw new ValidationError(
 					`run dir ${localDir} already exists but run ${app.run_id} is not in the DB; move it aside and retry`,
@@ -217,14 +255,12 @@ export async function importResults(
 		}
 
 		for (const p of plan) {
-			cpSync(
+			// Record first: a copy that fails half way is still rolled back.
+			copied.push(p.localDir);
+			copy(
 				join(resDir, String(p.app.app_id), p.app.run_id as string),
 				p.localDir,
-				{
-					recursive: true,
-				},
 			);
-			copied.push(p.localDir);
 		}
 
 		tx(db, () => {
@@ -250,14 +286,15 @@ export async function importResults(
 					localDir,
 					rebase(String(r.jd_path), cloudWorkdir, localDir),
 					r.keywords_json,
-					r.status,
+					// Layout and finalize run locally: never import a final state.
+					"running",
 					r.iterations,
-					r.final_draft_id,
+					null,
 					r.ats_score,
 					r.hm_verdict,
 					r.quality,
 					r.created_at,
-					r.finalized_at,
+					null,
 				);
 				const drafts = db
 					.prepare(
@@ -285,10 +322,16 @@ export async function importResults(
 			}
 		});
 	} catch (e) {
-		for (const dir of copied) rmSync(dir, { recursive: true, force: true });
+		for (const dir of copied)
+			if (isInside(dir, artifactsRoot))
+				rmSync(dir, { recursive: true, force: true });
 		throw e;
 	} finally {
-		db.exec(`DETACH DATABASE ${ALIAS}`);
+		try {
+			db.exec(`DETACH DATABASE ${ALIAS}`);
+		} catch {
+			// Never mask the original error.
+		}
 	}
 
 	for (const v of toValidate) {
@@ -306,6 +349,10 @@ export async function importResults(
 				result = { ok: false, errors: [(e as Error).message] };
 			}
 		}
+		if (v.winner)
+			db.prepare(
+				"UPDATE resume_drafts SET valid = ? WHERE run_id = ? AND id = ?",
+			).run(result.ok ? 1 : 0, v.run_id, v.winner);
 		report.imported.push({
 			app_id: v.app_id,
 			run_id: v.run_id,

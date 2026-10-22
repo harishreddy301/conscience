@@ -10,9 +10,15 @@ export const PacketApp = z.object({
 });
 export type PacketApp = z.infer<typeof PacketApp>;
 
-/** packets/<id>/packet.json. `id` is p-YYYYMMDD-HHMM in local time. */
+/** Packet ids: p-YYYYMMDD-HHMM in local time, optionally with a -N suffix. */
+export const PACKET_ID_RE = /^p-\d{8}-\d{4}(-\d+)?$/;
+
+/** Run ids from the cloud become directory names; nothing but [A-Za-z0-9_-]. */
+export const RUN_ID_RE = /^[A-Za-z0-9_-]+$/;
+
+/** packets/<id>/packet.json. */
 export const PacketManifest = z.object({
-	id: z.string().regex(/^p-\d{8}-\d{4}(-\d+)?$/),
+	id: z.string().regex(PACKET_ID_RE),
 	created_at: z.string(),
 	schema_version: z.number().int().nonnegative(),
 	apps: z.array(PacketApp),
