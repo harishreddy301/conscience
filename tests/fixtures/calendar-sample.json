@@ -1,0 +1,31 @@
+[
+	{
+		"calendar_event_id": "evt-100",
+		"company": "Globex Systems",
+		"role": "Data Engineer",
+		"start": "2026-10-20T15:15:00Z",
+		"end": "2026-10-20T16:00:00Z",
+		"tz": "America/New_York",
+		"meeting_link": "https://meet.example.com/abc-defg",
+		"status": "scheduled"
+	},
+	{
+		"calendar_event_id": "evt-101",
+		"company": "Umbrella Labs",
+		"role": "Backend Engineer",
+		"round": "technical",
+		"start": "2026-10-22T13:00:00Z",
+		"end": "2026-10-22T14:00:00Z",
+		"tz": "Asia/Kolkata",
+		"location": "Video call",
+		"status": "tentative"
+	},
+	{
+		"calendar_event_id": "evt-102",
+		"company": "Vandelay Industries",
+		"start": "2026-10-23T10:00:00Z",
+		"end": "2026-10-23T10:30:00Z",
+		"tz": "Europe/London",
+		"status": "cancelled"
+	}
+]

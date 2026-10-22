@@ -1,0 +1,38 @@
+{
+	"name": "conscience",
+	"version": "0.1.0",
+	"description": "Autonomous job-hunting Claude Code plugin: a team of agents that searches, scores, tailors and applies as you.",
+	"scripts": {
+		"test": "vitest run",
+		"build": "node scripts/build.mjs",
+		"dev": "tsx src/cli.ts",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check src tests vitest.config.ts package.json tsconfig.json .claude-plugin"
+	},
+	"keywords": [],
+	"author": "",
+	"type": "module",
+	"engines": {
+		"node": ">=22.13"
+	},
+	"bin": {
+		"jh": "dist/jh.mjs"
+	},
+	"dependencies": {
+		"commander": "^15.0.0",
+		"docx": "^9.11.0",
+		"p-limit": "^7.3.3",
+		"robots-parser": "^3.0.1",
+		"yaml": "^2.9.1",
+		"zod": "^4.6.7"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.15",
+		"@types/node": "^26.6.5",
+		"esbuild": "^0.28.2",
+		"tsx": "^4.23.15",
+		"typescript": "^7.0.2",
+		"undici": "^8.12.2",
+		"vitest": "^5.0.5"
+	}
+}

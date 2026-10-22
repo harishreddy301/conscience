@@ -1,0 +1,16 @@
+Initech is hiring a Senior Data Engineer (fictional posting for tests).
+
+You will design and operate data pipelines that move clickstream and billing
+data into our Snowflake warehouse.
+
+Required:
+- 5+ years building data pipelines in Python and SQL
+- Production experience with AWS and Airflow
+- Snowflake or a comparable cloud warehouse
+- Bachelor's degree in Computer Science or a related field
+
+Preferred:
+- dbt, Kafka
+- Some Node.js for internal tooling
+
+Location: Austin, TX (hybrid).

@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  privacy:
+    # Runs first and fast: personal data must never be tracked.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: no personal data tracked
+        shell: bash
+        run: |
+          set -euo pipefail
+          personal='(^|/)(profile|resume|companies|master-resume|confirmed-metrics)\.yaml$|^me/|(^|/)\.env$|\.db$|\.sqlite$|(^|/)\.job-hunter/'
+          allowed='\.(example|fixture)\.'
+          hits=$(git ls-files | grep -E "$personal" | grep -vE "$allowed" || true)
+          # Nothing under me/ is ever allowed, whatever its name.
+          me_files=$(git ls-files -- me/ || true)
+          if [ -n "$hits$me_files" ]; then
+            echo "Personal data file is tracked:"; printf '%s\n' $hits $me_files; exit 1
+          fi
+      - name: templates/me holds only READMEs and examples
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad=$(git ls-files -- templates/me | grep -vE '(^|/)README\.md$|\.example\.' || true)
+          if [ -n "$bad" ]; then echo "Unexpected files in templates/me:"; echo "$bad"; exit 1; fi
+      - name: no binary resumes committed
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad=$(git ls-files | grep -iE '\.(pdf|docx)$' || true)
+          if [ -n "$bad" ]; then echo "Binary documents are tracked (build fixtures in memory):"; echo "$bad"; exit 1; fi
+
+  test:
+    needs: privacy
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: ["22.13", 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --passWithNoTests
+      - name: dist is up to date
+        shell: bash
+        run: npm run build && git diff --exit-code dist/

@@ -1,0 +1,3 @@
+Machine Learning Engineer, Wingtip AI (fictional)
+We sponsor visas. Build retrieval pipelines in Python. Experience with RAG is a plus.
+You must be authorized to work in the U.S. We offer a hybrid schedule.

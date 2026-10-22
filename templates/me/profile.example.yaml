@@ -1,0 +1,63 @@
+# me/profile.yaml: created by `jh me init`. Fill it in; it never leaves your machine
+# (me/ is gitignored). This is your "conscience": agents act as you, from what is written here.
+# Experience itself (employers, titles, dates, bullets) lives in experience/*.md and the
+# generated master-resume.yaml, not here.
+version: 1
+
+identity:
+  name: ""
+  email: ""
+  phone: ""
+  location: "City, Country"
+  links: { linkedin: "", github: "", portfolio: "" }
+
+work_auth:
+  countries:
+    US: { status: "citizen | green_card | H1B | needs_sponsorship", sponsorship_needed: false }
+  relocation: { willing: true, regions: [] }
+
+targets:
+  roles: ["Senior Data Engineer", "Analytics Engineer"]
+  seniority: [senior, staff]
+  title_exclude: ["intern"]
+  locations: [{ city: "", radius_km: 50 }]
+  remote: [remote, hybrid]          # onsite | hybrid | remote
+  industries_prefer: []
+  industries_avoid: []
+
+compensation: { currency: USD, base_floor: 0, total_target: 0, disclose_floor: false }
+
+# The fields you've worked in. Agents may frame your real work through any of these lenses.
+fields: ["data engineering", "analytics", "backend"]
+
+skills:
+  expert: []
+  proficient: []
+  familiar: []
+
+experience_years: 0               # 0 = computed from your roles; set it to override
+
+dealbreakers:
+  hard: []                          # deterministic prefilter rejects these
+  soft: []                          # scorer penalizes these
+
+company_blocklist: []
+values: []                          # what you care about; the conscience agent weighs these
+
+scoring_weights: { skills: 0.35, seniority: 0.2, domain: 0.15, location: 0.15, comp: 0.15 }
+
+voice:
+  tone: "direct, warm, no buzzwords"
+  banned_phrases: ["passionate", "synergy", "rockstar"]
+  samples: []                       # 2-4 paragraphs you actually wrote
+
+# Standard application-form answers, so agents never have to guess.
+form_answers:
+  notice_period: ""
+  earliest_start: ""
+  how_did_you_hear: "Company careers site"
+  eeo: { gender: "decline", ethnicity: "decline", veteran: "decline", disability: "decline" }
+
+autonomy:
+  submit: true                      # agents apply on your behalf
+  daily_apply_cap: 15               # pacing, not a gate

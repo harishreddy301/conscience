@@ -1,0 +1,105 @@
+# me/decision-policy.yaml: your decision policy (ADR-005). It never leaves your machine.
+#
+# The `conscience` agent decides as you from this file first, then preferences.md,
+# profile.yaml and learnings/playbook.md. Code (`jh policy eval ...`) applies the
+# numeric rules, so every agent reads them the same way.
+#
+# Precedence: eligibility.overrides and corrections > the sections below >
+# profile.yaml > preferences.md prose > playbook.
+#
+# Change it with `jh policy record` (it appends to `corrections` and bumps `rev`):
+#   jh policy record --actor user --quote "<your words>" --set triage.recency.prefer_days=10
+# Hand edits work too, but a field a correction already set keeps the corrected
+# value until you record a new one (`jh policy check` reports the difference).
+version: 1
+rev: 0
+
+# Title families. Used by triage (exclude a whole family) and gates (per-track bars).
+tracks:
+  fde:
+    title_patterns: ["forward deployed", "deployed engineer", "deployment engineer"]
+  ai_engineer:
+    title_patterns: ["ai engineer", "applied ai", "machine learning engineer", "ml engineer"]
+  data_engineer:
+    title_patterns: ["data engineer", "analytics engineer", "etl developer"]
+
+triage:
+  recency:
+    prefer_days: 14       # always eligible
+    strong_fit_days: 21   # only when conscience judges a strong fit
+    max_days: 30          # only links you supplied; never older
+  titles:
+    include_from: targets # profile.yaml targets.roles
+    include: []           # extra title phrases
+    exclude_tracks: []    # e.g. [data_engineer]
+  level_band:
+    seniority: []         # empty: profile.yaml targets.seniority
+    exclude_words: ["intern"]
+  per_company:
+    max_total: 2          # tailored, held or submitted applications per company
+    max_new_if_applied: 1 # once one is submitted, at most this many more
+  company_blocklist: []   # merged with profile.yaml company_blocklist
+  user_link_priority: true  # jobs you link go first and skip title/recency-to-max/company caps
+
+eligibility:
+  # Skip a posting when the JD or the form *requires* one of these.
+  # "preferred" or "a plus" does not skip; a bare mention goes to conscience.
+  skip_if: [clearance, citizen_only, green_card_only, no_sponsorship, government_client]
+  scan: [jd, form]
+  # Only you can add overrides (jh policy record --actor user ...).
+  overrides: []
+  #  - { app_id: 123, action: apply_truthfully, note: "user asked for this one" }
+
+questions:
+  estimable:
+    allow: true             # soft questions (e.g. % customer-facing time)
+    style: conservative
+    save_to: profile.form_answers
+    mark: estimate          # saved with an "estimate" comment
+  # Never estimated; unknown ones become a hard_fact_unknown escalation.
+  hard_fact_keys: [work_authorization, sponsorship, citizenship, degrees, employers, dates, job_titles, certifications, security_clearance, criminal_history, compensation_history, references, demographics]
+
+preflight:
+  browser: true
+  uploads_readable: true
+  # daily_cap: 25           # default: profile.yaml autonomy.daily_apply_cap
+  account_ats:
+    workday: logged_in_only # never create accounts or sign in; skip unless already logged in
+
+throughput:
+  tailor_parallel: 3
+  submit_parallel_tabs: 3
+  order: [fit, recency]
+  max_minutes: 240
+
+gates:
+  default:
+    verdicts: [interview]   # hiring-manager verdicts that may be submitted
+    ats_min: 80
+    recruiter_min: 6
+  by_track: {}
+  #  fde: { verdicts: [interview, maybe], ats_min: 80 }
+  layout:
+    required: true          # the resume layout gate must pass
+
+submit:
+  # per_batch: ask "Submit these N?" once per batch.
+  # standing: submit everything that passes every gate, then report. Only you can set it:
+  #   jh policy record --actor user --quote "<your words>" --set submit.confirm=standing
+  confirm: per_batch
+
+escalate:
+  # The only things that reach you, batched once per run. Only you can remove one.
+  kinds:
+    - plugin_feature_or_code
+    - account_creation_signin_sso
+    - legal_consent_not_preapproved
+    - hard_fact_unknown
+    - spending_money
+    - withdraw_or_decline_offer_or_interview
+
+# Rules conscience and the writers follow that code does not evaluate.
+standing_rules: []
+#  - { id: coursework, scope: resume, rule: "List only these courses: ...", source: "preferences.md" }
+
+corrections: []

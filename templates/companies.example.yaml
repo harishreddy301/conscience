@@ -1,0 +1,5 @@
+# Companies to watch. `jh company add <careers-url>` detects the ATS for you.
+companies:
+  - { name: "Morgan Stanley", ats: eightfold, tenant: morganstanley, domain: morganstanley.com }
+  - { name: "Example Co", ats: greenhouse, tenant: exampleco }
+  - { name: "Example Two", ats: lever, tenant: exampletwo }

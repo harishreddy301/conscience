@@ -1,0 +1,205 @@
+{
+	"schema": "conscience.resume/v1",
+	"run_id": "run-fixture-001",
+	"draft_id": "d1-impact",
+	"angle": "impact",
+	"iteration": 0,
+	"job": {
+		"app_id": 42,
+		"company": "Northwind Analytics",
+		"title": "Senior Data Engineer",
+		"url": "https://example.com/jobs/123"
+	},
+	"basics": {
+		"name": "Jordan Avery",
+		"headline": "Senior Data Engineer | Streaming pipelines, Python, AWS",
+		"email": "jordan.avery@example.com",
+		"phone": "+1 555 010 0199",
+		"location": "Austin, TX",
+		"links": [
+			{
+				"label": "LinkedIn",
+				"url": "https://www.linkedin.com/in/jordan-avery-example/"
+			},
+			{
+				"label": "GitHub",
+				"url": "https://github.com/jordan-avery-example"
+			}
+		]
+	},
+	"summary": {
+		"text": "Data engineer with 8+ years building batch and streaming pipelines on AWS. Led migration of nightly ETL to event-driven processing and mentored a team of four engineers on testing and observability.",
+		"source_ids": ["profile:experience_years", "fabrikam-2022.b01"]
+	},
+	"skills": [
+		{
+			"group": "Languages",
+			"items": ["Python", "SQL", "Scala", "TypeScript"]
+		},
+		{
+			"group": "Data",
+			"items": [
+				"Apache Spark",
+				"Kafka",
+				"Airflow",
+				"dbt",
+				"Snowflake",
+				"PostgreSQL"
+			]
+		},
+		{
+			"group": "Cloud",
+			"items": ["AWS", "Terraform", "Docker", "Kubernetes"]
+		}
+	],
+	"experience": [
+		{
+			"role_id": "fabrikam-2022",
+			"kind": "role",
+			"employer": "Fabrikam Logistics",
+			"title": "Senior Data Engineer",
+			"start": "2022-01",
+			"end": "present",
+			"location": "Austin, TX",
+			"bullets": [
+				{
+					"id": "fabrikam-2022.t01",
+					"source_ids": ["fabrikam-2022.b01"],
+					"text": "Led the migration of 40 nightly ETL jobs to Kafka-based streaming, cutting data freshness from 24 hours to 5 minutes for operations dashboards.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "fabrikam-2022.t02",
+					"source_ids": ["fabrikam-2022.b02"],
+					"text": "Designed a dbt modelling layer over Snowflake with tested contracts, reducing analyst ticket volume by 30% within two quarters.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "fabrikam-2022.t03",
+					"source_ids": ["fabrikam-2022.b03"],
+					"text": "Built an Airflow-based backfill framework that replays partitions idempotently, removing manual weekend recovery work.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "fabrikam-2022.t04",
+					"source_ids": ["fabrikam-2022.b04"],
+					"text": "Mentored four engineers on unit testing, data quality checks and on-call practices; two were promoted within a year.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "fabrikam-2022.t05",
+					"source_ids": ["fabrikam-2022.b05"],
+					"text": "Partnered with finance to define cost allocation tags in Terraform, lowering monthly AWS spend by 18% without reducing capacity.",
+					"metrics": [],
+					"keywords": []
+				}
+			]
+		},
+		{
+			"role_id": "contoso-2018",
+			"kind": "role",
+			"employer": "Contoso Retail",
+			"title": "Data Engineer",
+			"start": "2018-06",
+			"end": "2021-12",
+			"location": "Dallas, TX",
+			"bullets": [
+				{
+					"id": "contoso-2018.t01",
+					"source_ids": ["contoso-2018.b01"],
+					"text": "Developed Spark jobs processing 2 TB of point-of-sale data daily to feed demand forecasting models used by 300 stores.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "contoso-2018.t02",
+					"source_ids": ["contoso-2018.b02"],
+					"text": "Introduced Great Expectations data checks into CI, catching schema drift before it reached production reports.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "contoso-2018.t03",
+					"source_ids": ["contoso-2018.b03"],
+					"text": "Rewrote a legacy cron-based ingestion service in Python with retries and alerting, raising pipeline success rate to 99.5%.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "contoso-2018.t04",
+					"source_ids": ["contoso-2018.b04"],
+					"text": "Collaborated with data scientists to productionize features in a shared PostgreSQL feature store with documented lineage.",
+					"metrics": [],
+					"keywords": []
+				}
+			]
+		},
+		{
+			"role_id": "tailspin-2016",
+			"kind": "role",
+			"employer": "Tailspin Analytics",
+			"title": "Junior Data Analyst",
+			"start": "2016-07",
+			"end": "2018-05",
+			"location": "Dallas, TX",
+			"bullets": [
+				{
+					"id": "tailspin-2016.t01",
+					"source_ids": ["tailspin-2016.b01"],
+					"text": "Automated weekly sales reporting in SQL and Python, freeing 6 analyst hours per week for ad hoc investigations.",
+					"metrics": [],
+					"keywords": []
+				},
+				{
+					"id": "tailspin-2016.t02",
+					"source_ids": ["tailspin-2016.b02"],
+					"text": "Maintained Tableau dashboards for regional managers and documented metric definitions in a shared glossary.",
+					"metrics": [],
+					"keywords": []
+				}
+			]
+		}
+	],
+	"projects": [
+		{
+			"role_id": "proj-tidewatch",
+			"kind": "project",
+			"employer": "Open source",
+			"title": "Tidewatch: stream lag monitor",
+			"start": "2023-03",
+			"end": "2023-09",
+			"bullets": [
+				{
+					"id": "proj-tidewatch.t01",
+					"source_ids": ["proj-tidewatch.b01"],
+					"text": "Wrote a small Kafka consumer lag exporter in Python with Prometheus metrics and Grafana dashboards, adopted by two teams.",
+					"metrics": [],
+					"keywords": []
+				}
+			]
+		}
+	],
+	"education": [
+		{
+			"school": "University of Texas at Dallas",
+			"degree": "B.S.",
+			"field": "Computer Science",
+			"year": "2016"
+		}
+	],
+	"certifications": [
+		{
+			"name": "AWS Certified Data Engineer - Associate",
+			"issuer": "Amazon Web Services",
+			"year": "2023"
+		}
+	],
+	"layout": {
+		"pages": 2,
+		"paper": "letter"
+	}
+}

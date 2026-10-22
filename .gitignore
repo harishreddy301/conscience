@@ -1,0 +1,39 @@
+# Personal data: never commit.
+# Your workspace lives in me/ (or wherever JOB_HUNTER_ME points); machine state in ~/.job-hunter.
+/me/
+profile.yaml
+resume.yaml
+master-resume.yaml
+confirmed-metrics.yaml
+companies.yaml
+.env
+.env.*
+*.db
+*.db-*
+*.sqlite
+/data/
+/.job-hunter/
+/artifacts/
+/outreach/
+/logs/
+/cache/
+*.docx
+*.pdf
+
+# Re-include committed templates and sanitized test fixtures (only *.example.* / *.fixture.*).
+# These cannot re-include anything under /me/, because git never descends into an ignored directory.
+!**/*.example.*
+!**/*.fixture.*
+!**/.env.example
+# Test fixtures (including any PDF/DOCX fixture) are always tracked.
+!/tests/fixtures/**
+
+node_modules/
+coverage/
+.DS_Store
+
+# Personal Claude Code settings
+.claude/settings.local.json
+
+# Stray layout tool output
+/layout-*.json

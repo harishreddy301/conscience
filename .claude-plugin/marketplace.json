@@ -1,0 +1,14 @@
+{
+	"name": "conscience",
+	"owner": { "name": "Vikas" },
+	"plugins": [
+		{
+			"name": "conscience",
+			"source": "./",
+			"description": "Autonomous job-hunting team of agents for Claude Code.",
+			"version": "0.1.0",
+			"category": "productivity",
+			"strict": false
+		}
+	]
+}

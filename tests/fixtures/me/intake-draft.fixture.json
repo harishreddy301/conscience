@@ -1,0 +1,87 @@
+{
+	"roles": [
+		{
+			"kind": "role",
+			"employer": "Acme Analytics",
+			"title": "Data Engineer",
+			"start": "2022-03",
+			"end": "present",
+			"location": "Austin, TX",
+			"source_refs": ["sample-resume/resume.md", "experience/acme-2022.md"],
+			"bullets": [
+				{
+					"text": "Rebuilt the nightly billing pipeline on Airflow and Snowflake, cutting run time from 6 hours to 40 minutes.",
+					"skills": ["Airflow", "Snowflake", "Python"],
+					"fields": ["data engineering"],
+					"source_refs": ["experience/acme-2022.md#outcomes"],
+					"metrics": [
+						{
+							"phrase": "run time from 6 hours to 40 minutes",
+							"value": "40 minutes",
+							"source_ref": "experience/acme-2022.md#outcomes"
+						}
+					]
+				},
+				{
+					"text": "Introduced dbt tests and data contracts so broken upstream schemas fail in CI instead of in dashboards.",
+					"skills": ["dbt"],
+					"fields": ["data engineering", "analytics"],
+					"source_refs": ["experience/acme-2022.md#what-i-did"],
+					"metrics": []
+				}
+			]
+		},
+		{
+			"kind": "role",
+			"employer": "Brightline Logistics",
+			"title": "Data Analyst",
+			"start": "2019-06",
+			"end": "2022-02",
+			"location": "Dallas, TX",
+			"source_refs": ["sample-resume/resume.md"],
+			"bullets": [
+				{
+					"text": "Automated weekly carrier scorecards in Python and SQL, replacing a manual Excel process.",
+					"skills": ["Python", "SQL"],
+					"fields": ["analytics"],
+					"source_refs": ["sample-resume/resume.md"],
+					"metrics": []
+				}
+			]
+		},
+		{
+			"kind": "project",
+			"employer": "Open source",
+			"title": "tiny-dq",
+			"start": "2023-01",
+			"end": "2023-06",
+			"source_refs": ["sample-resume/resume.md"],
+			"bullets": [
+				{
+					"text": "A small Python library for declarative data-quality checks on pandas DataFrames.",
+					"skills": ["Python", "pandas"],
+					"fields": ["data engineering"],
+					"source_refs": ["sample-resume/resume.md"],
+					"metrics": []
+				}
+			]
+		}
+	],
+	"education": [
+		{
+			"school": "Texas State University",
+			"degree": "B.S.",
+			"field": "Industrial Engineering",
+			"year": "2019"
+		}
+	],
+	"certifications": [
+		{
+			"name": "SnowPro Core Certification",
+			"issuer": "Snowflake",
+			"year": "2023"
+		}
+	],
+	"skills_seen": ["Python", "SQL", "Airflow", "dbt", "Snowflake", "python"],
+	"conflicts": []
+}

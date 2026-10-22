@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>conscience dashboard</title>
+		<link rel="stylesheet" href="/app.css" />
+		<link rel="stylesheet" href="/board.css" />
+		<script src="/app.js" defer></script>
+		<script src="/board.js" defer></script>
+	</head>
+	<body>
+		<header class="top">
+			<div class="brand">
+				<h1>conscience</h1>
+				<span class="muted" id="refreshed">loading…</span>
+			</div>
+			<div class="chips" id="sync-chips" aria-label="Sync status"></div>
+			<button type="button" class="ghost" id="notify-btn" hidden>Enable study reminders</button>
+			<nav class="views" aria-label="Views">
+				<button type="button" class="view-tab" id="tab-board" data-view="board" aria-pressed="true">Board</button>
+				<button type="button" class="view-tab" id="tab-overview" data-view="overview" aria-pressed="false">Overview</button>
+			</nav>
+		</header>
+
+		<section id="board-view" class="board-view" aria-label="Job board">
+			<form id="link-form" class="link-form" autocomplete="off">
+				<label class="sr-only" for="link-url">Job link</label>
+				<input id="link-url" type="url" inputmode="url" maxlength="2048" placeholder="Paste a job link (https://…)" required />
+				<label class="sr-only" for="link-note">Note</label>
+				<input id="link-note" maxlength="500" placeholder="Note (optional)" />
+				<button type="submit" class="primary" id="link-add">Add</button>
+			</form>
+			<p class="muted board-status" id="board-status" aria-live="polite"></p>
+			<div class="col-tabs" id="col-tabs" role="tablist" aria-label="Columns"></div>
+			<div class="board" id="board"></div>
+			<div class="lanes" id="lanes"></div>
+		</section>
+
+		<main class="grid" id="overview-view" hidden>
+			<section class="card study" id="study-card" aria-labelledby="study-h">
+				<div class="card-head">
+					<h2 id="study-h">Study</h2>
+					<span class="pill" id="block-state">–</span>
+				</div>
+				<div class="study-main">
+					<div class="timer" id="timer" aria-live="polite">00:00:00</div>
+					<div class="muted" id="block-line"></div>
+					<form id="clock-in-form" class="row">
+						<input id="topic" name="topic" maxlength="120" placeholder="Topic (optional)" autocomplete="off" />
+						<button type="submit" class="primary" id="clock-in-btn">Clock in</button>
+					</form>
+					<form id="clock-out-form" class="row" hidden>
+						<input id="notes" name="notes" maxlength="1000" placeholder="Notes (optional)" autocomplete="off" />
+						<button type="submit" class="danger" id="clock-out-btn">Clock out</button>
+					</form>
+				</div>
+				<div class="stats">
+					<div><span class="big" id="streak">0</span><span class="muted">day streak</span></div>
+					<div><span class="big" id="today-min">0m</span><span class="muted">today</span></div>
+					<div><span class="big" id="on-time">–</span><span class="muted">on time</span></div>
+				</div>
+				<div class="progress-wrap">
+					<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="week-bar"><span id="week-fill"></span></div>
+					<div class="muted" id="week-line"></div>
+				</div>
+				<details class="blocks">
+					<summary>Study blocks</summary>
+					<ul id="block-list" class="plain"></ul>
+				</details>
+				<div class="tasks">
+					<h3>Checklist</h3>
+					<ul id="task-list" class="plain"></ul>
+					<form id="task-form" class="row">
+						<input id="task-title" maxlength="200" placeholder="Add a study task" autocomplete="off" required />
+						<button type="submit">Add</button>
+					</form>
+				</div>
+			</section>
+
+			<section class="card" aria-labelledby="iv-h">
+				<div class="card-head"><h2 id="iv-h">Upcoming interviews</h2></div>
+				<ul id="interviews" class="plain list"></ul>
+			</section>
+
+			<section class="card" aria-labelledby="ready-h">
+				<div class="card-head"><h2 id="ready-h">Ready to apply</h2></div>
+				<ul id="ready" class="plain list"></ul>
+			</section>
+
+			<section class="card" aria-labelledby="pipe-h">
+				<div class="card-head"><h2 id="pipe-h">Pipeline</h2></div>
+				<div id="pipeline" class="pipeline"></div>
+			</section>
+
+			<section class="card wide" aria-labelledby="apps-h">
+				<div class="card-head">
+					<h2 id="apps-h">Applications</h2>
+					<span class="muted small-note">Click a row to compare its resume with the JD</span>
+					<label class="toggle"><input type="checkbox" id="show-closed" /> show rejected &amp; ghosted</label>
+				</div>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr><th>Company</th><th>Title</th><th>Status</th><th>Applied</th><th>Last email</th><th>Days idle</th></tr>
+						</thead>
+						<tbody id="apps"></tbody>
+					</table>
+				</div>
+			</section>
+
+			<section class="card" aria-labelledby="email-h">
+				<div class="card-head">
+					<h2 id="email-h">Recent email</h2>
+					<span class="pill warn" id="needs-linking" hidden></span>
+				</div>
+				<ul id="emails" class="plain list"></ul>
+			</section>
+
+			<section class="card" aria-labelledby="assess-h">
+				<div class="card-head"><h2 id="assess-h">Assessments due</h2></div>
+				<ul id="assessments" class="plain list"></ul>
+			</section>
+
+			<section class="card" aria-labelledby="metrics-h">
+				<div class="card-head"><h2 id="metrics-h">Pending metrics</h2><span class="pill" id="metrics-count">0</span></div>
+				<ul id="metrics" class="plain list"></ul>
+			</section>
+
+			<section class="card" id="learn-card" aria-labelledby="learn-h" hidden>
+				<div class="card-head"><h2 id="learn-h">What's working</h2></div>
+				<div id="learn"></div>
+			</section>
+		</main>
+		<aside id="compare-panel" class="panel" role="dialog" aria-modal="false" aria-labelledby="compare-h" hidden>
+			<div class="card-head">
+				<h2 id="compare-h">Resume vs JD</h2>
+				<button type="button" class="ghost small" id="compare-close" aria-label="Close resume vs JD">Close</button>
+			</div>
+			<div class="muted" id="compare-sub"></div>
+			<div id="compare-body" class="compare"></div>
+		</aside>
+		<div id="toast" class="toast" role="status" hidden></div>
+	</body>
+</html>

@@ -1,0 +1,156 @@
+{
+	"schema": "conscience.resume/v1",
+	"run_id": "fixture-run",
+	"draft_id": "impact-1",
+	"angle": "impact",
+	"iteration": 0,
+	"job": {
+		"app_id": 1,
+		"company": "Initech",
+		"title": "Senior Data Engineer"
+	},
+	"basics": {
+		"name": "Jordan Rivera",
+		"headline": "Senior Data Engineer | AWS, Airflow, Snowflake",
+		"email": "jordan.rivera@example.com",
+		"phone": "+1 555 0100",
+		"location": "Austin, TX",
+		"links": [
+			{
+				"label": "LinkedIn",
+				"url": "https://www.linkedin.com/in/jordan-rivera-example"
+			}
+		]
+	},
+	"summary": {
+		"text": "Senior Data Engineer with 8+ years building data pipelines in Python, SQL and AWS. Cut pipeline latency by 45% by moving clickstream ingestion to streaming.",
+		"source_ids": ["acme-analytics-2021.b01", "profile:experience_years"],
+		"emphasis": ["8+ years", "data pipelines", "45%"]
+	},
+	"skills": [
+		{
+			"group": "Languages",
+			"items": ["Python", "SQL"]
+		},
+		{
+			"group": "Data Platform",
+			"items": ["AWS", "Airflow", "Snowflake", "dbt", "Kafka"]
+		},
+		{
+			"group": "Tools",
+			"items": ["Docker", "Tableau"]
+		}
+	],
+	"experience": [
+		{
+			"role_id": "acme-analytics-2021",
+			"kind": "role",
+			"employer": "Acme Analytics",
+			"title": "Senior Data Engineer",
+			"start": "2021-03",
+			"end": "present",
+			"location": "Austin, TX",
+			"bullets": [
+				{
+					"id": "acme-analytics-2021.b01#t1",
+					"source_ids": ["acme-analytics-2021.b01"],
+					"text": "Built streaming ingestion pipelines on AWS S3 and EC2 in Python 3.11, cutting pipeline latency by 45% for clickstream analytics",
+					"metrics": [
+						{
+							"metric_id": "acme-analytics-2021.b01.m1",
+							"text": "45%"
+						}
+					],
+					"keywords": ["Python", "AWS"],
+					"emphasis": ["streaming ingestion", "AWS S3", "45%"]
+				},
+				{
+					"id": "acme-analytics-2021.b02#t1",
+					"source_ids": ["acme-analytics-2021.b02"],
+					"text": "Migrated nightly batch ETL from cron scripts to Airflow DAGs with SQL data quality checks",
+					"keywords": ["Airflow", "SQL"],
+					"emphasis": ["Airflow DAGs", "SQL"]
+				},
+				{
+					"id": "acme-analytics-2021.b03#t1",
+					"source_ids": ["acme-analytics-2021.b03"],
+					"text": "Led a team of 4 engineers building a dbt and Snowflake warehouse launched in 2021",
+					"metrics": [
+						{
+							"metric_id": "acme-analytics-2021.b03.m1",
+							"text": "4"
+						}
+					],
+					"keywords": ["dbt", "Snowflake"],
+					"emphasis": ["4 engineers", "dbt", "Snowflake"]
+				}
+			]
+		},
+		{
+			"role_id": "globex-corporation-2017",
+			"kind": "role",
+			"employer": "Globex Corporation",
+			"title": "Data Analyst",
+			"start": "2017-06",
+			"end": "2021-02",
+			"location": "Austin, TX",
+			"bullets": [
+				{
+					"id": "globex-corporation-2017.b01#t1",
+					"source_ids": ["globex-corporation-2017.b01"],
+					"text": "Automated weekly KPI reporting in SQL and Python, cutting report prep from 6 hours to 30 minutes",
+					"metrics": [
+						{
+							"metric_id": "globex-corporation-2017.b01.m1",
+							"text": "6 hours to 30 minutes"
+						}
+					],
+					"emphasis": ["SQL", "6 hours to 30 minutes"]
+				},
+				{
+					"id": "globex-corporation-2017.b02#t1",
+					"source_ids": ["globex-corporation-2017.b02"],
+					"text": "Built Tableau dashboards for sales leadership tracking pipeline and revenue KPIs",
+					"emphasis": ["Tableau dashboards", "KPIs"]
+				}
+			]
+		}
+	],
+	"projects": [
+		{
+			"role_id": "proj-trail-map",
+			"kind": "project",
+			"employer": "Personal project",
+			"title": "Trail Map Builder",
+			"start": "2020-01",
+			"end": "2020-06",
+			"bullets": [
+				{
+					"id": "proj-trail-map.b01#t1",
+					"source_ids": ["proj-trail-map.b01"],
+					"text": "Built a Node.js and React web app for planning hiking routes with offline maps",
+					"emphasis": ["Node.js", "React"]
+				}
+			]
+		}
+	],
+	"education": [
+		{
+			"school": "University of Texas at Austin",
+			"degree": "B.S.",
+			"field": "Computer Science",
+			"year": "2017"
+		}
+	],
+	"certifications": [
+		{
+			"name": "AWS Certified Data Engineer - Associate",
+			"issuer": "Amazon Web Services",
+			"year": "2023"
+		}
+	],
+	"layout": {
+		"pages": 1,
+		"paper": "letter"
+	}
+}

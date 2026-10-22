@@ -1,0 +1,16 @@
+{
+	"required": [
+		{ "term": "Python", "weight": 3 },
+		{ "term": "SQL", "weight": 2 },
+		{ "term": "AWS", "aliases": ["Amazon Web Services"], "weight": 2 },
+		{ "term": "Airflow", "aliases": ["Apache Airflow"], "weight": 2 },
+		{ "term": "Snowflake", "weight": 1 }
+	],
+	"preferred": [{ "term": "dbt" }, { "term": "Kafka" }, { "term": "nodejs" }],
+	"titles": ["Senior Data Engineer"],
+	"knockouts": {
+		"min_years": 5,
+		"degree": "Bachelor's degree in Computer Science",
+		"location": "Austin, TX"
+	}
+}

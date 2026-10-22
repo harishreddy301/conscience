@@ -1,0 +1,17 @@
+{
+	"name": "conscience",
+	"version": "0.1.0",
+	"description": "Autonomous job-hunting team of agents that searches, scores, tailors and applies on your behalf, guided by your profile, values and real experience.",
+	"author": { "name": "Vikas" },
+	"keywords": [
+		"jobs",
+		"job-search",
+		"resume",
+		"ats",
+		"career",
+		"agents",
+		"automation"
+	],
+	"commands": ["./commands/"],
+	"skills": ["./skills/"]
+}

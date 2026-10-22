@@ -1,0 +1,80 @@
+{
+	"items": [
+		{
+			"gmail_message_id": "m-001",
+			"thread_id": "t-001",
+			"received_at": "2026-10-01T14:05:00Z",
+			"from": "Hooli Careers <no-reply@greenhouse-mail.io>",
+			"subject": "Thank you for applying to Hooli",
+			"snippet": "We received your application for Platform Engineer and will review it shortly.",
+			"kind": "confirmation",
+			"confidence": 0.92,
+			"company": "Hooli",
+			"role": "Platform Engineer"
+		},
+		{
+			"gmail_message_id": "m-001",
+			"thread_id": "t-001",
+			"received_at": "2026-10-01T14:05:00Z",
+			"from": "Hooli Careers <no-reply@greenhouse-mail.io>",
+			"subject": "Thank you for applying to Hooli",
+			"kind": "confirmation",
+			"confidence": 0.92,
+			"company": "Hooli",
+			"role": "Platform Engineer"
+		},
+		{
+			"gmail_message_id": "m-002",
+			"thread_id": "t-002",
+			"received_at": "2026-10-03T09:30:00Z",
+			"from": "Jordan Recruiter <jordan@globex.example>",
+			"subject": "Interview invitation: Data Engineer",
+			"snippet": "We would like to schedule a 45 minute recruiter screen.",
+			"kind": "interview_invite",
+			"confidence": 0.9,
+			"company": "Globex Systems",
+			"role": "Data Engineer",
+			"interview": {
+				"start": "2026-10-20T15:00:00Z",
+				"end": "2026-10-20T15:45:00Z",
+				"tz": "America/New_York",
+				"link": "https://meet.example.com/abc-defg",
+				"round": "recruiter_screen"
+			}
+		},
+		{
+			"gmail_message_id": "m-003",
+			"thread_id": "t-003",
+			"received_at": "2026-10-04T18:00:00Z",
+			"from": "Talent Team <talent@mail.initech.example>",
+			"subject": "Your application to Initech",
+			"snippet": "After careful consideration we have decided not to move forward.",
+			"kind": "rejection",
+			"confidence": 0.95
+		},
+		{
+			"gmail_message_id": "m-004",
+			"thread_id": "t-004",
+			"received_at": "2026-10-05T07:00:00Z",
+			"from": "Weekly Jobs Digest <digest@jobsletter.example>",
+			"subject": "10 new roles you might like",
+			"kind": "other",
+			"confidence": 0.3
+		},
+		{
+			"gmail_message_id": "m-005",
+			"thread_id": "t-001",
+			"received_at": "2026-10-06T11:00:00Z",
+			"from": "Hooli Careers <no-reply@greenhouse-mail.io>",
+			"subject": "Next step: online assessment",
+			"snippet": "Please complete the coding assessment within 5 days.",
+			"kind": "assessment",
+			"confidence": 0.88,
+			"company": "Hooli",
+			"assessment": {
+				"due_at": "2026-10-11T23:59:00Z",
+				"link": "https://assess.example.com/t/xyz"
+			}
+		}
+	]
+}

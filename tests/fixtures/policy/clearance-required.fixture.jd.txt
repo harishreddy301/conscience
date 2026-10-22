@@ -1,0 +1,8 @@
+Forward Deployed Engineer - Northwind Analytics (fictional)
+
+You will build data integrations for our customers.
+
+Requirements
+- 3+ years of Python.
+- Active TS/SCI clearance required.
+- Experience with Kubernetes.

@@ -1,0 +1,117 @@
+# Fictional, sanitized fixture for tests. Not a real person.
+version: 1
+summary_seeds:
+  - Data engineer who builds reliable pipelines and warehouses.
+skills:
+  - Python
+  - SQL
+  - AWS
+  - Airflow
+  - Snowflake
+  - dbt
+  - Kafka
+  - Tableau
+  - Node.js
+  - React
+  - Docker
+roles:
+  - id: acme-analytics-2021
+    kind: role
+    employer: Acme Analytics
+    title: Senior Data Engineer
+    start: 2021-03
+    end: present
+    location: Austin, TX
+    next_bullet: 5
+    bullets:
+      - id: acme-analytics-2021.b01
+        text: Built streaming ingestion pipelines on AWS (Kinesis, S3, EC2) in Python for clickstream data.
+        skills: [Python, AWS]
+        fields: [data engineering]
+        source_refs: [experience/acme.md#what-i-did]
+        metrics:
+          - id: acme-analytics-2021.b01.m1
+            phrase: cut pipeline latency by 45%
+            value: 45%
+            status: fact
+            source_ref: experience/acme.md#outcomes
+      - id: acme-analytics-2021.b02
+        text: Migrated nightly batch ETL from cron scripts to Airflow DAGs.
+        skills: [Airflow, SQL]
+        fields: [data engineering]
+        source_refs: [experience/acme.md#what-i-did]
+        metrics:
+          - id: acme-analytics-2021.b02.m1
+            phrase: saved 10 hours per week of on-call toil
+            value: 10 hours
+            status: estimated
+            derivation: 5 incidents a week times about 2 hours each, per README notes
+            source_ref: experience/acme.md#numbers
+            confidence: medium
+      - id: acme-analytics-2021.b03
+        text: Led a team of engineers building a dbt and Snowflake warehouse.
+        skills: [dbt, Snowflake]
+        fields: [data engineering, leadership]
+        source_refs: [experience/acme.md#team]
+        metrics:
+          - id: acme-analytics-2021.b03.m1
+            phrase: team of 4 engineers
+            value: "4"
+            status: fact
+            source_ref: experience/acme.md#team
+      - id: acme-analytics-2021.b04
+        text: Maintained a legacy on-prem Hadoop cluster.
+        skills: []
+        fields: []
+        source_refs: [sample-resume/resume.md]
+        metrics: []
+        retired: true
+  - id: globex-corporation-2017
+    kind: role
+    employer: Globex Corporation
+    title: Data Analyst
+    start: 2017-06
+    end: 2021-02
+    location: Austin, TX
+    next_bullet: 3
+    bullets:
+      - id: globex-corporation-2017.b01
+        text: Automated weekly KPI reporting in SQL and Python, replacing manual spreadsheets.
+        skills: [SQL, Python]
+        fields: [analytics]
+        source_refs: [experience/globex.md#what-i-did]
+        metrics:
+          - id: globex-corporation-2017.b01.m1
+            phrase: reduced report prep from 6 hours to 30 minutes
+            value: 6 hours to 30 minutes
+            status: fact
+            source_ref: experience/globex.md#outcomes
+      - id: globex-corporation-2017.b02
+        text: Built Tableau dashboards for sales leadership.
+        skills: [Tableau]
+        fields: [analytics]
+        source_refs: [experience/globex.md#what-i-did]
+        metrics: []
+  - id: proj-trail-map
+    kind: project
+    employer: Personal project
+    title: Trail Map Builder
+    start: 2020-01
+    end: 2020-06
+    next_bullet: 2
+    bullets:
+      - id: proj-trail-map.b01
+        text: Built a Node.js and React web app for planning hiking routes.
+        skills: [Node.js, React]
+        fields: [web]
+        source_refs: [experience/trail-map.md]
+        metrics: []
+education:
+  - school: University of Texas at Austin
+    degree: B.S.
+    field: Computer Science
+    year: "2017"
+certifications:
+  - name: AWS Certified Data Engineer - Associate
+    issuer: Amazon Web Services
+    year: "2023"

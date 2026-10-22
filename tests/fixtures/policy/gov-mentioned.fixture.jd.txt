@@ -1,0 +1,3 @@
+Forward Deployed Engineer, Adventure Works (fictional)
+Our customers include Fortune 500 companies and federal agencies.
+Experience with Python and TypeScript.
