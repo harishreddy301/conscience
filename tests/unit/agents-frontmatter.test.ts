@@ -11,7 +11,7 @@ const AGENTS_DIR = join(ROOT, "agents");
 /** Consolidated roster (plan.md + amendments 13, W7). Model per agent. */
 const ROSTER: Readonly<Record<string, "opus" | "sonnet" | "haiku">> = {
 	conscience: "opus",
-	"resume-writer": "opus",
+	"resume-writer": "sonnet",
 	"hiring-manager": "opus",
 	"cover-letter-writer": "opus",
 	"metric-miner": "opus",

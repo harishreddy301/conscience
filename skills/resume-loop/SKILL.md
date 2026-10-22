@@ -15,7 +15,7 @@ CLI: `node "${CLAUDE_PLUGIN_ROOT:-D:/Projects/Job_Hunter}/dist/jh.mjs" <cmd>`, w
 - Tie-break: `conscience` only when the top two HM scores are within **3** points.
 - Early stop: ATS + HM score gain < **3** points for **2** rounds in a row.
 
-**Budget per job:** 3 or 4 opus writer calls, 1 to 4 opus HM calls, about 4 haiku calls, about 3 sonnet calls. Do not exceed `N + MAX_ITER + 1` writer calls.
+**Budget per job:** 3 or 4 sonnet writer calls, 1 to 4 opus HM calls, about 4 haiku calls, about 3 sonnet calls. Do not exceed `N + MAX_ITER + 1` writer calls.
 
 ## Step 0: pending metrics
 

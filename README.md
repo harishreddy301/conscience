@@ -68,7 +68,7 @@ Without `npm link`, replace `jh` with `node dist/jh.mjs`.
 | conscience | Decides as you: go/no-go, angle mix, tie-breaks, below-bar resumes, form answers | opus |
 | resume-intake | Extracts stated facts from your resume and READMEs | sonnet |
 | metric-miner | Proposes conservative metrics from your READMEs, for you to confirm | opus |
-| resume-writer | Writes one tailored draft per angle, or revises | opus |
+| resume-writer | Writes one tailored draft per angle, or revises | sonnet |
 | hiring-manager | Ranks drafts and gives an interview / maybe / reject verdict | opus |
 | ats-screener | Extracts JD keywords and knockouts, stores a short JD snapshot for resume-vs-JD compare; checks rendered parse order | sonnet |
 | recruiter-screen | 6-second skim, 8-item checklist | haiku |
