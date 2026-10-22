@@ -118,7 +118,10 @@ describe.skipIf(!hasBashAndGit)(
 			rmSync(tmp, { recursive: true, force: true });
 		});
 
-		function runSetup(): { status: number | null; out: string } {
+		function runSetup(extra: Record<string, string> = {}): {
+			status: number | null;
+			out: string;
+		} {
 			const r = spawnSync(
 				"bash",
 				[join(fakeRepo, "scripts", "cloud-setup.sh")],
@@ -126,6 +129,7 @@ describe.skipIf(!hasBashAndGit)(
 					encoding: "utf8",
 					env: {
 						...process.env,
+						...extra,
 						DATA_TOKEN: TOKEN,
 						DATA_REPO: "acme/conscience-data",
 						CLOUD_SETUP_DATA_URL: bare.replace(/\\/g, "/"),
@@ -167,6 +171,17 @@ describe.skipIf(!hasBashAndGit)(
 				`${dataDir.replace(/\\/g, "/")}/me`,
 			);
 			expect(Object.values(settings.env).join(" ")).not.toContain(TOKEN);
+		});
+
+		it("exports the session env to CLAUDE_ENV_FILE when run as a SessionStart hook", () => {
+			const envFile = join(tmp, "claude-env.sh");
+			const r = runSetup({ CLAUDE_ENV_FILE: envFile.replace(/\\/g, "/") });
+			expect(r.status, r.out).toBe(0);
+			const text = readFileSync(envFile, "utf8");
+			expect(text).toContain("export JOB_HUNTER_DATA_REPO=");
+			expect(text).toContain("export JOB_HUNTER_ME=");
+			expect(text).toContain("export GIT_ASKPASS=");
+			expect(text).not.toContain(TOKEN);
 		});
 	},
 );

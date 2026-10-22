@@ -81,6 +81,20 @@ const env = {
 process.stdout.write(`${JSON.stringify({ env }, null, 2)}\n`);
 ' >.claude/settings.local.json
 
+# 5b. When run as a SessionStart hook, settings.local.json is read too late for
+# this session, so also export the same values for later Bash commands.
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+	{
+		printf 'export CLAUDE_PLUGIN_ROOT=%q\n' "$REPO_ROOT"
+		printf 'export JOB_HUNTER_ME=%q\n' "$DATA_DIR/me"
+		printf 'export JOB_HUNTER_HOME=%q\n' "$JH_HOME"
+		printf 'export JOB_HUNTER_DB=%q\n' "$JH_HOME/jh.db"
+		printf 'export JOB_HUNTER_DATA_REPO=%q\n' "$DATA_DIR"
+		printf 'export GIT_ASKPASS=%q\n' "$ASKPASS"
+		printf 'export GIT_TERMINAL_PROMPT=0\n'
+	} >>"$CLAUDE_ENV_FILE"
+fi
+
 # 6. Machine state for this session.
 mkdir -p "$JH_HOME"
 
