@@ -21,6 +21,7 @@ import {
 	commitAndPush,
 	defaultRun,
 	type Run,
+	syncDataRepo,
 } from "./git.js";
 import { type PacketApp, PacketManifest } from "./schema.js";
 
@@ -292,6 +293,8 @@ export async function exportPacket(
 			"nothing_to_export",
 		);
 	await assertPrivateRemote(dataDir, run);
+	// Rebase onto origin first so the push below does not race a cloud push.
+	await syncDataRepo(dataDir, run);
 
 	const now = opts.now ?? new Date();
 	const id = packetId(now);

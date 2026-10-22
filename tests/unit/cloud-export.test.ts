@@ -44,6 +44,7 @@ beforeEach(() => {
 	// audit() writes under JOB_HUNTER_HOME; keep it in the temp dir.
 	process.env.JOB_HUNTER_HOME = join(tmp, "home");
 	db = openDb(join(tmp, "local.db"));
+	pulledBeforePacket = [];
 });
 
 afterEach(() => {
@@ -75,14 +76,23 @@ function meWithSecrets(): string {
 	return me;
 }
 
+/** For each pull: true when no packets/ dir existed yet at that moment. */
+let pulledBeforePacket: boolean[] = [];
+
 function fakeRun(visibility: string): {
 	run: Run;
 	calls: { cmd: string; args: string[] }[];
 } {
 	const calls: { cmd: string; args: string[] }[] = [];
-	const run: Run = async (cmd, args) => {
+	const run: Run = async (cmd, args, cwd) => {
 		calls.push({ cmd, args });
 		if (cmd === "gh") return `${visibility}\n`;
+		if (args[0] === "remote")
+			return "https://github.com/acme/conscience-data.git\n";
+		if (args[0] === "rev-parse") return "main\n";
+		if (args[0] === "diff") return "me/profile.yaml\n";
+		if (args[0] === "pull")
+			pulledBeforePacket.push(!existsSync(join(cwd, "packets")));
 		return "";
 	};
 	return { run, calls };
@@ -231,6 +241,8 @@ describe("exportPacket", () => {
 		expect(calls.some((c) => c.cmd === "git" && c.args[0] === "push")).toBe(
 			true,
 		);
+		// The clone is rebased onto origin before the packet is written.
+		expect(pulledBeforePacket).toEqual([true]);
 	});
 
 	it("refuses when no app qualifies, before writing anything", async () => {
