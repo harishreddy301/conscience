@@ -3,6 +3,7 @@ import {
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	rmSync,
 	symlinkSync,
@@ -330,5 +331,109 @@ describe("mirrorMe symlink safety", () => {
 		expect(() => mirrorMe(me, dest)).toThrow(ValidationError);
 		expect(existsSync(join(outside, "precious.txt"))).toBe(true);
 		expect(existsSync(join(outside, "profile.yaml"))).toBe(false);
+	});
+});
+
+describe("exportPacket DB snapshot", () => {
+	function addPersonalRows(appId: number): void {
+		const now = new Date().toISOString();
+		db.prepare(
+			`INSERT INTO emails(gmail_message_id, thread_id, received_at, from_addr, from_domain, subject, kind, confidence, application_id, ingested_at)
+			 VALUES('m1', 't1', ?, 'recruiter@example.com', 'example.com', 'Fictional subject', 'recruiter', 0.9, ?, ?)`,
+		).run(now, appId, now);
+		db.prepare(
+			`INSERT INTO interviews(application_id, company_name, source, updated_at) VALUES(?, 'Initech', 'manual', ?)`,
+		).run(appId, now);
+		db.prepare(
+			`INSERT INTO study_blocks(label, days, start_local, end_local, created_at) VALUES('x', 'mon', '09:00', '10:00', ?)`,
+		).run(now);
+		db.prepare(
+			`INSERT INTO sync_runs(kind, started_at, actor) VALUES('gmail', ?, 'jh')`,
+		).run(now);
+	}
+
+	it("keeps only the packet's apps and drops personal tracking tables", async () => {
+		const a = addApp("Acme", "Data Engineer", JD);
+		const other = addApp("Initech", "Platform Engineer", JD);
+		addPersonalRows(other);
+		const dataDir = join(tmp, "data");
+		mkdirSync(dataDir);
+		const { run, calls } = fakeRun("PRIVATE");
+		const m = await exportPacket({
+			db,
+			meDir: meWithSecrets(),
+			dataDir,
+			codeRepoRoot: join(tmp, "code"),
+			appIds: [a],
+			run,
+			now: new Date(2026, 9, 22, 9, 5),
+		});
+		// No -wal/-shm leftovers get committed next to the snapshot.
+		expect(readdirSync(join(dataDir, "packets", m.id)).sort()).toEqual([
+			"jd",
+			"jh.db",
+			"packet.json",
+		]);
+		const snap = openDb(join(dataDir, "packets", m.id, "jh.db"));
+		const n = (sql: string) => (snap.prepare(sql).get() as { n: number }).n;
+		try {
+			expect(
+				snap
+					.prepare("SELECT id FROM applications")
+					.all()
+					.map((r) => r.id),
+			).toEqual([a]);
+			expect(n("SELECT count(*) AS n FROM jobs")).toBe(1);
+			expect(
+				snap
+					.prepare("SELECT name FROM companies")
+					.all()
+					.map((r) => r.name),
+			).toEqual(["Acme"]);
+			for (const t of [
+				"emails",
+				"interviews",
+				"study_blocks",
+				"study_sessions",
+				"study_tasks",
+				"sync_runs",
+			])
+				expect(n(`SELECT count(*) AS n FROM ${t}`), t).toBe(0);
+			expect(
+				n(
+					`SELECT count(*) AS n FROM application_events WHERE application_id <> ${a}`,
+				),
+			).toBe(0);
+		} finally {
+			snap.close();
+		}
+		// The local DB is untouched.
+		expect(
+			(db.prepare("SELECT count(*) AS n FROM emails").get() as { n: number }).n,
+		).toBe(1);
+		// Only the packet paths are committed.
+		const commit = calls.find((c) => c.args[0] === "commit");
+		expect(commit?.args.slice(-3)).toEqual(["--", "me", `packets/${m.id}`]);
+	});
+
+	it("refuses a snapshot over the size cap and leaves no packet behind", async () => {
+		addApp("Acme", "Data Engineer", JD);
+		const dataDir = join(tmp, "data");
+		mkdirSync(dataDir);
+		const { run, calls } = fakeRun("PRIVATE");
+		await expect(
+			exportPacket({
+				db,
+				meDir: meWithSecrets(),
+				dataDir,
+				codeRepoRoot: join(tmp, "code"),
+				queue: 10,
+				run,
+				maxSnapshotBytes: 1024,
+				now: new Date(2026, 9, 22, 9, 5),
+			}),
+		).rejects.toMatchObject({ code: "snapshot_too_large" });
+		expect(existsSync(join(dataDir, "packets", "p-20261022-0905"))).toBe(false);
+		expect(calls.some((c) => c.args[0] === "push")).toBe(false);
 	});
 });

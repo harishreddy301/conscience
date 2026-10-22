@@ -6,9 +6,11 @@ import {
 	readdirSync,
 	realpathSync,
 	rmSync,
+	statSync,
 	writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { audit } from "../core/audit.js";
 import {
 	ConflictError,
@@ -28,6 +30,8 @@ import { type PacketApp, PacketManifest } from "./schema.js";
 /** Files over this size never leave the PC. */
 export const MAX_EXPORT_BYTES = 5 * 1024 * 1024;
 export const DEFAULT_QUEUE = 10;
+/** A packet DB snapshot over this size is refused. */
+export const MAX_SNAPSHOT_BYTES = 20 * 1024 * 1024;
 
 /** The only file types that leave the PC (ADR 006). */
 export const EXPORT_EXTENSIONS = [
@@ -257,6 +261,45 @@ export interface ExportOptions {
 	queue?: number;
 	run?: Run;
 	now?: Date;
+	/** Override MAX_SNAPSHOT_BYTES (tests). */
+	maxSnapshotBytes?: number;
+}
+
+/**
+ * Cut a VACUUM INTO snapshot down to what a cloud session needs: the packet's
+ * applications with their jobs, companies, JD snapshots and resume rows.
+ * Email, interview, study and sync tracking and every other app are dropped.
+ */
+export function pruneSnapshot(path: string, appIds: number[]): void {
+	const snap = new DatabaseSync(path);
+	try {
+		snap.exec("CREATE TEMP TABLE keep_apps(id INTEGER PRIMARY KEY)");
+		const ins = snap.prepare("INSERT INTO keep_apps(id) VALUES(?)");
+		for (const id of appIds) ins.run(id);
+		const notKept = "application_id NOT IN (SELECT id FROM keep_apps)";
+		snap.exec(`BEGIN;
+			DELETE FROM application_events;
+			DELETE FROM interviews;
+			DELETE FROM emails;
+			DELETE FROM sync_runs;
+			DELETE FROM study_tasks;
+			DELETE FROM study_sessions;
+			DELETE FROM study_blocks;
+			DELETE FROM escalations WHERE application_id IS NULL OR ${notKept};
+			DELETE FROM resume_reviews WHERE run_id IN (SELECT id FROM resume_runs WHERE ${notKept});
+			DELETE FROM resume_drafts WHERE run_id IN (SELECT id FROM resume_runs WHERE ${notKept});
+			DELETE FROM resume_runs WHERE ${notKept};
+			DELETE FROM resume_variants WHERE ${notKept};
+			DELETE FROM jd_snapshots WHERE ${notKept};
+			DELETE FROM applications WHERE id NOT IN (SELECT id FROM keep_apps);
+			DELETE FROM jobs WHERE id NOT IN (SELECT job_id FROM applications);
+			DELETE FROM companies WHERE id NOT IN (SELECT company_id FROM jobs);
+			COMMIT;`);
+		snap.exec("DROP TABLE keep_apps");
+		snap.exec("VACUUM");
+	} finally {
+		snap.close();
+	}
 }
 
 /**
@@ -322,8 +365,27 @@ export async function exportPacket(
 		`${JSON.stringify(manifest, null, 2)}\n`,
 		"utf8",
 	);
-	opts.db.prepare("VACUUM INTO ?").run(join(pktDir, "jh.db"));
-	const me = mirrorMe(resolve(opts.meDir), join(dataDir, "me"));
+	let me: { copied: number; removed: number };
+	try {
+		const snapPath = join(pktDir, "jh.db");
+		opts.db.prepare("VACUUM INTO ?").run(snapPath);
+		pruneSnapshot(
+			snapPath,
+			rows.map((r) => r.app_id),
+		);
+		const size = statSync(snapPath).size;
+		const cap = opts.maxSnapshotBytes ?? MAX_SNAPSHOT_BYTES;
+		if (size > cap)
+			throw new ValidationError(
+				`packet DB snapshot is ${size} bytes, over the ${cap}-byte cap`,
+				{ size, cap },
+				"snapshot_too_large",
+			);
+		me = mirrorMe(resolve(opts.meDir), join(dataDir, "me"));
+	} catch (e) {
+		rmSync(pktDir, { recursive: true, force: true });
+		throw e;
+	}
 
 	await commitAndPush(dataDir, `packet ${id}: ${rows.length} apps`, run, [
 		"me",
