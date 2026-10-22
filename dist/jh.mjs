@@ -59444,9 +59444,11 @@ import {
   readdirSync as readdirSync3,
   realpathSync,
   rmSync as rmSync3,
+  statSync as statSync2,
   writeFileSync as writeFileSync6
 } from "node:fs";
 import { dirname as dirname5, join as join12, relative as relative2, resolve as resolve5, sep as sep2 } from "node:path";
+import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
 init_errors3();
 
 // src/cloud/git.ts
@@ -59463,15 +59465,35 @@ var defaultRun = async (cmd, args, cwd) => {
   });
   return stdout;
 };
+function parseGithubSlug(url2) {
+  const m = url2.trim().match(
+    /^(?:https:\/\/(?:[^@/]+@)?github\.com\/|ssh:\/\/git@github\.com\/|git@github\.com:)([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+?)(?:\.git)?\/?$/
+  );
+  return m ? `${m[1]}/${m[2]}` : null;
+}
 async function assertPrivateRemote(dataDir, run) {
+  let slug2;
   let visibility;
   try {
+    const url2 = await run(
+      "git",
+      ["remote", "get-url", "--push", "origin"],
+      dataDir
+    );
+    slug2 = parseGithubSlug(url2);
+    if (!slug2)
+      throw new ValidationError(
+        "origin's push URL is not a GitHub repository",
+        { dataDir },
+        "data_repo_unverified"
+      );
     visibility = (await run(
       "gh",
-      ["repo", "view", "--json", "visibility", "-q", ".visibility"],
+      ["repo", "view", slug2, "--json", "visibility", "-q", ".visibility"],
       dataDir
     )).trim();
   } catch (e) {
+    if (e instanceof ValidationError) throw e;
     throw new ValidationError(
       `could not verify that the data repo is private: ${e.message}`,
       { dataDir },
@@ -59480,19 +59502,46 @@ async function assertPrivateRemote(dataDir, run) {
   }
   if (visibility.toUpperCase() !== "PRIVATE")
     throw new ValidationError(
-      `data repo must be private (gh reports ${visibility || "nothing"}); see ADR 006`,
-      { dataDir, visibility },
+      `data repo ${slug2} must be private (gh reports ${visibility || "nothing"}); see ADR 006`,
+      { dataDir, repo: slug2, visibility },
       "data_repo_not_private"
     );
 }
-async function commitAndPush(dataDir, message, run, paths = ["."]) {
-  await run("git", ["add", "-A", "--", ...paths], dataDir);
-  const staged = await run("git", ["diff", "--cached", "--name-only"], dataDir);
-  if (staged.trim()) await run("git", ["commit", "-q", "-m", message], dataDir);
+async function currentBranch(dataDir, run) {
+  return (await run("git", ["rev-parse", "--abbrev-ref", "HEAD"], dataDir)).trim();
+}
+async function pullRebase(dataDir, branch, run) {
+  await run(
+    "git",
+    ["pull", "-q", "--rebase", "--autostash", "origin", branch],
+    dataDir
+  );
+}
+async function syncDataRepo(dataDir, run) {
+  const branch = await currentBranch(dataDir, run);
   try {
-    await run("git", ["push", "-q"], dataDir);
+    await pullRebase(dataDir, branch, run);
+  } catch (e) {
+    const heads = await run("git", ["ls-remote", "--heads", "origin"], dataDir);
+    if (heads.trim()) throw e;
+  }
+}
+async function commitAndPush(dataDir, message, run, paths) {
+  await run("git", ["add", "-A", "--", ...paths], dataDir);
+  const staged = await run(
+    "git",
+    ["diff", "--cached", "--name-only", "--", ...paths],
+    dataDir
+  );
+  if (staged.trim())
+    await run("git", ["commit", "-q", "-m", message, "--", ...paths], dataDir);
+  const branch = await currentBranch(dataDir, run);
+  const push = () => run("git", ["push", "-q", "-u", "origin", branch], dataDir);
+  try {
+    await push();
   } catch {
-    await run("git", ["push", "-q"], dataDir);
+    await pullRebase(dataDir, branch, run);
+    await push();
   }
 }
 
@@ -59505,8 +59554,10 @@ var PacketApp = external_exports.object({
   url: external_exports.string().nullable(),
   jd_path: external_exports.string()
 });
+var PACKET_ID_RE = /^p-\d{8}-\d{4}(-\d+)?$/;
+var RUN_ID_RE = /^[A-Za-z0-9_-]+$/;
 var PacketManifest = external_exports.object({
-  id: external_exports.string().regex(/^p-\d{8}-\d{4}(-\d+)?$/),
+  id: external_exports.string().regex(PACKET_ID_RE),
   created_at: external_exports.string(),
   schema_version: external_exports.number().int().nonnegative(),
   apps: external_exports.array(PacketApp)
@@ -59532,15 +59583,25 @@ var CloudSummary = external_exports.object({
 // src/cloud/export.ts
 var MAX_EXPORT_BYTES = 5 * 1024 * 1024;
 var DEFAULT_QUEUE = 10;
+var MAX_SNAPSHOT_BYTES = 20 * 1024 * 1024;
+var EXPORT_EXTENSIONS = [
+  ".md",
+  ".yaml",
+  ".yml",
+  ".json",
+  ".txt",
+  ".pdf",
+  ".docx"
+];
 function isExportable(relPath, sizeBytes) {
   if (sizeBytes > MAX_EXPORT_BYTES) return false;
-  const parts = relPath.split(/[\\/]+/).filter(Boolean);
+  const parts = relPath.toLowerCase().split(/[\\/]+/).filter(Boolean);
   const name = parts.at(-1);
   if (!name) return false;
   if (parts.some((p) => p === ".git" || p.startsWith(".env"))) return false;
-  if (name === "tk.sh") return false;
-  if (name.includes(".backup")) return false;
-  return true;
+  if (name === "tk.sh" || name.endsWith("~")) return false;
+  if (name.includes(".backup") || name.includes(".bak")) return false;
+  return EXPORT_EXTENSIONS.some((ext) => name.endsWith(ext));
 }
 var APP_SQL = `SELECT a.id AS app_id, c.name AS company, j.title AS title,
 	COALESCE(j.url, j.canonical_url) AS url, j.jd_text AS jd_text
@@ -59624,24 +59685,85 @@ function pruneEmpty(root, rel = "") {
   }
   return empty;
 }
+function assertNoLink(p, kind) {
+  let st;
+  try {
+    st = lstatSync(p);
+  } catch {
+    return;
+  }
+  if (st.isSymbolicLink() || (kind === "dir" ? !st.isDirectory() : !st.isFile()))
+    throw new ValidationError(
+      `refusing to mirror me/ through ${p}: it is a link or not a plain ${kind === "dir" ? "directory" : "file"}`,
+      { path: p },
+      "mirror_unsafe_path"
+    );
+}
+function safeTarget(dest, rel) {
+  const parts = rel.split("/");
+  let dir = dest;
+  for (const part of parts.slice(0, -1)) {
+    dir = join12(dir, part);
+    assertNoLink(dir, "dir");
+  }
+  const target = join12(dest, ...parts);
+  assertNoLink(target, "file");
+  if (!isInside3(target, dest))
+    throw new ValidationError(
+      `refusing to write ${target} outside ${dest}`,
+      { path: target },
+      "mirror_unsafe_path"
+    );
+  return target;
+}
 function mirrorMe(meDir2, dest) {
+  assertNoLink(dest, "dir");
   const keep = walkFiles(meDir2).filter((f) => isExportable(f.rel, f.size));
   const wanted = new Set(keep.map((f) => f.rel));
-  let removed = 0;
-  for (const f of walkFiles(dest)) {
-    if (!wanted.has(f.rel)) {
-      rmSync3(join12(dest, f.rel));
-      removed++;
-    }
-  }
-  for (const f of keep) {
-    const target = join12(dest, f.rel);
+  const stale = walkFiles(dest).filter((f) => !wanted.has(f.rel));
+  const staleTargets = stale.map((f) => safeTarget(dest, f.rel));
+  const targets = keep.map((f) => safeTarget(dest, f.rel));
+  for (const t of staleTargets) rmSync3(t);
+  keep.forEach((f, i) => {
+    const target = targets[i];
     mkdirSync5(dirname5(target), { recursive: true });
+    safeTarget(dest, f.rel);
     copyFileSync(join12(meDir2, f.rel), target);
-  }
+  });
   mkdirSync5(dest, { recursive: true });
   pruneEmpty(dest);
-  return { copied: keep.length, removed };
+  return { copied: keep.length, removed: staleTargets.length };
+}
+function pruneSnapshot(path2, appIds) {
+  const snap = new DatabaseSync2(path2);
+  try {
+    snap.exec("CREATE TEMP TABLE keep_apps(id INTEGER PRIMARY KEY)");
+    const ins = snap.prepare("INSERT INTO keep_apps(id) VALUES(?)");
+    for (const id of appIds) ins.run(id);
+    const notKept = "application_id NOT IN (SELECT id FROM keep_apps)";
+    snap.exec(`BEGIN;
+			DELETE FROM application_events;
+			DELETE FROM interviews;
+			DELETE FROM emails;
+			DELETE FROM sync_runs;
+			DELETE FROM study_tasks;
+			DELETE FROM study_sessions;
+			DELETE FROM study_blocks;
+			DELETE FROM escalations WHERE application_id IS NULL OR ${notKept};
+			DELETE FROM resume_reviews WHERE run_id IN (SELECT id FROM resume_runs WHERE ${notKept});
+			DELETE FROM resume_drafts WHERE run_id IN (SELECT id FROM resume_runs WHERE ${notKept});
+			DELETE FROM resume_runs WHERE ${notKept};
+			DELETE FROM resume_variants WHERE ${notKept};
+			DELETE FROM jd_snapshots WHERE ${notKept};
+			DELETE FROM applications WHERE id NOT IN (SELECT id FROM keep_apps);
+			DELETE FROM jobs WHERE id NOT IN (SELECT job_id FROM applications);
+			DELETE FROM companies WHERE id NOT IN (SELECT company_id FROM jobs);
+			COMMIT;`);
+    snap.exec("DROP TABLE keep_apps");
+    snap.exec("VACUUM");
+  } finally {
+    snap.close();
+  }
 }
 async function exportPacket(opts) {
   const run = opts.run ?? defaultRun;
@@ -59670,6 +59792,7 @@ async function exportPacket(opts) {
       "nothing_to_export"
     );
   await assertPrivateRemote(dataDir, run);
+  await syncDataRepo(dataDir, run);
   const now = opts.now ?? /* @__PURE__ */ new Date();
   const id = packetId(now);
   const pktDir = join12(dataDir, "packets", id);
@@ -59696,8 +59819,27 @@ async function exportPacket(opts) {
 `,
     "utf8"
   );
-  opts.db.prepare("VACUUM INTO ?").run(join12(pktDir, "jh.db"));
-  const me = mirrorMe(resolve5(opts.meDir), join12(dataDir, "me"));
+  let me;
+  try {
+    const snapPath = join12(pktDir, "jh.db");
+    opts.db.prepare("VACUUM INTO ?").run(snapPath);
+    pruneSnapshot(
+      snapPath,
+      rows.map((r) => r.app_id)
+    );
+    const size = statSync2(snapPath).size;
+    const cap = opts.maxSnapshotBytes ?? MAX_SNAPSHOT_BYTES;
+    if (size > cap)
+      throw new ValidationError(
+        `packet DB snapshot is ${size} bytes, over the ${cap}-byte cap`,
+        { size, cap },
+        "snapshot_too_large"
+      );
+    me = mirrorMe(resolve5(opts.meDir), join12(dataDir, "me"));
+  } catch (e) {
+    rmSync3(pktDir, { recursive: true, force: true });
+    throw e;
+  }
   await commitAndPush(dataDir, `packet ${id}: ${rows.length} apps`, run, [
     "me",
     `packets/${id}`
@@ -59715,6 +59857,15 @@ async function exportPacket(opts) {
 import { cpSync, existsSync as existsSync12, readFileSync as readFileSync10, rmSync as rmSync4 } from "node:fs";
 import { join as join13, resolve as resolve6 } from "node:path";
 init_errors3();
+var defaultCopy = (src, dest) => cpSync(src, dest, { recursive: true });
+function assertInside(child2, parent, what) {
+  if (!isInside3(child2, parent))
+    throw new ValidationError(
+      `${what} ${child2} escapes ${parent}`,
+      { path: child2, root: parent },
+      "path_escape"
+    );
+}
 var RUN_COLS = "id, application_id, workdir, jd_path, keywords_json, status, iterations, final_draft_id, ats_score, hm_verdict, quality, created_at, finalized_at";
 var DRAFT_COLS = "run_id, id, angle, iteration, path, ats_score, valid, created_at";
 var REVIEW_COLS = "run_id, draft_id, reviewer, verdict, score, json, created_at";
@@ -59750,15 +59901,31 @@ function pickWinner(db, runId, fromSummary, runRow) {
 }
 async function importResults(opts) {
   const run = opts.run ?? defaultRun;
+  const copy = opts.copy ?? defaultCopy;
   const { db } = opts;
+  if (!PACKET_ID_RE.test(opts.packetId))
+    throw new ValidationError(
+      `invalid packet id ${JSON.stringify(opts.packetId)} (expected p-YYYYMMDD-HHMM)`,
+      { packet: opts.packetId },
+      "bad_packet_id"
+    );
   const dataDir = resolve6(opts.dataDir);
+  const artifactsRoot = resolve6(opts.artifactsRoot);
   await run("git", ["pull", "-q", "--ff-only"], dataDir);
   const resDir = join13(dataDir, "results", opts.packetId);
+  assertInside(resDir, dataDir, "results dir");
   const manifestPath = join13(dataDir, "packets", opts.packetId, "packet.json");
   const manifest = existsSync12(manifestPath) ? PacketManifest.parse(readJson(manifestPath, "packet manifest")) : null;
   const summary = CloudSummary.parse(
     readJson(join13(resDir, "summary.json"), "cloud summary")
   );
+  for (const a of summary.apps)
+    if (a.run_id !== null && !RUN_ID_RE.test(a.run_id))
+      throw new ValidationError(
+        `invalid run id ${JSON.stringify(a.run_id)} for app ${a.app_id} in summary.json`,
+        { app_id: a.app_id },
+        "bad_run_id"
+      );
   const cloudDb = join13(resDir, "jh.db");
   if (!existsSync12(cloudDb))
     throw new NotFoundError(`cloud DB not found: ${cloudDb}`);
@@ -59793,17 +59960,19 @@ async function importResults(opts) {
       }
       const cloudRun = db.prepare(`SELECT ${RUN_COLS} FROM ${ALIAS}.resume_runs WHERE id = ?`).get(app.run_id);
       const srcDir = join13(resDir, String(app.app_id), app.run_id);
+      assertInside(srcDir, resDir, "cloud run dir");
       const known = db.prepare("SELECT 1 FROM main.applications WHERE id = ?").get(app.app_id);
       if (!cloudRun || cloudRun.application_id !== app.app_id || !existsSync12(srcDir) || !known) {
         report.missing.push(app.app_id);
         continue;
       }
       const localDir = join13(
-        opts.artifactsRoot,
+        artifactsRoot,
         String(app.app_id),
         "runs",
         app.run_id
       );
+      assertInside(localDir, artifactsRoot, "local run dir");
       if (existsSync12(localDir))
         throw new ValidationError(
           `run dir ${localDir} already exists but run ${app.run_id} is not in the DB; move it aside and retry`,
@@ -59813,14 +59982,11 @@ async function importResults(opts) {
       plan.push({ app, run: cloudRun, localDir });
     }
     for (const p of plan) {
-      cpSync(
-        join13(resDir, String(p.app.app_id), p.app.run_id),
-        p.localDir,
-        {
-          recursive: true
-        }
-      );
       copied.push(p.localDir);
+      copy(
+        join13(resDir, String(p.app.app_id), p.app.run_id),
+        p.localDir
+      );
     }
     tx(db, () => {
       const insRun = db.prepare(
@@ -59845,14 +60011,15 @@ async function importResults(opts) {
           localDir,
           rebase(String(r.jd_path), cloudWorkdir, localDir),
           r.keywords_json,
-          r.status,
+          // Layout and finalize run locally: never import a final state.
+          "running",
           r.iterations,
-          r.final_draft_id,
+          null,
           r.ats_score,
           r.hm_verdict,
           r.quality,
           r.created_at,
-          r.finalized_at
+          null
         );
         const drafts = db.prepare(
           `SELECT ${DRAFT_COLS} FROM ${ALIAS}.resume_drafts WHERE run_id = ?`
@@ -59878,10 +60045,15 @@ async function importResults(opts) {
       }
     });
   } catch (e) {
-    for (const dir of copied) rmSync4(dir, { recursive: true, force: true });
+    for (const dir of copied)
+      if (isInside3(dir, artifactsRoot))
+        rmSync4(dir, { recursive: true, force: true });
     throw e;
   } finally {
-    db.exec(`DETACH DATABASE ${ALIAS}`);
+    try {
+      db.exec(`DETACH DATABASE ${ALIAS}`);
+    } catch {
+    }
   }
   for (const v of toValidate) {
     const draft = v.winner ? db.prepare("SELECT path FROM resume_drafts WHERE run_id = ? AND id = ?").get(v.run_id, v.winner) : void 0;
@@ -59894,6 +60066,10 @@ async function importResults(opts) {
         result = { ok: false, errors: [e.message] };
       }
     }
+    if (v.winner)
+      db.prepare(
+        "UPDATE resume_drafts SET valid = ? WHERE run_id = ? AND id = ?"
+      ).run(result.ok ? 1 : 0, v.run_id, v.winner);
     report.imported.push({
       app_id: v.app_id,
       run_id: v.run_id,
@@ -61111,6 +61287,15 @@ function dataRepoDir() {
     );
   return resolve8(dir);
 }
+function codeRepoRootOrFail(root) {
+  if (!root)
+    throw new JhError(
+      "could not locate the conscience code repo (.claude-plugin/plugin.json), so the data-repo location cannot be checked",
+      1,
+      "code_repo_unknown"
+    );
+  return root;
+}
 function withDb5(fn) {
   const db = openDb();
   try {
@@ -61140,7 +61325,7 @@ async function runExport(o) {
       db,
       meDir: meDir().path,
       dataDir,
-      codeRepoRoot: repoRoot() ?? process.cwd(),
+      codeRepoRoot: codeRepoRootOrFail(repoRoot()),
       appIds: o.apps ? parseIds(o.apps) : void 0,
       queue: parseQueue(o.queue)
     });
@@ -61188,24 +61373,44 @@ async function runImport(packet, o) {
     db.close();
   }
 }
+function readJsonFile(path2) {
+  return JSON.parse(readFileSync13(path2, "utf8"));
+}
 function packetStatus(db, dataDir) {
   const root = join16(dataDir, "packets");
   if (!existsSync15(root)) return [];
   const has = db.prepare("SELECT 1 FROM resume_runs WHERE id = ?");
   return readdirSync4(root, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort().map((id) => {
-    const manifest = join16(root, id, "packet.json");
-    const apps = existsSync15(manifest) ? JSON.parse(readFileSync13(manifest, "utf8")).apps?.length ?? 0 : 0;
+    const errors = [];
+    const manifestPath = join16(root, id, "packet.json");
+    let apps = 0;
+    if (existsSync15(manifestPath)) {
+      try {
+        apps = PacketManifest.parse(readJsonFile(manifestPath)).apps.length;
+      } catch (e) {
+        errors.push(`packet.json: ${e.message.split("\n")[0]}`);
+      }
+    } else errors.push("packet.json: missing");
     const resDir = join16(dataDir, "results", id);
     const summaryPath = join16(resDir, "summary.json");
     let imported = false;
     if (existsSync15(summaryPath)) {
-      const s = CloudSummary.safeParse(
-        JSON.parse(readFileSync13(summaryPath, "utf8"))
-      );
-      const runIds = s.success ? s.data.apps.flatMap((a) => a.run_id ? [a.run_id] : []) : [];
-      imported = runIds.length > 0 && runIds.every((r) => has.get(r));
+      try {
+        const s = CloudSummary.parse(readJsonFile(summaryPath));
+        const runIds = s.apps.flatMap((a) => a.run_id ? [a.run_id] : []);
+        imported = runIds.length > 0 && runIds.every((r) => has.get(r));
+      } catch (e) {
+        errors.push(`summary.json: ${e.message.split("\n")[0]}`);
+      }
     }
-    return { id, apps, has_results: existsSync15(resDir), imported };
+    const status = {
+      id,
+      apps,
+      has_results: existsSync15(resDir),
+      imported
+    };
+    if (errors.length) status.error = errors.join("; ");
+    return status;
   });
 }
 function runStatusCmd2(o) {
@@ -61215,7 +61420,7 @@ function runStatusCmd2(o) {
     { data_dir: dataDir, packets },
     o.json,
     (r) => r.packets.length ? r.packets.map(
-      (p) => `${p.id}  ${p.apps} apps  results=${p.has_results ? "yes" : "no"}  imported=${p.imported ? "yes" : "no"}`
+      (p) => `${p.id}  ${p.apps} apps  results=${p.has_results ? "yes" : "no"}  imported=${p.imported ? "yes" : "no"}${p.error ? `  CORRUPT ${p.error}` : ""}`
     ).join("\n") : "no packets"
   );
 }
@@ -62718,7 +62923,7 @@ import {
   readdirSync as readdirSync5,
   readFileSync as readFileSync17,
   realpathSync as realpathSync3,
-  statSync as statSync2
+  statSync as statSync3
 } from "node:fs";
 import { join as join20 } from "node:path";
 init_errors3();
@@ -63128,7 +63333,7 @@ function resumePdfName(appId) {
     if (!isSafePdfName(name) || !/resume/i.test(name) || /cover/i.test(name))
       continue;
     try {
-      const st = statSync2(join20(dir, name));
+      const st = statSync3(join20(dir, name));
       if (!st.isFile()) continue;
       if (!best || st.mtimeMs > best.mtime) best = { name, mtime: st.mtimeMs };
     } catch {
@@ -63140,7 +63345,7 @@ function answersStatus(appId) {
   const file2 = join20(artifactsDir(appId), "answers.json");
   if (!existsSync19(file2)) return null;
   try {
-    if (statSync2(file2).size > 256e3) return "present";
+    if (statSync3(file2).size > 256e3) return "present";
     const j = JSON.parse(readFileSync17(file2, "utf8"));
     return typeof j.status === "string" ? j.status.slice(0, 60) : "present";
   } catch {
@@ -63161,7 +63366,7 @@ function readArtifactPdf(appId, rawName) {
     throw new NotFoundError("file not found");
   const real = realpathSync3(full);
   if (!isInside4(realpathSync3(dir), real)) return null;
-  if (!statSync2(real).isFile()) throw new NotFoundError("file not found");
+  if (!statSync3(real).isFile()) throw new NotFoundError("file not found");
   return readFileSync17(real);
 }
 var MAX_CARDS_PER_COLUMN = 300;
@@ -64013,7 +64218,7 @@ import {
   existsSync as existsSync22,
   renameSync as renameSync2,
   rmSync as rmSync5,
-  statSync as statSync3
+  statSync as statSync4
 } from "node:fs";
 var LOG_MAX_BYTES = 1024 * 1024;
 function storedPort(raw, fallback, log) {
@@ -65649,7 +65854,7 @@ init_paths();
 // src/me/extract.ts
 init_errors3();
 init_paths();
-import { readdirSync as readdirSync7, readFileSync as readFileSync22, statSync as statSync5 } from "node:fs";
+import { readdirSync as readdirSync7, readFileSync as readFileSync22, statSync as statSync6 } from "node:fs";
 import { extname, join as join26 } from "node:path";
 import { inflateRawSync as inflateRawSync2 } from "node:zlib";
 
@@ -65666,7 +65871,7 @@ import {
   existsSync as existsSync25,
   readdirSync as readdirSync6,
   readFileSync as readFileSync21,
-  statSync as statSync4
+  statSync as statSync5
 } from "node:fs";
 import { basename as basename2, dirname as dirname8, join as join25, relative as relative4, resolve as resolve13, sep as sep3 } from "node:path";
 import { fileURLToPath as fileURLToPath4 } from "node:url";
@@ -66110,7 +66315,7 @@ function migrateLegacy(paths) {
   const backup = ensureDir(join25(paths.intakeDir, "legacy"));
   if (existsSync25(legacyProfile)) {
     copyFileSync5(legacyProfile, join25(backup, "profile.yaml"));
-    if (existsSync25(paths.profile) && statSync4(paths.profile).size > 0 && !isTemplateProfile(paths.profile))
+    if (existsSync25(paths.profile) && statSync5(paths.profile).size > 0 && !isTemplateProfile(paths.profile))
       result.skipped.push("profile.yaml");
     else {
       copyFileSync5(legacyProfile, paths.profile);
@@ -66246,7 +66451,7 @@ function extractSampleResumes(paths = mePaths()) {
   }
   for (const name of names) {
     const file2 = join26(paths.sampleResumeDir, name);
-    if (!statSync5(file2).isFile() || !isUserContent(name)) continue;
+    if (!statSync6(file2).isFile() || !isUserContent(name)) continue;
     const source = `sample-resume/${name}`;
     try {
       const r = textOf2(file2);
@@ -67213,7 +67418,7 @@ function readText(path2) {
   if (!existsSync27(path2)) throw new NotFoundError(`file not found: ${path2}`);
   return readFileSync24(path2, "utf8");
 }
-function readJsonFile(path2) {
+function readJsonFile2(path2) {
   if (!existsSync27(path2)) return null;
   try {
     return JSON.parse(readFileSync24(path2, "utf8").replace(/^﻿/, ""));
@@ -67245,11 +67450,11 @@ function appDir(db, appId) {
   return { dir: app.artifacts_dir ?? artifactsDir(appId), title: app.title };
 }
 function gateInputFromArtifacts(dir, title) {
-  const review = readJsonFile(join27(dir, "review.json"));
+  const review = readJsonFile2(join27(dir, "review.json"));
   const gate = review?.gate ?? {};
-  const ats = readJsonFile(join27(dir, "ats.json"));
-  const fact = readJsonFile(join27(dir, "factcheck.json"));
-  const layout = readJsonFile(join27(dir, "layout.json"));
+  const ats = readJsonFile2(join27(dir, "ats.json"));
+  const fact = readJsonFile2(join27(dir, "factcheck.json"));
+  const layout = readJsonFile2(join27(dir, "layout.json"));
   const num2 = (v) => typeof v === "number" ? v : null;
   return {
     title,
