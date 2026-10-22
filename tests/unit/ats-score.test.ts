@@ -91,6 +91,38 @@ describe("scoreResume", () => {
 		expect(r.total).toBeLessThanOrEqual(40);
 	});
 
+	it("passes an onsite location knockout when the profile is willing to relocate anywhere", () => {
+		const kw = fx.keywords();
+		kw.knockouts.location = "San Francisco, CA";
+		expect(score(fx.draft(), kw).failed_knockouts).toEqual([
+			"location: San Francisco, CA",
+		]);
+		const reloc = {
+			...P,
+			work_auth: { relocation: { willing: true, regions: [] } },
+		};
+		expect(scoreResume(fx.draft(), kw, CLEAN, reloc).failed_knockouts).toEqual(
+			[],
+		);
+	});
+
+	it("limits relocation to the listed regions", () => {
+		const kw = fx.keywords();
+		kw.knockouts.location = "San Francisco, CA";
+		const nyOnly = {
+			...P,
+			relocation: { willing: true, regions: ["New York"] },
+		};
+		expect(scoreResume(fx.draft(), kw, CLEAN, nyOnly).failed_knockouts).toEqual(
+			["location: San Francisco, CA"],
+		);
+		const sf = {
+			...P,
+			relocation: { willing: true, regions: ["San Francisco"] },
+		};
+		expect(scoreResume(fx.draft(), kw, CLEAN, sf).failed_knockouts).toEqual([]);
+	});
+
 	it("fails a no-sponsorship knockout when the profile needs sponsorship", () => {
 		const kw = fx.keywords();
 		kw.knockouts.work_auth =

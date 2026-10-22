@@ -213,9 +213,33 @@ function locationOk(
 		`${r.basics.location} ${profile?.identity.location ?? ""}`,
 	);
 	const words = new Set(have.split(" "));
-	return want
-		.split(" ")
-		.some((w) => w.length > 1 && !STOP.has(w) && words.has(w));
+	const matches = (pool: Set<string>) =>
+		want.split(" ").some((w) => w.length > 1 && !STOP.has(w) && pool.has(w));
+	if (matches(words)) return true;
+	// Willing to relocate: an empty region list means anywhere.
+	const reloc = relocationOf(profile);
+	if (!reloc?.willing) return false;
+	if (reloc.regions.length === 0) return true;
+	return matches(new Set(normTerm(reloc.regions.join(" ")).split(" ")));
+}
+
+/** profile.yaml keeps `relocation` under work_auth (or top level). */
+function relocationOf(
+	profile?: Profile,
+): { willing: boolean; regions: string[] } | undefined {
+	const pick = (o: unknown) =>
+		o && typeof o === "object" && "relocation" in o
+			? (o as { relocation?: unknown }).relocation
+			: undefined;
+	const raw = pick(profile?.work_auth) ?? pick(profile);
+	if (!raw || typeof raw !== "object") return undefined;
+	const r = raw as { willing?: unknown; regions?: unknown };
+	return {
+		willing: r.willing === true,
+		regions: Array.isArray(r.regions)
+			? r.regions.filter((x): x is string => typeof x === "string" && x !== "")
+			: [],
+	};
 }
 
 /** Evaluate JD knockouts; returns human-readable failures. */

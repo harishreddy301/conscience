@@ -57190,7 +57190,22 @@ function locationOk(req, r, profile) {
     `${r.basics.location} ${profile?.identity.location ?? ""}`
   );
   const words2 = new Set(have.split(" "));
-  return want.split(" ").some((w) => w.length > 1 && !STOP.has(w) && words2.has(w));
+  const matches = (pool) => want.split(" ").some((w) => w.length > 1 && !STOP.has(w) && pool.has(w));
+  if (matches(words2)) return true;
+  const reloc = relocationOf(profile);
+  if (!reloc?.willing) return false;
+  if (reloc.regions.length === 0) return true;
+  return matches(new Set(normTerm(reloc.regions.join(" ")).split(" ")));
+}
+function relocationOf(profile) {
+  const pick3 = (o) => o && typeof o === "object" && "relocation" in o ? o.relocation : void 0;
+  const raw = pick3(profile?.work_auth) ?? pick3(profile);
+  if (!raw || typeof raw !== "object") return void 0;
+  const r = raw;
+  return {
+    willing: r.willing === true,
+    regions: Array.isArray(r.regions) ? r.regions.filter((x) => typeof x === "string" && x !== "") : []
+  };
 }
 function knockoutFailures(r, kw, profile) {
   const k = kw.knockouts;
