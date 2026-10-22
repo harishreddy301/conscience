@@ -41,7 +41,7 @@ docs/          ARCHITECTURE.md, adr/
 | conscience | Default decider from `me/decision-policy.yaml`: triage batches, eligibility reviews, form-question classes, run plans, recording the user's corrections; go/no-go; angle mix with exploration; tie-breaks within 3 HM points; below_bar decision; form answers derivable from `me/`; outreach tone | opus | Read, Bash |
 | resume-intake | `me/sample-resume` + `experience/*.md` + `stories/` → IntakeDraft. Only stated facts | sonnet | Read, Glob, Grep, Write, Bash |
 | metric-miner | Conservative estimated metrics with arithmetic citing README lines | opus | Read, Glob, Grep, Write, Bash |
-| resume-writer | One TailoredResume draft per call (impact, skills-match, domain-reframe) or a revise pass | opus | Read, Write, Glob, Grep, Bash |
+| resume-writer | One TailoredResume draft per call (impact, skills-match, domain-reframe) or a revise pass | sonnet | Read, Write, Glob, Grep, Bash |
 | hiring-manager | Compare mode ranks drafts; single mode: interview/maybe/reject, must-have evidence, screen question | opus | Read, Write, Bash |
 | ats-screener | JD keywords, aliases, knockouts → `keywords.json`; rendered parse-order check | sonnet | Read, Write, Grep, Bash |
 | recruiter-screen | 6-second skim: 8-item binary checklist | haiku | Read, Write, Bash |
@@ -58,7 +58,7 @@ docs/          ARCHITECTURE.md, adr/
 | outcome-analyst | `jh learn analyze --json` → plain-language `me/learnings/playbook.md` | sonnet | per `agents/outcome-analyst.md` |
 | fit-scorer | JD-vs-profile score | sonnet | **deferred**: conscience go/no-go covers it for now |
 
-Opus is used by 5 agents (conscience, metric-miner, resume-writer, hiring-manager, cover-letter-writer). No browsing agent runs on opus. `tests/unit/agents-frontmatter.test.ts` enforces names, models and the `tools` string format.
+Opus is used by 4 agents (conscience, metric-miner, hiring-manager, cover-letter-writer). No browsing agent runs on opus. `tests/unit/agents-frontmatter.test.ts` enforces names, models and the `tools` string format.
 
 ## Data split
 

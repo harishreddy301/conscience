@@ -163,7 +163,7 @@
   - The data dir comes from `JOB_HUNTER_DATA_REPO`; if it is unset, the command fails with exit 1 and the message `set JOB_HUNTER_DATA_REPO (see ADR 006)`.
 - Modify: `src/cli.ts:2-50` to import and add `registerCloud`.
 - Create: `scripts/cloud-setup.sh`. It runs only when `$DATA_TOKEN` is set, with `set -euo pipefail`, and does seven things:
-  1. clones `https://x-access-token:$DATA_TOKEN@github.com/$DATA_REPO` to `/root/conscience-data` (or pulls if it exists);
+  1. clones `https://github.com/$DATA_REPO.git` to `/root/conscience-data` (or pulls if it exists), authenticating through a `GIT_ASKPASS` helper that reads `$DATA_TOKEN` from the environment at call time, so origin stays tokenless and the token is never written to disk;
   2. runs `mkdir -p .claude/agents .claude/commands .claude/skills`;
   3. links each `agents/*.md` into `.claude/agents/` and each `commands/*.md` into `.claude/commands/`;
   4. links each `skills/*/` folder into `.claude/skills/`;
@@ -171,7 +171,7 @@
   6. runs `mkdir -p /root/jh-home`;
   7. runs `node dist/jh.mjs doctor --json || true`.
 
-  It never echoes the token, and git is configured with `credential.helper` unset.
+  It never echoes the token, never runs `set -x`, writes `settings.local.json` through `JSON.stringify`, and git is configured with `credential.helper` unset.
 - Test: `tests/unit/cli-cloud.test.ts`
   - `cloud export without JOB_HUNTER_DATA_REPO exits 1`;
   - `cloud status lists packets`, against a temp data dir holding one packet with a results folder, giving `has_results: true`.

@@ -14,7 +14,7 @@ description: How conscience decides as the user and how the main session orchest
 
 ## Model roster (do not override)
 
-opus: conscience, resume-writer, hiring-manager, cover-letter-writer, metric-miner. sonnet: ats-screener, fact-checker, application-submitter, outreach-drafter, resume-intake, email-tracker, interview-prep, outcome-analyst. haiku: recruiter-screen, resume-formatter, pipeline-clerk, calendar-sync, job-scout. Browsing agents never run on opus.
+opus: conscience, hiring-manager, cover-letter-writer, metric-miner. sonnet: resume-writer, ats-screener, fact-checker, application-submitter, outreach-drafter, resume-intake, email-tracker, interview-prep, outcome-analyst. haiku: recruiter-screen, resume-formatter, pipeline-clerk, calendar-sync, job-scout. Browsing agents never run on opus.
 
 ## The decision policy (first read, ADR-005)
 
