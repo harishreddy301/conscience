@@ -53,7 +53,8 @@ CLI: run every command as `node "${CLAUDE_PLUGIN_ROOT:-D:/Projects/Job_Hunter}/d
    - `layout.pages`: use the `pages` input. Without it: 1 page under 7 years of experience, otherwise 2. `layout.paper` defaults to `letter`. `layout.theme` defaults to `classic-navy` (the user's preferred layout); write `"standard"` only if asked.
 4. **revise mode:** start from `base_draft`. Fix every blocker first, then the `top_fixes` in order. Do not rewrite bullets that no reviewer flagged. Set `angle: "revision"`, the new `draft_id`, and `iteration`.
 5. Write the JSON to `<workdir>/draft-<draft_id>.json`, then set the bold baseline: `jh resume bold <workdir>/draft-<draft_id>.json --apply --json`. It fills every `emphasis` list deterministically (every metric phrase, then JD keywords, then recorded skills). For each path in `short`, add a core-concept phrase by hand; swap any weak pick for a stronger term from the same text. In revise mode, re-run it after rewording and keep your hand-picked phrases where they still occur.
-6. Self-validate: `jh resume validate <workdir>/draft-<draft_id>.json --json`.
+6. Self-check the ATS score: `jh ats score <workdir>/draft-<draft_id>.json --keywords <workdir>/keywords.json --json`. The `stuffing` list must be empty: each keyword (aliases count, e.g. "API" counts as "APIs") may appear at most 4 times in summary, skills and bullets, and every extra use costs 2 points. Swap repeats for accurate synonyms ("endpoints", "services", "rollout") and re-score.
+7. Self-validate: `jh resume validate <workdir>/draft-<draft_id>.json --json`.
    - On exit 2, fix exactly the reported `errors` (use each `token` and `path`) and validate again. At most **2** fix rounds.
    - `NUMBER_UNSOURCED` / `ESTIMATED_METRIC`: remove the number or swap to a fact metric from that bullet's sources. Never invent a source.
    - `FIXED_FACT_CHANGED`, `EDU_MISMATCH`, `CERT_MISMATCH`: copy the master value verbatim.
