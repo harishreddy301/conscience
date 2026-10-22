@@ -129,7 +129,6 @@ describe.skipIf(!hasBashAndGit)(
 					encoding: "utf8",
 					env: {
 						...process.env,
-						...extra,
 						DATA_TOKEN: TOKEN,
 						DATA_REPO: "acme/conscience-data",
 						CLOUD_SETUP_DATA_URL: bare.replace(/\\/g, "/"),
@@ -138,6 +137,7 @@ describe.skipIf(!hasBashAndGit)(
 						// Keep the developer's global git config out of it.
 						GIT_CONFIG_GLOBAL: join(tmp, "gitconfig").replace(/\\/g, "/"),
 						GIT_CONFIG_NOSYSTEM: "1",
+						...extra,
 					},
 				},
 			);
@@ -171,6 +171,27 @@ describe.skipIf(!hasBashAndGit)(
 				`${dataDir.replace(/\\/g, "/")}/me`,
 			);
 			expect(Object.values(settings.env).join(" ")).not.toContain(TOKEN);
+		});
+
+		it("works without DATA_TOKEN (the session proxy authenticates git)", () => {
+			const envFile = join(tmp, "claude-env-notoken.sh");
+			const r = runSetup({
+				DATA_TOKEN: "",
+				CLAUDE_ENV_FILE: envFile.replace(/\\/g, "/"),
+			});
+			expect(r.status, r.out).toBe(0);
+			expect(readFileSync(join(dataDir, "me", "profile.yaml"), "utf8")).toBe(
+				"name: Fictional\n",
+			);
+			const text = readFileSync(envFile, "utf8");
+			expect(text).toContain("export JOB_HUNTER_DATA_REPO=");
+			expect(text).not.toContain("GIT_ASKPASS");
+		});
+
+		it("skips when DATA_REPO is not set (local checkout)", () => {
+			const r = runSetup({ DATA_REPO: "" });
+			expect(r.status, r.out).toBe(0);
+			expect(r.out).toContain("DATA_REPO not set; skipping");
 		});
 
 		it("exports the session env to CLAUDE_ENV_FILE when run as a SessionStart hook", () => {

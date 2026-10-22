@@ -8,11 +8,13 @@
 # GIT_ASKPASS helper that contains no secret. Never add `set -x` here.
 set -euo pipefail
 
-if [ -z "${DATA_TOKEN:-}" ]; then
-	echo "cloud-setup: DATA_TOKEN not set; skipping (local checkout?)"
+# Runs only where the cloud environment sets DATA_REPO. In cloud sessions with
+# conscience-data selected as a second repository, the session's GitHub proxy
+# authenticates git itself, so DATA_TOKEN is optional.
+if [ -z "${DATA_REPO:-}" ]; then
+	echo "cloud-setup: DATA_REPO not set; skipping (local checkout?)"
 	exit 0
 fi
-: "${DATA_REPO:?cloud-setup: DATA_REPO must be set (owner/name)}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # The CLOUD_SETUP_* overrides exist for tests/unit/cloud-setup.test.ts.
@@ -25,17 +27,21 @@ cd "$REPO_ROOT"
 # 0. Credentials: no helper caches the token, no prompt ever blocks. The
 # askpass helper answers GitHub's username/password prompts from the env.
 mkdir -p "$JH_HOME/bin"
-cat >"$ASKPASS" <<'ASKPASS_SH'
+export GIT_TERMINAL_PROMPT=0
+if [ -n "${DATA_TOKEN:-}" ]; then
+	cat >"$ASKPASS" <<'ASKPASS_SH'
 #!/bin/sh
 case "$1" in
 Username*) echo x-access-token ;;
 *) printf '%s\n' "${DATA_TOKEN:?DATA_TOKEN is not set}" ;;
 esac
 ASKPASS_SH
-chmod 700 "$ASKPASS"
-git config --global --unset-all credential.helper >/dev/null 2>&1 || true
-export GIT_TERMINAL_PROMPT=0
-export GIT_ASKPASS="$ASKPASS"
+	chmod 700 "$ASKPASS"
+	git config --global --unset-all credential.helper >/dev/null 2>&1 || true
+	export GIT_ASKPASS="$ASKPASS"
+else
+	ASKPASS=""
+fi
 
 # 1. Data repo: clone, or pull when a previous setup already cloned it. origin
 # stays tokenless; an older clone with a token in its URL is rewritten.
@@ -45,7 +51,11 @@ if [ -d "$DATA_DIR/.git" ]; then
 else
 	git clone -q "$DATA_URL" "$DATA_DIR"
 fi
-git -C "$DATA_DIR" config core.askPass "$ASKPASS"
+if [ -n "$ASKPASS" ]; then
+	git -C "$DATA_DIR" config core.askPass "$ASKPASS"
+else
+	git -C "$DATA_DIR" config --unset core.askPass >/dev/null 2>&1 || true
+fi
 git -C "$DATA_DIR" config user.name "conscience-cloud"
 git -C "$DATA_DIR" config user.email "conscience-cloud@users.noreply.github.com"
 
@@ -90,7 +100,7 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
 		printf 'export JOB_HUNTER_HOME=%q\n' "$JH_HOME"
 		printf 'export JOB_HUNTER_DB=%q\n' "$JH_HOME/jh.db"
 		printf 'export JOB_HUNTER_DATA_REPO=%q\n' "$DATA_DIR"
-		printf 'export GIT_ASKPASS=%q\n' "$ASKPASS"
+		[ -n "$ASKPASS" ] && printf 'export GIT_ASKPASS=%q\n' "$ASKPASS"
 		printf 'export GIT_TERMINAL_PROMPT=0\n'
 	} >>"$CLAUDE_ENV_FILE"
 fi
