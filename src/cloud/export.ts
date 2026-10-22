@@ -28,19 +28,34 @@ import { type PacketApp, PacketManifest } from "./schema.js";
 export const MAX_EXPORT_BYTES = 5 * 1024 * 1024;
 export const DEFAULT_QUEUE = 10;
 
+/** The only file types that leave the PC (ADR 006). */
+export const EXPORT_EXTENSIONS = [
+	".md",
+	".yaml",
+	".yml",
+	".json",
+	".txt",
+	".pdf",
+	".docx",
+] as const;
+
 /**
- * The export allowlist for me/ (ADR 006): everything except `tk.sh`, `.env*`,
- * `*.backup*`, anything under `.git/`, and files over 5 MB.
+ * The export allowlist for me/ (ADR 006): documents with an allowlisted
+ * extension, never `tk.sh`, `.env*`, backups (`*.backup*`, `*.bak*`, `*~`),
+ * anything under `.git/`, or files over 5 MB. Case-insensitive.
  */
 export function isExportable(relPath: string, sizeBytes: number): boolean {
 	if (sizeBytes > MAX_EXPORT_BYTES) return false;
-	const parts = relPath.split(/[\\/]+/).filter(Boolean);
+	const parts = relPath
+		.toLowerCase()
+		.split(/[\\/]+/)
+		.filter(Boolean);
 	const name = parts.at(-1);
 	if (!name) return false;
 	if (parts.some((p) => p === ".git" || p.startsWith(".env"))) return false;
-	if (name === "tk.sh") return false;
-	if (name.includes(".backup")) return false;
-	return true;
+	if (name === "tk.sh" || name.endsWith("~")) return false;
+	if (name.includes(".backup") || name.includes(".bak")) return false;
+	return EXPORT_EXTENSIONS.some((ext) => name.endsWith(ext));
 }
 
 interface AppRow {

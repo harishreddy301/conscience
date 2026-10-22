@@ -100,6 +100,34 @@ describe("isExportable", () => {
 		expect(isExportable("master-resume.backup-1.yaml", 10)).toBe(false);
 		expect(isExportable("sample-resume/big.pdf", 6_000_000)).toBe(false);
 	});
+
+	it("allows only known document extensions, case-insensitively", () => {
+		for (const ok of [
+			"a.md",
+			"b.YAML",
+			"c.yml",
+			"d.json",
+			"e.txt",
+			"sample-resume/r.PDF",
+			"sample-resume/r.docx",
+		])
+			expect(isExportable(ok, 10), ok).toBe(true);
+		for (const bad of [
+			"TK.SH",
+			".ENV",
+			"sub/.Env.Local",
+			"sub\\.env.json",
+			"x.BACKUP.yaml",
+			"master-resume.bak.yaml",
+			"profile.yaml~",
+			"id_rsa",
+			"a.pem",
+			"notes",
+			"run.sh",
+			"key.p12",
+		])
+			expect(isExportable(bad, 10), bad).toBe(false);
+	});
 });
 
 describe("exportPacket guards", () => {
