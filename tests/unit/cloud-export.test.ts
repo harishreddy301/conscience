@@ -5,6 +5,7 @@ import {
 	mkdtempSync,
 	readFileSync,
 	rmSync,
+	symlinkSync,
 	writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	exportPacket,
 	isExportable,
+	mirrorMe,
 	selectApps,
 } from "../../src/cloud/export.js";
 import type { Run } from "../../src/cloud/git.js";
@@ -275,5 +277,46 @@ describe("selectApps", () => {
 		addApp("Initech", "Platform Engineer", JD);
 		expect(selectApps(db, { appIds: [a] }).map((x) => x.app_id)).toEqual([a]);
 		expect(selectApps(db, { queue: 2 })).toHaveLength(2);
+	});
+});
+
+/** A directory link (a junction on Windows needs no privilege); false if unsupported. */
+function tryDirLink(target: string, path: string): boolean {
+	try {
+		symlinkSync(target, path, "junction");
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+describe("mirrorMe symlink safety", () => {
+	it("refuses a symlinked subdir in the destination and leaves its target alone", (ctx) => {
+		const me = meWithSecrets();
+		const outside = join(tmp, "outside");
+		mkdirSync(outside);
+		writeFileSync(join(outside, "acme-analytics.md"), "outside\n");
+		writeFileSync(join(outside, "precious.txt"), "keep\n");
+		const dest = join(tmp, "data", "me");
+		mkdirSync(dest, { recursive: true });
+		if (!tryDirLink(outside, join(dest, "experience"))) ctx.skip();
+		expect(() => mirrorMe(me, dest)).toThrow(ValidationError);
+		expect(readFileSync(join(outside, "acme-analytics.md"), "utf8")).toBe(
+			"outside\n",
+		);
+		expect(existsSync(join(outside, "precious.txt"))).toBe(true);
+	});
+
+	it("refuses a symlinked destination", (ctx) => {
+		const me = meWithSecrets();
+		const outside = join(tmp, "outside");
+		mkdirSync(outside);
+		writeFileSync(join(outside, "precious.txt"), "keep\n");
+		mkdirSync(join(tmp, "data"));
+		const dest = join(tmp, "data", "me");
+		if (!tryDirLink(outside, dest)) ctx.skip();
+		expect(() => mirrorMe(me, dest)).toThrow(ValidationError);
+		expect(existsSync(join(outside, "precious.txt"))).toBe(true);
+		expect(existsSync(join(outside, "profile.yaml"))).toBe(false);
 	});
 });

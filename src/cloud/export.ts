@@ -185,28 +185,66 @@ function pruneEmpty(root: string, rel = ""): boolean {
 	return empty;
 }
 
+/** Throw if `p` exists and is a symlink (or junction), or not of the expected kind. */
+function assertNoLink(p: string, kind: "dir" | "file"): void {
+	let st: ReturnType<typeof lstatSync>;
+	try {
+		st = lstatSync(p);
+	} catch {
+		return; // does not exist yet
+	}
+	if (
+		st.isSymbolicLink() ||
+		(kind === "dir" ? !st.isDirectory() : !st.isFile())
+	)
+		throw new ValidationError(
+			`refusing to mirror me/ through ${p}: it is a link or not a plain ${kind === "dir" ? "directory" : "file"}`,
+			{ path: p },
+			"mirror_unsafe_path",
+		);
+}
+
+/** Check dest and every directory between it and `rel`'s parent, then the file itself. */
+function safeTarget(dest: string, rel: string): string {
+	const parts = rel.split("/");
+	let dir = dest;
+	for (const part of parts.slice(0, -1)) {
+		dir = join(dir, part);
+		assertNoLink(dir, "dir");
+	}
+	const target = join(dest, ...parts);
+	assertNoLink(target, "file");
+	if (!isInside(target, dest))
+		throw new ValidationError(
+			`refusing to write ${target} outside ${dest}`,
+			{ path: target },
+			"mirror_unsafe_path",
+		);
+	return target;
+}
+
 /** Mirror the allowlisted files of meDir into dest; files gone from me/ are deleted. */
 export function mirrorMe(
 	meDir: string,
 	dest: string,
 ): { copied: number; removed: number } {
+	assertNoLink(dest, "dir");
 	const keep = walkFiles(meDir).filter((f) => isExportable(f.rel, f.size));
 	const wanted = new Set(keep.map((f) => f.rel));
-	let removed = 0;
-	for (const f of walkFiles(dest)) {
-		if (!wanted.has(f.rel)) {
-			rmSync(join(dest, f.rel));
-			removed++;
-		}
-	}
-	for (const f of keep) {
-		const target = join(dest, f.rel);
+	// Every path is checked before anything is removed or written.
+	const stale = walkFiles(dest).filter((f) => !wanted.has(f.rel));
+	const staleTargets = stale.map((f) => safeTarget(dest, f.rel));
+	const targets = keep.map((f) => safeTarget(dest, f.rel));
+	for (const t of staleTargets) rmSync(t);
+	keep.forEach((f, i) => {
+		const target = targets[i] as string;
 		mkdirSync(dirname(target), { recursive: true });
+		safeTarget(dest, f.rel);
 		copyFileSync(join(meDir, f.rel), target);
-	}
+	});
 	mkdirSync(dest, { recursive: true });
 	pruneEmpty(dest);
-	return { copied: keep.length, removed };
+	return { copied: keep.length, removed: staleTargets.length };
 }
 
 export interface ExportOptions {
