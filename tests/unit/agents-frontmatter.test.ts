@@ -94,6 +94,8 @@ const CLI: Readonly<Record<string, readonly string[] | null>> = {
 	// ADR-005
 	policy: ["show", "check", "record", "eval"],
 	autopilot: ["preflight", "escalations"],
+	// ADR-006
+	cloud: ["export", "import", "status"],
 };
 
 function splitFrontmatter(src: string): {
