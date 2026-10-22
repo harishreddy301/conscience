@@ -68,6 +68,7 @@ done
 # 5. Point jh and the plugin at the data repo for this session. Values are
 # JSON-escaped by node; DATA_TOKEN is not among them (git reads it from the
 # environment through the askpass helper).
+# shellcheck disable=SC2016 # the ${...} below are JS template literals
 CS_REPO_ROOT="$REPO_ROOT" CS_DATA_DIR="$DATA_DIR" CS_JH_HOME="$JH_HOME" node -e '
 const e = process.env;
 const env = {
