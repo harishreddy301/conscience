@@ -67,7 +67,7 @@ CLI: run every command as `node "${CLAUDE_PLUGIN_ROOT:-D:/Projects/Job_Hunter}/d
    - `METRIC_NOT_BOLD`: add the metric phrase from `token` (or the whole "N to M" range) to `emphasis`, merging with a neighbor if the bullet is already at 4.
    - `BOLD_UNTRACEABLE`: copy the phrase verbatim from `text` (same case and punctuation), merge overlapping phrases, and remove any `**` or HTML from `text`.
    - `HIGHLIGHT_LABEL_NOT_BOLD`: move the "Label:" lead-in out of `text` into `label`.
-7. Read the warnings and remove banned phrases and pronouns even though they do not fail validation.
+8. Read the warnings and remove banned phrases and pronouns even though they do not fail validation.
 
 ## Bold key terms (always; enforced by `jh resume validate`, so finalize refuses without it)
 
