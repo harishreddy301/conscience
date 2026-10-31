@@ -130,10 +130,23 @@ export function selectApps(
 	return selectRows(db, opts).map(toPacketApp);
 }
 
+/**
+ * Real path of `p`. A path that does not exist yet resolves through its
+ * nearest existing ancestor, so it shares that ancestor's real prefix
+ * (macOS /var -> /private/var, Windows 8.3 short names such as RUNNER~1).
+ */
 function canonical(p: string): string {
 	const abs = resolve(p);
+	let head = abs;
+	const tail: string[] = [];
+	while (!existsSync(head)) {
+		const up = dirname(head);
+		if (up === head) return abs;
+		tail.unshift(relative(up, head));
+		head = up;
+	}
 	try {
-		return realpathSync.native(abs);
+		return join(realpathSync.native(head), ...tail);
 	} catch {
 		return abs;
 	}

@@ -7604,12 +7604,25 @@ function migrate(db) {
       if (current >= MIGRATIONS.length) return current;
       const sql = MIGRATIONS[current];
       const next = current + 1;
-      db.exec(sql);
+      execMigration(db, sql);
       db.exec(`PRAGMA user_version=${next}`);
       return next;
     });
   }
   return version2;
+}
+function execMigration(db, sql) {
+  const setDefensive = db.enableDefensive?.bind(db);
+  if (!setDefensive || !sql.includes("writable_schema")) {
+    db.exec(sql);
+    return;
+  }
+  setDefensive(false);
+  try {
+    db.exec(sql);
+  } finally {
+    setDefensive(true);
+  }
 }
 var depth = /* @__PURE__ */ new WeakMap();
 var savepointSeq = 0;

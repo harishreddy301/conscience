@@ -53,12 +53,35 @@ export function migrate(db: Db): number {
 			if (current >= MIGRATIONS.length) return current;
 			const sql = MIGRATIONS[current] as string;
 			const next = current + 1;
-			db.exec(sql);
+			execMigration(db, sql);
 			db.exec(`PRAGMA user_version=${next}`);
 			return next;
 		});
 	}
 	return version;
+}
+
+/** `enableDefensive` exists from Node 24; Node 22 lacks it. */
+type MaybeDefensive = { enableDefensive?: (active: boolean) => void };
+
+/**
+ * Node 24+ opens databases in SQLite's defensive mode, which forbids the
+ * documented writable_schema procedure a migration may use (v4). Lift it for
+ * that one statement batch, then restore it. Node 22 has neither the mode
+ * nor enableDefensive, so there this is a plain exec.
+ */
+function execMigration(db: Db, sql: string): void {
+	const setDefensive = (db as MaybeDefensive).enableDefensive?.bind(db);
+	if (!setDefensive || !sql.includes("writable_schema")) {
+		db.exec(sql);
+		return;
+	}
+	setDefensive(false);
+	try {
+		db.exec(sql);
+	} finally {
+		setDefensive(true);
+	}
 }
 
 /**
