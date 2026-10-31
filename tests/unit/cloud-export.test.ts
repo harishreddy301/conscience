@@ -30,7 +30,8 @@ import {
 import { createRun, finalizeRun } from "../../src/db/resume.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ME_FIXTURE = join(HERE, "..", "fixtures", "cloud", "me.fixture");
+const CLOUD_FIXTURES = join(HERE, "..", "fixtures", "cloud");
+const ME_FIXTURE = join(CLOUD_FIXTURES, "me.fixture");
 const JD = "Fictional posting: build data pipelines in Python and SQL. ".repeat(
 	3,
 );
@@ -70,6 +71,16 @@ function addApp(company: string, title: string, jd?: string): number {
 function meWithSecrets(): string {
 	const me = join(tmp, "me");
 	cpSync(ME_FIXTURE, me, { recursive: true });
+	// Stored under *.fixture.yaml names so the CI privacy check allows them;
+	// copied in under the real me/ names the export expects.
+	cpSync(
+		join(CLOUD_FIXTURES, "profile.fixture.yaml"),
+		join(me, "profile.yaml"),
+	);
+	cpSync(
+		join(CLOUD_FIXTURES, "master-resume.fixture.yaml"),
+		join(me, "master-resume.yaml"),
+	);
 	writeFileSync(join(me, "tk.sh"), "echo fictional\n");
 	writeFileSync(join(me, ".env"), "FAKE=not-a-secret\n");
 	mkdirSync(join(me, "sub"), { recursive: true });
