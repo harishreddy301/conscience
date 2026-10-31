@@ -6,6 +6,26 @@
 
 **Honest expectations:** conscience improves callback odds; cannot guarantee a call. Nothing can. It makes every application as strong and as true as your experience allows, sends more of them, and learns from what gets responses.
 
+## 🚀 For LinkedIn Visitors: How to Run This Locally
+
+There is no live website for conscience, and that is on purpose. This agent handles highly sensitive data: your resume, work history, contact details and job-search emails. So it is built as a **100% private, local CLI tool** that runs on your own machine. Your data never leaves your computer except when an application is submitted to the employer you chose.
+
+Get it running in four steps:
+
+1. **Download the code:** clone this repository (or use **Code → Download ZIP**) and open the folder in a terminal.
+2. **Install the tools:** [Node.js](https://nodejs.org/) 22.13 or newer, and [Claude Code](https://claude.com/claude-code).
+3. **Build it:**
+   ```sh
+   npm install && npm run build
+   ```
+4. **Create your private workspace:**
+   ```sh
+   jh me init
+   ```
+   (Without `npm link`, run `node dist/jh.mjs me init` instead.) Your workspace is git-ignored, so your personal files are never committed. See `templates/me/` for example files that show the format.
+
+Then follow the Quick start below to fill in your details and run your first `/today`.
+
 ## Quick start
 
 ```sh

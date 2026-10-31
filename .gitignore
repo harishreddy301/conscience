@@ -12,7 +12,7 @@ companies.yaml
 *.db-*
 *.sqlite
 /data/
-/.job-hunter/
+.job-hunter/
 /artifacts/
 /outreach/
 /logs/
